@@ -1,0 +1,182 @@
+{% extends "base_app.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto pt-4 pb-24 space-y-6">
+
+  <!-- Saludo -->
+  <div>
+    <p class="text-sm text-gray-500">Hola,</p>
+    <h2 class="text-2xl font-semibold text-gray-900">
+      {{ perfil.nombre|default:request.user.username }}
+    </h2>
+    <p class="text-sm text-gray-500 mt-1">
+      Esto es lo que has logrado recientemente.
+    </p>
+  </div>
+
+  <!-- Anillos tipo Apple Fitness -->
+  <div class="flex justify-center">
+    <div class="relative w-56 h-56">
+      <!-- SVG -->
+      <svg class="w-full h-full" viewBox="0 0 200 200">
+        <!-- Círculos de fondo (tracks) -->
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="16" />
+        <circle cx="100" cy="100" r="60" fill="none" stroke="#e5e7eb" stroke-width="16" />
+        <circle cx="100" cy="100" r="40" fill="none" stroke="#e5e7eb" stroke-width="16" />
+
+        <!-- Círculos de progreso -->
+        <!-- Actividad -->
+        <circle
+          id="ring-actividad"
+          cx="100" cy="100" r="80"
+          fill="none"
+          stroke="#f97316"
+          stroke-width="16"
+          stroke-linecap="round"
+          stroke-dasharray="0 1000"
+          transform="rotate(-90 100 100)"
+        />
+
+        <!-- Fuerza -->
+        <circle
+          id="ring-fuerza"
+          cx="100" cy="100" r="60"
+          fill="none"
+          stroke="#22c55e"
+          stroke-width="16"
+          stroke-linecap="round"
+          stroke-dasharray="0 1000"
+          transform="rotate(-90 100 100)"
+        />
+
+        <!-- Constancia -->
+        <circle
+          id="ring-constancia"
+          cx="100" cy="100" r="40"
+          fill="none"
+          stroke="#3b82f6"
+          stroke-width="16"
+          stroke-linecap="round"
+          stroke-dasharray="0 1000"
+          transform="rotate(-90 100 100)"
+        />
+      </svg>
+
+      <!-- Texto central -->
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <p class="text-xs text-gray-500">Actividad hoy</p>
+        <p class="text-3xl font-semibold text-gray-900">
+          {{ actividad|default:0 }}%
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leyenda de anillos -->
+  <div class="grid grid-cols-3 gap-2 text-xs text-center">
+    <div class="flex flex-col items-center">
+      <span class="w-3 h-3 rounded-full bg-orange-500 mb-1"></span>
+      <p class="font-medium text-gray-800">Actividad</p>
+      <p class="text-gray-500">{{ actividad|default:0 }}%</p>
+    </div>
+    <div class="flex flex-col items-center">
+      <span class="w-3 h-3 rounded-full bg-green-500 mb-1"></span>
+      <p class="font-medium text-gray-800">Fuerza</p>
+      <p class="text-gray-500">{{ fuerza|default:0 }}%</p>
+    </div>
+    <div class="flex flex-col items-center">
+      <span class="w-3 h-3 rounded-full bg-blue-500 mb-1"></span>
+      <p class="font-medium text-gray-800">Constancia</p>
+      <p class="text-gray-500">{{ constancia|default:0 }}%</p>
+    </div>
+  </div>
+
+  <!-- Tarjetas de info rápida -->
+  <div class="grid grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl shadow-sm p-4">
+      <p class="text-xs text-gray-500 mb-1">Peso</p>
+      <p class="text-xl font-semibold text-gray-900">
+        {{ perfil.peso|default:"—" }} <span class="text-sm text-gray-500">kg</span>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-4">
+      <p class="text-xs text-gray-500 mb-1">Masa grasa</p>
+      <p class="text-xl font-semibold text-gray-900">
+        {{ perfil.masa_grasa|default:"—" }}<span class="text-sm text-gray-500">%</span>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-4">
+      <p class="text-xs text-gray-500 mb-1">Masa muscular</p>
+      <p class="text-xl font-semibold text-gray-900">
+        {{ perfil.masa_muscular|default:"—" }}<span class="text-sm text-gray-500">%</span>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-4">
+      <p class="text-xs text-gray-500 mb-1">Rutinas activas</p>
+      <p class="text-xl font-semibold text-gray-900">
+        {{ rutinas_count|default:0 }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Acciones -->
+  <div class="space-y-3">
+    <a href="{% url 'completar_perfil' %}"
+       class="w-full block text-center bg-gray-900 text-white py-3 rounded-xl text-base font-semibold">
+      Editar perfil
+    </a>
+
+    <a href="#"
+       class="w-full block text-center bg-blue-600 text-white py-3 rounded-xl text-base font-semibold">
+      Ver rutinas
+    </a>
+  </div>
+
+</div>
+
+<!-- JS para animar anillos -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function animateRing(id, percent, radius) {
+      const circle = document.getElementById(id);
+      if (!circle) return;
+
+      const circumference = 2 * Math.PI * radius;
+      const targetOffset = circumference * (1 - percent / 100);
+
+      circle.style.strokeDasharray = circumference + " " + circumference;
+      circle.style.strokeDashoffset = circumference;
+
+      let current = circumference;
+      const step = (circumference - targetOffset) / 40; // frames
+
+      function frame() {
+        current -= step;
+        if (current <= targetOffset) {
+          current = targetOffset;
+        }
+        circle.style.strokeDashoffset = current;
+        if (current > targetOffset) {
+          requestAnimationFrame(frame);
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    const actividad = {{ actividad|default:0 }};
+    const fuerza = {{ fuerza|default:0 }};
+    const constancia = {{ constancia|default:0 }};
+
+    animateRing("ring-actividad", actividad, 80);
+    animateRing("ring-fuerza", fuerza, 60);
+    animateRing("ring-constancia", constancia, 40);
+  });
+</script>
+
+{% endblock %}

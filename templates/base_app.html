@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Itzamma Fitness{% endblock %}</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: #f9fafb;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen pb-20">
+    
+    <!-- HEADER SUPERIOR -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
+        <h1 class="text-xl font-semibold text-gray-900">{% block header_title %}Itzamma Fitness{% endblock %}</h1>
+
+        {% if user.is_authenticated and user.foto %}
+            <img src="{{ user.foto.url }}" class="w-10 h-10 rounded-full object-cover"/>
+        {% else %}
+            <div class="w-10 h-10 rounded-full bg-gray-300"></div>
+        {% endif %}
+    </header>
+
+    <!-- CONTENIDO -->
+    <main class="px-4 pt-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- MENÚ INFERIOR -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 shadow-lg flex justify-around text-center">
+
+        {% if user.rol == "cliente" %}
+        <a href="/profiles/dashboard/" class="flex flex-col items-center text-gray-700">
+            <span class="material-icons">home</span>
+            <small class="text-xs">Inicio</small>
+        </a>
+        <a href="#" class="flex flex-col items-center text-gray-700">
+            <span class="material-icons">fitness_center</span>
+            <small class="text-xs">Rutinas</small>
+        </a>
+        <a href="/profiles/perfil/" class="flex flex-col items-center text-gray-700">
+            <span class="material-icons">person</span>
+            <small class="text-xs">Perfil</small>
+        </a>
+        {% endif %}
+
+    </nav>
+
+</body>
+</html>

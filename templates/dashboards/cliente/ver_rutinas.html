@@ -1,0 +1,54 @@
+{% extends "base_app.html" %}
+{% block title %}Mis Rutinas{% endblock %}
+
+{% block header_title %}Mis Rutinas{% endblock %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto pb-24 space-y-5">
+
+    {% if asignaciones %}
+        {% for asignacion in asignaciones %}
+            {% with workout=asignacion.workout %}
+            <div class="bg-white rounded-2xl shadow-sm p-4 flex gap-4">
+
+                <!-- Thumbnail -->
+                <div class="w-24 h-24 bg-gray-200 rounded-xl overflow-hidden">
+                    <iframe 
+                        class="w-full h-full"
+                        src="https://www.youtube.com/embed/{{ workout.video_url|slice:'32:' }}"
+                        frameborder="0"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            {{ workout.titulo }}
+                        </h3>
+                        <p class="text-sm text-gray-500 line-clamp-2">
+                            {{ workout.descripcion }}
+                        </p>
+                    </div>
+
+                    <a href="{% url 'detalle_rutina' workout.id %}"
+                       class="text-blue-600 text-sm font-semibold mt-2">
+                        Ver rutina →
+                    </a>
+                </div>
+
+            </div>
+            {% endwith %}
+        {% endfor %}
+
+    {% else %}
+        <div class="text-center text-gray-500 py-10">
+            <p class="text-lg">No tienes rutinas asignadas todavía.</p>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

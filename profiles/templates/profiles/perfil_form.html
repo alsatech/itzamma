@@ -1,0 +1,120 @@
+{% extends "base_app.html" %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto px-4 pt-6 pb-24">
+
+    <h2 class="text-2xl font-semibold text-gray-900 mb-2">Tu Perfil</h2>
+    <p class="text-gray-600 mb-6">Completa tu información para personalizar tu entrenamiento.</p>
+
+    <form method="POST" class="space-y-5">
+        {% csrf_token %}
+
+        <!-- Campo -->
+        <div>
+            <label class="font-medium text-gray-700">Nombre</label>
+            <input type="text" name="nombre" value="{{ perfil.nombre }}"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="font-medium text-gray-700">Peso (kg)</label>
+                <input type="number" name="peso" step="0.1" value="{{ perfil.peso }}"
+                    class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="font-medium text-gray-700">Estatura (cm)</label>
+                <input type="number" name="estatura" value="{{ perfil.estatura }}"
+                    class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="font-medium text-gray-700">Edad</label>
+                <input type="number" name="edad" value="{{ perfil.edad }}"
+                    class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="font-medium text-gray-700">Teléfono</label>
+                <input type="text" name="telefono" value="{{ perfil.telefono }}"
+                    class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Residencia</label>
+            <input type="text" name="residencia" value="{{ perfil.residencia }}"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="font-medium text-gray-700">% Masa Muscular</label>
+                <input type="number" step="0.1" name="masa_muscular" value="{{ perfil.masa_muscular }}"
+                    class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="font-medium text-gray-700">% Masa Grasa</label>
+                <input type="number" step="0.1" name="masa_grasa" value="{{ perfil.masa_grasa }}"
+                    class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Lesiones</label>
+            <textarea name="lesiones" rows="2"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">{{ perfil.lesiones }}</textarea>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Cirugías</label>
+            <textarea name="cirugias" rows="2"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">{{ perfil.cirugias }}</textarea>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Medicamentos</label>
+            <textarea name="medicamentos" rows="2"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">{{ perfil.medicamentos }}</textarea>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Suplementos</label>
+            <textarea name="suplementos" rows="2"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">{{ perfil.suplementos }}</textarea>
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Objetivo</label>
+            <input type="text" name="objetivo" value="{{ perfil.objetivo }}"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+            <label class="font-medium text-gray-700">Deporte</label>
+            <select name="deporte"
+                class="mt-1 w-full px-4 py-3 bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500">
+                <option value="">Selecciona...</option>
+                <option value="tenis" {% if perfil.deporte == "tenis" %}selected{% endif %}>Tenis</option>
+                <option value="gym" {% if perfil.deporte == "gym" %}selected{% endif %}>Gym</option>
+                <option value="running" {% if perfil.deporte == "running" %}selected{% endif %}>Running</option>
+                <option value="crossfit" {% if perfil.deporte == "crossfit" %}selected{% endif %}>Crossfit</option>
+            </select>
+        </div>
+
+        <button class="w-full bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold active:scale-95">
+            Guardar Perfil
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
