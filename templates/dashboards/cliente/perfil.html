@@ -1,0 +1,144 @@
+{% extends "base_app.html" %}
+{% block title %}Perfil{% endblock %}
+{% block header_title %}Mi Perfil{% endblock %}
+
+{% block content %}
+
+<style>
+
+    body {
+        background: #0d1117 !important;
+    }
+
+    /* Contenedor general */
+    .container-dark {
+        color: #e5e7eb;
+    }
+
+    /* Avatar */
+    .avatar-box {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: #1f2937;
+        margin: auto;
+        box-shadow: 0 0 25px rgba(0,255,163,0.15);
+        border: 2px solid rgba(0,255,163,0.3);
+    }
+
+    /* TITULOS */
+    h2, h3 {
+        color: white;
+    }
+
+    /* Cards con efecto glass + 3D */
+    .card-3d {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 18px;
+
+        /* sombra 3D suave */
+        box-shadow:
+            0 8px 15px rgba(0,0,0,0.45),
+            0 0 10px rgba(0,255,163,0.05);
+        transition: 0.25s ease;
+    }
+
+    .card-3d:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            0 15px 25px rgba(0,0,0,0.6),
+            0 0 14px rgba(0,255,163,0.15);
+    }
+
+    .metric-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #00ff9d;
+    }
+
+    .metric-label {
+        font-size: 0.9rem;
+        color: #9ca3af;
+    }
+
+    /* Tabla de info */
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        color: #d1d5db;
+    }
+
+    .info-row span:first-child {
+        color: #9ca3af;
+    }
+
+</style>
+
+
+
+<div class="container-dark max-w-md mx-auto pb-24">
+
+    <!-- 🧑 AVATAR -->
+    <div class="text-center mb-6">
+        <div class="avatar-box"></div>
+
+        <h2 class="text-2xl font-bold mt-3">{{ perfil.nombre }}</h2>
+        <p class="text-gray-400 text-sm mt-1">Cliente de Itzamma Fitness</p>
+    </div>
+
+    <!-- 🔢 MÉTRICAS -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="card-3d text-center">
+            <p class="metric-label">Completadas total</p>
+            <p class="metric-number">{{ completadas_total }}</p>
+        </div>
+
+        <div class="card-3d text-center">
+            <p class="metric-label">Últimos 7 días</p>
+            <p class="metric-number">{{ completadas_semana }}</p>
+        </div>
+    </div>
+
+    <!-- ⚖️ PESO Y MASA -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="card-3d text-center">
+            <p class="metric-label">Peso</p>
+            <p class="metric-number">{{ perfil.peso }} kg</p>
+        </div>
+
+        <div class="card-3d text-center">
+            <p class="metric-label">Masa muscular</p>
+            <p class="metric-number">{{ perfil.masa_muscular }}%</p>
+        </div>
+    </div>
+
+    <!-- Información Personal -->
+    <div class="card-3d">
+        <h3 class="text-lg font-semibold mb-3">Información personal</h3>
+
+        <div class="info-row"><span>Edad:</span><span>{{ perfil.edad }}</span></div>
+        <div class="info-row"><span>Altura:</span><span>{{ perfil.estatura|default:"—" }} cm</span></div>
+        <div class="info-row"><span>Objetivo:</span><span>{{ perfil.objetivo }}</span></div>
+        <div class="info-row"><span>Deporte:</span><span>{{ perfil.deporte|title }}</span></div>
+    </div>
+
+    <!-- Salud -->
+    <div class="card-3d">
+        <h3 class="text-lg font-semibold mb-3">Salud y antecedentes</h3>
+
+        <div class="info-row"><span>Lesiones:</span><span>{{ perfil.lesiones|default:"Ninguna" }}</span></div>
+        <div class="info-row"><span>Cirugías:</span><span>{{ perfil.cirugias|default:"Ninguna" }}</span></div>
+        <div class="info-row"><span>Medicamentos:</span><span>{{ perfil.medicamentos|default:"Ninguno" }}</span></div>
+        <div class="info-row"><span>Suplementos:</span><span>{{ perfil.suplementos|default:"Ninguno" }}</span></div>
+    </div>
+
+</div>
+
+{% endblock %}

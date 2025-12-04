@@ -8,5 +8,6 @@ urlpatterns = [
     path("logout/", accounts_views.logout_view, name="logout"),
     path("accounts/", include("accounts.urls")),
     path("profiles/", include("profiles.urls")),
+    path("workouts/", include("workouts.urls")),
 
 ]

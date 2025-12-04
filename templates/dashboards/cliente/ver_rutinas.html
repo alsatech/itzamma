@@ -1,52 +1,129 @@
 {% extends "base_app.html" %}
 {% block title %}Mis Rutinas{% endblock %}
-
-{% block header_title %}Mis Rutinas{% endblock %}
+{% block header_title %}Rutinas{% endblock %}
 
 {% block content %}
 
-<div class="max-w-md mx-auto pb-24 space-y-5">
+<style>
+    body {
+        background: #0d0d0d !important;
+        color: #fff;
+        font-family: "Poppins", sans-serif;
+    }
+
+    .page {
+        max-width: 480px;
+        margin: 0 auto;
+        padding-bottom: 120px;
+        padding-top: 10px;
+    }
+
+    /* CARD RUTINA */
+    .routine-card {
+        background: #111;
+        border-radius: 22px;
+        padding: 16px;
+        margin-bottom: 20px;
+        border: 1px solid #1a1a1a;
+        box-shadow: 0 0 20px rgba(0, 255, 80, 0.10);
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    /* MINIATURA */
+    .thumb {
+        width: 110px;
+        height: 110px;
+        border-radius: 18px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid #222;
+    }
+
+    .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* OVERLAY PLAY */
+    .thumb .play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 38px;
+        height: 38px;
+        background: #17d65b;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: black;
+        font-size: 16px;
+        box-shadow: 0 0 12px rgba(23, 214, 91, 0.7);
+    }
+
+    /* INFO */
+    .routine-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+    }
+
+    .routine-info p {
+        font-size: 13px;
+        color: #bfbfbf;
+        margin-top: 4px;
+    }
+
+    .routine-info a {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #17d65b;
+    }
+</style>
+
+<div class="page">
 
     {% if asignaciones %}
         {% for asignacion in asignaciones %}
-            {% with workout=asignacion.workout %}
-            <div class="bg-white rounded-2xl shadow-sm p-4 flex gap-4">
+        {% with workout=asignacion.workout %}
+        
+        <div class="routine-card">
 
-                <!-- Thumbnail -->
-                <div class="w-24 h-24 bg-gray-200 rounded-xl overflow-hidden">
-                    <iframe 
-                        class="w-full h-full"
-                        src="https://www.youtube.com/embed/{{ workout.video_url|slice:'32:' }}"
-                        frameborder="0"
-                        allowfullscreen>
-                    </iframe>
-                </div>
-
-                <!-- Info -->
-                <div class="flex-1 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">
-                            {{ workout.titulo }}
-                        </h3>
-                        <p class="text-sm text-gray-500 line-clamp-2">
-                            {{ workout.descripcion }}
-                        </p>
-                    </div>
-
-                    <a href="{% url 'detalle_rutina' workout.id %}"
-                       class="text-blue-600 text-sm font-semibold mt-2">
-                        Ver rutina →
-                    </a>
-                </div>
-
+            <!-- MINIATURA -->
+            <div class="thumb">
+                {% with video=workout.media.all|first %}
+                    {% if video and video.tipo == "video" %}
+                        <img src="https://img.youtube.com/vi/{{ video.url_video|cut:'https://www.youtube.com/watch?v=' }}/0.jpg">
+                        <div class="play">►</div>
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-xl">🏋️</div>
+                    {% endif %}
+                {% endwith %}
             </div>
-            {% endwith %}
+
+            <!-- INFO -->
+            <div class="routine-info">
+                <h3>{{ workout.titulo }}</h3>
+                <p>{{ workout.descripcion|truncatewords:12 }}</p>
+
+                <a href="{% url 'detalle_rutina' workout.id %}">
+                    Ver rutina →
+                </a>
+            </div>
+
+        </div>
+
+        {% endwith %}
         {% endfor %}
 
     {% else %}
-        <div class="text-center text-gray-500 py-10">
-            <p class="text-lg">No tienes rutinas asignadas todavía.</p>
-        </div>
+        <p class="text-center mt-10" style="color:#aaa;">Aún no tienes rutinas asignadas.</p>
     {% endif %}
 
 </div>

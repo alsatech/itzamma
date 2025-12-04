@@ -1,182 +1,368 @@
 {% extends "base_app.html" %}
-
-{% block title %}Dashboard{% endblock %}
+{% block title %}Inicio{% endblock %}
+{% block header_title %}Inicio{% endblock %}
 
 {% block content %}
 
-<div class="max-w-md mx-auto pt-4 pb-24 space-y-6">
+<style>
+  body {
+    background: #050608 !important;
+    color: #fff;
+    font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
 
-  <!-- Saludo -->
-  <div>
-    <p class="text-sm text-gray-500">Hola,</p>
-    <h2 class="text-2xl font-semibold text-gray-900">
-      {{ perfil.nombre|default:request.user.username }}
-    </h2>
-    <p class="text-sm text-gray-500 mt-1">
-      Esto es lo que has logrado recientemente.
-    </p>
-  </div>
+  .dash-page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 120px 16px; /* bottom para no chocar con el footer */
+  }
 
-  <!-- Anillos tipo Apple Fitness -->
-  <div class="flex justify-center">
-    <div class="relative w-56 h-56">
-      <!-- SVG -->
-      <svg class="w-full h-full" viewBox="0 0 200 200">
-        <!-- Círculos de fondo (tracks) -->
-        <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="16" />
-        <circle cx="100" cy="100" r="60" fill="none" stroke="#e5e7eb" stroke-width="16" />
-        <circle cx="100" cy="100" r="40" fill="none" stroke="#e5e7eb" stroke-width="16" />
+  .dash-section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #f9fafb;
+  }
 
-        <!-- Círculos de progreso -->
-        <!-- Actividad -->
-        <circle
-          id="ring-actividad"
-          cx="100" cy="100" r="80"
-          fill="none"
-          stroke="#f97316"
-          stroke-width="16"
-          stroke-linecap="round"
-          stroke-dasharray="0 1000"
-          transform="rotate(-90 100 100)"
-        />
+  .dash-subtitle {
+    font-size: 12px;
+    color: #9ca3af;
+  }
 
-        <!-- Fuerza -->
-        <circle
-          id="ring-fuerza"
-          cx="100" cy="100" r="60"
-          fill="none"
-          stroke="#22c55e"
-          stroke-width="16"
-          stroke-linecap="round"
-          stroke-dasharray="0 1000"
-          transform="rotate(-90 100 100)"
-        />
+  /* CARD PRINCIPAL (PRÓXIMO ENTRENAMIENTO) */
+  .hero-card {
+    background: radial-gradient(circle at top left, #16a34a 0, #111827 45%, #020617 100%);
+    border-radius: 26px;
+    padding: 18px 16px 16px 16px;
+    box-shadow: 0 24px 45px rgba(22, 163, 74, 0.45);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
 
-        <!-- Constancia -->
-        <circle
-          id="ring-constancia"
-          cx="100" cy="100" r="40"
-          fill="none"
-          stroke="#3b82f6"
-          stroke-width="16"
-          stroke-linecap="round"
-          stroke-dasharray="0 1000"
-          transform="rotate(-90 100 100)"
-        />
-      </svg>
+  .hero-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-      <!-- Texto central -->
-      <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <p class="text-xs text-gray-500">Actividad hoy</p>
-        <p class="text-3xl font-semibold text-gray-900">
-          {{ actividad|default:0 }}%
+  .hero-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: #bbf7d0;
+  }
+
+  .hero-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-top: 4px;
+    color: #f9fafb;
+  }
+
+  .hero-chip {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #a7f3d0;
+    border: 1px solid rgba(74, 222, 128, 0.6);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .hero-chip span.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+  }
+
+  .hero-metrics {
+    display: flex;
+    gap: 14px;
+    margin-top: 14px;
+    font-size: 11px;
+    color: #d1d5db;
+  }
+
+  .hero-metrics span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .hero-metrics strong {
+    font-weight: 600;
+    color: #f9fafb;
+  }
+
+  .hero-cta {
+    margin-top: 16px;
+  }
+
+  .hero-cta a {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 999px;
+    background: #22c55e;
+    color: #022c22;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 14px 28px rgba(34, 197, 94, 0.7);
+  }
+
+  .hero-blur-circle {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    background: rgba(56, 189, 248, 0.22);
+    border-radius: 999px;
+    filter: blur(40px);
+    right: -40px;
+    bottom: -60px;
+    opacity: 0.9;
+  }
+
+  /* COLECCIONES (SCROLL HORIZONTAL) */
+  .collections-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    margin-top: 4px;
+  }
+
+  .collections-row a {
+    font-size: 11px;
+    color: #9ca3af;
+    text-decoration: none;
+  }
+
+  .collections-list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+  }
+
+  .col-card {
+    min-width: 140px;
+    max-width: 160px;
+    background: #020617;
+    border-radius: 18px;
+    border: 1px solid #111827;
+    padding: 8px;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.8);
+  }
+
+  .col-thumb {
+    height: 90px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0ea5e9, #22c55e);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 8px;
+    color: #f9fafb;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .col-meta {
+    margin-top: 6px;
+    font-size: 10px;
+    color: #9ca3af;
+  }
+
+  .col-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e5e7eb;
+    margin-top: 2px;
+  }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .stat-card {
+    background: #020617;
+    border-radius: 18px;
+    padding: 10px 12px;
+    border: 1px solid #111827;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.85);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #9ca3af;
+  }
+
+  .stat-value {
+    margin-top: 4px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f9fafb;
+  }
+
+  .stat-unit {
+    font-size: 11px;
+    color: #6b7280;
+    margin-left: 2px;
+  }
+
+  .stat-pill {
+    margin-top: 6px;
+    font-size: 10px;
+    color: #22c55e;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 390px) {
+    .hero-title {
+      font-size: 20px;
+    }
+    .hero-metrics {
+      font-size: 10px;
+      flex-wrap: wrap;
+    }
+    .stat-value {
+      font-size: 16px;
+    }
+  }
+</style>
+
+<div class="dash-page">
+
+  <!-- CARD PRINCIPAL -->
+  <section class="hero-card">
+    <div class="hero-top-row">
+      <div>
+        <p class="hero-label">Tu próximo entrenamiento</p>
+        <h2 class="hero-title">
+          {% if perfil.objetivo %}
+            {{ perfil.objetivo }}
+          {% else %}
+            Full Body Power
+          {% endif %}
+        </h2>
+      </div>
+      <div class="hero-chip">
+        <span class="dot"></span>
+        Activo
+      </div>
+    </div>
+
+    <div class="hero-metrics">
+      <span>⏱ <strong>45 min</strong></span>
+      <span>🔥 <strong>420 cal</strong></span>
+      <span>🏋️ <strong>{{ rutinas_count|default:0 }}</strong> rutinas</span>
+    </div>
+
+    <div class="hero-cta">
+      <a href="{% url 'ver_rutinas' %}">Comenzar ahora</a>
+    </div>
+
+    <div class="hero-blur-circle"></div>
+  </section>
+
+  <!-- COLECCIONES -->
+  <section>
+    <div class="collections-row">
+      <div>
+        <p class="dash-section-title">Colecciones</p>
+        <p class="dash-subtitle">Explora entrenamientos por intensidad</p>
+      </div>
+      <a href="{% url 'ver_rutinas' %}">Ver todas</a>
+    </div>
+
+    <div class="collections-list">
+      <div class="col-card">
+        <div class="col-thumb">
+          Easy
+        </div>
+        <div class="col-meta">Ideal para empezar</div>
+        <div class="col-title">Baja intensidad</div>
+      </div>
+
+      <div class="col-card">
+        <div class="col-thumb" style="background:linear-gradient(135deg,#f97316,#ef4444);">
+          Intense
+        </div>
+        <div class="col-meta">Para retarte al máximo</div>
+        <div class="col-title">Alta intensidad</div>
+      </div>
+
+      <div class="col-card">
+        <div class="col-thumb" style="background:linear-gradient(135deg,#6366f1,#22c55e);">
+          Core
+        </div>
+        <div class="col-meta">Fuerza y estabilidad</div>
+        <div class="col-title">Zona media</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TUS STATS -->
+  <section style="margin-top:10px;">
+    <p class="dash-section-title">Tu progreso</p>
+    <p class="dash-subtitle">Resumen rápido de tus métricas</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <p class="stat-label">Peso</p>
+        <p class="stat-value">
+          {{ perfil.peso|default:"—" }}
+          <span class="stat-unit">kg</span>
+        </p>
+        <p class="stat-pill">Objetivo saludable</p>
+      </div>
+
+      <div class="stat-card">
+        <p class="stat-label">% Grasa corporal</p>
+        <p class="stat-value">
+          {{ perfil.masa_grasa|default:"—" }}
+          <span class="stat-unit">%</span>
+        </p>
+        <p class="stat-pill">Seguimiento mensual</p>
+      </div>
+
+      <div class="stat-card">
+        <p class="stat-label">% Masa muscular</p>
+        <p class="stat-value">
+          {{ perfil.masa_muscular|default:"—" }}
+          <span class="stat-unit">%</span>
+        </p>
+        <p class="stat-pill">En construcción 💪</p>
+      </div>
+
+      <div class="stat-card">
+        <p class="stat-label">Rutinas activas</p>
+        <p class="stat-value">
+          {{ rutinas_count|default:0 }}
+        </p>
+        <p class="stat-pill">
+          Deporte:
+          {% if perfil.deporte %}
+            {{ perfil.deporte }}
+          {% else %}
+            Gym
+          {% endif %}
         </p>
       </div>
     </div>
-  </div>
-
-  <!-- Leyenda de anillos -->
-  <div class="grid grid-cols-3 gap-2 text-xs text-center">
-    <div class="flex flex-col items-center">
-      <span class="w-3 h-3 rounded-full bg-orange-500 mb-1"></span>
-      <p class="font-medium text-gray-800">Actividad</p>
-      <p class="text-gray-500">{{ actividad|default:0 }}%</p>
-    </div>
-    <div class="flex flex-col items-center">
-      <span class="w-3 h-3 rounded-full bg-green-500 mb-1"></span>
-      <p class="font-medium text-gray-800">Fuerza</p>
-      <p class="text-gray-500">{{ fuerza|default:0 }}%</p>
-    </div>
-    <div class="flex flex-col items-center">
-      <span class="w-3 h-3 rounded-full bg-blue-500 mb-1"></span>
-      <p class="font-medium text-gray-800">Constancia</p>
-      <p class="text-gray-500">{{ constancia|default:0 }}%</p>
-    </div>
-  </div>
-
-  <!-- Tarjetas de info rápida -->
-  <div class="grid grid-cols-2 gap-4">
-    <div class="bg-white rounded-2xl shadow-sm p-4">
-      <p class="text-xs text-gray-500 mb-1">Peso</p>
-      <p class="text-xl font-semibold text-gray-900">
-        {{ perfil.peso|default:"—" }} <span class="text-sm text-gray-500">kg</span>
-      </p>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-sm p-4">
-      <p class="text-xs text-gray-500 mb-1">Masa grasa</p>
-      <p class="text-xl font-semibold text-gray-900">
-        {{ perfil.masa_grasa|default:"—" }}<span class="text-sm text-gray-500">%</span>
-      </p>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-sm p-4">
-      <p class="text-xs text-gray-500 mb-1">Masa muscular</p>
-      <p class="text-xl font-semibold text-gray-900">
-        {{ perfil.masa_muscular|default:"—" }}<span class="text-sm text-gray-500">%</span>
-      </p>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-sm p-4">
-      <p class="text-xs text-gray-500 mb-1">Rutinas activas</p>
-      <p class="text-xl font-semibold text-gray-900">
-        {{ rutinas_count|default:0 }}
-      </p>
-    </div>
-  </div>
-
-  <!-- Acciones -->
-  <div class="space-y-3">
-    <a href="{% url 'completar_perfil' %}"
-       class="w-full block text-center bg-gray-900 text-white py-3 rounded-xl text-base font-semibold">
-      Editar perfil
-    </a>
-
-    <a href="#"
-       class="w-full block text-center bg-blue-600 text-white py-3 rounded-xl text-base font-semibold">
-      Ver rutinas
-    </a>
-  </div>
+  </section>
 
 </div>
-
-<!-- JS para animar anillos -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    function animateRing(id, percent, radius) {
-      const circle = document.getElementById(id);
-      if (!circle) return;
-
-      const circumference = 2 * Math.PI * radius;
-      const targetOffset = circumference * (1 - percent / 100);
-
-      circle.style.strokeDasharray = circumference + " " + circumference;
-      circle.style.strokeDashoffset = circumference;
-
-      let current = circumference;
-      const step = (circumference - targetOffset) / 40; // frames
-
-      function frame() {
-        current -= step;
-        if (current <= targetOffset) {
-          current = targetOffset;
-        }
-        circle.style.strokeDashoffset = current;
-        if (current > targetOffset) {
-          requestAnimationFrame(frame);
-        }
-      }
-      requestAnimationFrame(frame);
-    }
-
-    const actividad = {{ actividad|default:0 }};
-    const fuerza = {{ fuerza|default:0 }};
-    const constancia = {{ constancia|default:0 }};
-
-    animateRing("ring-actividad", actividad, 80);
-    animateRing("ring-fuerza", fuerza, 60);
-    animateRing("ring-constancia", constancia, 40);
-  });
-</script>
 
 {% endblock %}

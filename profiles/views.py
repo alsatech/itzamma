@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile
 from .forms import UserProfileForm
 from workouts.models import WorkoutAssignment
 from workouts.models import Workout
+from workouts.models import RoutineCompleted
+from datetime import date, timedelta
 
 @login_required
 def completar_perfil(request):
@@ -55,11 +57,44 @@ def ver_rutinas(request):
     })
 
 
+
 @login_required
 def detalle_rutina(request, id):
-    workout = Workout.objects.get(id=id)
-    
+    workout = get_object_or_404(Workout, id=id)
+
+    media = workout.media.all().order_by("orden")
+
+    video = media.filter(tipo="video").first()
+    fotos = media.filter(tipo="foto")
+    pdfs = media.filter(tipo="pdf")
+    textos = media.filter(tipo="texto")
+
     return render(request, "dashboards/cliente/detalle_rutina.html", {
-        "workout": workout
+        "workout": workout,
+        "video": video,
+        "fotos": fotos,
+        "pdfs": pdfs,
+        "textos": textos,
+    })
+
+
+
+@login_required
+def perfil(request):
+    perfil = request.user.profile  # Ajusta si tu relación se llama diferente
+
+    # Total completadas
+    total_completed = RoutineCompleted.objects.filter(user=request.user).count()
+
+    # Últimos 7 días
+    last_week_completed = RoutineCompleted.objects.filter(
+        user=request.user,
+        completed_at__gte=date.today() - timedelta(days=7)
+    ).count()
+
+    return render(request, "dashboards/cliente/perfil.html", {
+        "perfil": perfil,
+        "total_completed": total_completed,
+        "last_week_completed": last_week_completed,
     })
 

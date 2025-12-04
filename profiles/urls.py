@@ -6,5 +6,7 @@ urlpatterns = [
     path("dashboard/", views.dashboard_cliente, name="dashboard_cliente"),
     path("rutinas/", views.ver_rutinas, name="ver_rutinas"),
     path("rutina/<int:id>/", views.detalle_rutina, name="detalle_rutina"),
+    path("mi-perfil/", views.perfil, name="perfil"),
+
 
 ]
