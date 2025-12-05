@@ -1,0 +1,108 @@
+{% extends "base_app.html" %}
+{% block title %}Dashboard Instructor{% endblock %}
+{% block header_title %}Instructor{% endblock %}
+
+{% block content %}
+
+<style>
+    .card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 18px;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+        transition: 0.25s ease;
+    }
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.45);
+    }
+
+    .metric {
+        font-size: 26px;
+        font-weight: 700;
+        color: #00e28f;
+        text-shadow: 0 0 10px rgba(0,226,143,0.4);
+    }
+</style>
+
+<div class="max-w-md mx-auto pb-28 space-y-6 text-white">
+
+    <!-- SALUDO -->
+    <div class="text-center mt-4">
+        <h2 class="text-2xl font-bold">{{ request.user.username }}</h2>
+        <p class="text-gray-400">Panel del instructor · Itzamma Fitness</p>
+    </div>
+
+
+    <!-- MÉTRICAS -->
+    <div class="grid grid-cols-2 gap-4">
+
+        <div class="card text-center">
+            <p class="text-gray-400 text-sm">Rutinas creadas</p>
+            <p class="metric">{{ total_workouts }}</p>
+        </div>
+
+        <div class="card text-center">
+            <p class="text-gray-400 text-sm">Clientes activos</p>
+            <p class="metric">{{ total_clients }}</p>
+        </div>
+
+    </div>
+
+
+    <!-- ÚLTIMAS RUTINAS -->
+    <div class="space-y-3 mt-4">
+
+        <h3 class="text-lg font-semibold text-gray-200">Tus rutinas</h3>
+
+        {% if workouts %}
+            {% for w in workouts %}
+            <div class="card flex items-center gap-4">
+
+                <div style="
+                    width:70px;height:70px;border-radius:14px;
+                    background:#0f172a;display:flex;
+                    align-items:center;justify-content:center;
+                    color:#00e28f;font-size:20px;
+                ">
+                    🏋️
+                </div>
+
+                <div class="flex-1">
+                    <p class="font-semibold">{{ w.titulo }}</p>
+                    <p class="text-gray-400 text-sm line-clamp-2">
+                        {{ w.descripcion|default:"Sin descripción" }}
+                    </p>
+
+                    <a href="{% url 'assign_workout' w.id %}"
+                       class="text-[#00e28f] text-sm font-semibold">
+                        Asignar →
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-gray-400 text-center">Aún no has creado rutinas.</p>
+        {% endif %}
+    </div>
+
+
+</div>
+
+
+<!-- FLOATING ACTION BUTTON (Crear Rutina) -->
+{% if user.is_authenticated and user.rol == "instructor" %}
+  <a href="{% url 'instructor_workout_create' %}"
+     style="position:fixed;right:16px;bottom:80px;background:#22c55e;
+            color:#022c22;padding:14px 18px;border-radius:999px;
+            font-size:14px;font-weight:700;
+            box-shadow:0 12px 30px rgba(34,197,94,0.5);
+            z-index:999;transition:0.2s;display:flex;align-items:center;gap:6px;">
+       ➕ Crear rutina
+  </a>
+{% endif %}
+
+{% endblock %}

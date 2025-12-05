@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 
+def welcome_view(request):
+    return render(request, "accounts/welcome.html")
+
 
 def login_view(request):
     if request.method == "POST":
@@ -19,7 +22,8 @@ def login_view(request):
                 return redirect("dashboard_cliente")
 
             elif user.rol == "instructor":
-                return redirect("dashboard_instructor")
+                return redirect("instructor_dashboard")
+
 
             elif user.rol == "superadmin":
                 return redirect("dashboard_admin")

@@ -7,41 +7,49 @@
 
     <title>{% block title %}Itzamma Fitness{% endblock %}</title>
 
-    <!-- ESTILOS GLOBALES (sin Tailwind) -->
     <style>
+        /* ----------- GLOBAL ----------- */
         body {
             margin: 0;
-            padding: 0 0 90px 0; /* espacio para el menú inferior */
+            padding: 0 0 90px 0; /* espacio para menú inferior */
             min-height: 100vh;
-            background: #f6f6f9;
+            background: #0d1117; /* 🔥 Fondo premium */
             font-family: 'Inter', sans-serif;
+            color: #eaecef;
         }
 
+        /* ----------- HEADER ----------- */
         header {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e5e5;
-            padding: 12px 18px;
+            background: #11161d;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 18px;
             font-weight: 600;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 9000;
         }
 
+        /* ----------- MAIN ----------- */
         main {
-            padding: 16px;
-            padding-bottom: 40px;
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
         }
 
-        /* MENU INFERIOR */
+        /* ----------- MENÚ INFERIOR ----------- */
         nav.bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             height: 70px;
-            background: #ffffff;
-            border-top: 1px solid #ddd;
+            background: #0f1420;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             justify-content: space-around;
             align-items: center;
@@ -51,7 +59,7 @@
 
         nav.bottom-nav a {
             text-decoration: none;
-            color: #555;
+            color: #b4bcd0;
             font-size: 12px;
         }
 
@@ -61,54 +69,53 @@
             margin-bottom: 2px;
         }
 
-        /* Activo */
         nav.bottom-nav a.active {
-            color: #4a6cf7;
+            color: #7f9cff; /* azul premium */
             font-weight: 600;
         }
     </style>
-
 </head>
 
 <body>
 
-    <!-- HEADER SUPERIOR -->
-    <header>
-        <span>{% block header_title %}Itzamma Fitness{% endblock %}</span>
+<header>
+    <span>{% block header_title %}Itzamma Fitness{% endblock %}</span>
 
-        {% if user.is_authenticated and user.foto %}
-            <img src="{{ user.foto.url }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-        {% else %}
-            <div style="width:40px; height:40px; border-radius:50%; background:#ccc;"></div>
-        {% endif %}
-    </header>
+    {% if user.is_authenticated and user.foto %}
+        <img src="{{ user.foto.url }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+    {% else %}
+        <div style="width:40px; height:40px; background:#2c3340; border-radius:50%;"></div>
+    {% endif %}
+</header>
 
-    <!-- CONTENIDO -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<main>
+    {% block content %}{% endblock %}
+</main>
 
-    <!-- MENÚ INFERIOR -->
-    <nav class="bottom-nav">
-        {% if user.rol == "cliente" %}
-            <a href="/profiles/dashboard/" class="{% if request.path == '/profiles/dashboard/' %}active{% endif %}">
-                <span class="icon">🏠</span>
-                Inicio
-            </a>
+<!-- MENÚ INFERIOR SOLO PARA CLIENTES -->
+{% if user.is_authenticated and user.rol == "cliente" %}
+<nav class="bottom-nav">
 
-            <a href="/profiles/rutinas/" class="{% if 'rutina' in request.path %}active{% endif %}">
-                <span class="icon">🏋️</span>
-                Rutinas
-            </a>
+    <a href="/profiles/dashboard/"
+       class="{% if request.path == '/profiles/dashboard/' %}active{% endif %}">
+        <span class="icon">🏠</span>
+        Inicio
+    </a>
 
-            <a href="{% url 'perfil' %}" class="{% if 'mi-perfil' in request.path %}active{% endif %}">
+    <a href="/profiles/rutinas/"
+       class="{% if 'rutina' in request.path %}active{% endif %}">
+        <span class="icon">🏋️</span>
+        Rutinas
+    </a>
 
-                <span class="icon">👤</span>
-                Perfil
-            </a>
+    <a href="{% url 'perfil' %}"
+       class="{% if 'mi-perfil' in request.path %}active{% endif %}">
+        <span class="icon">👤</span>
+        Perfil
+    </a>
 
-        {% endif %}
-    </nav>
+</nav>
+{% endif %}
 
 </body>
 </html>
