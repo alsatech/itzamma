@@ -1,11 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import UserProfile
 from .forms import UserProfileForm
 from workouts.models import WorkoutAssignment
 from workouts.models import Workout
 from workouts.models import RoutineCompleted
 from datetime import date, timedelta
+from django.contrib.auth.decorators import login_required, user_passes_test
+from accounts.models import CustomUser
+
+@login_required
+def detalle_rutina(request, id):
+    workout = get_object_or_404(Workout, id=id)
+
+    # Determinar si la rutina YA está completada por el usuario
+    rutina_completada = RoutineCompleted.objects.filter(
+        user=request.user,
+        workout=workout
+    ).exists()
+
+    # Por si usas videos relacionados
+    video = workout.media.first() if hasattr(workout, "media") else None
+
+    return render(request, "dashboards/cliente/detalle_rutina.html", {
+        "workout": workout,
+        "video": video,
+        "rutina_completada": rutina_completada,
+    })
+
 
 @login_required
 def completar_perfil(request):
@@ -27,25 +49,43 @@ def completar_perfil(request):
 def dashboard_cliente(request):
     perfil = UserProfile.objects.filter(user=request.user).first()
 
-    # Si no tiene perfil básico, mandarlo a completarlo
+    # Si no tiene perfil básico completado → redirigir
     if not perfil or not perfil.nombre:
         return redirect("completar_perfil")
 
-    # 🔢 Aquí puedes calcular tus métricas reales
-    # De momento uso valores de ejemplo (0–100)
-    actividad = 70    # % actividad diaria
-    fuerza = 55       # % fuerza/masa muscular
-    constancia = 85   # % constancia/rutinas cumplidas
-    rutinas_count = 5  # luego lo cambias por un count real
+    user = request.user
+    # 🔹 Rutinas asignadas al usuario
+    asignaciones = WorkoutAssignment.objects.filter(cliente=user)
+    # 🔹 Rutinas completadas (últimos 7 días)
+    completadas = RoutineCompleted.objects.filter(user=user)
+
+    completadas_semana = completadas.filter(
+        completed_at__gte=date.today() - timedelta(days=7)
+    )
+    # 🔹 Rutinas pendientes
+    pendientes = [
+        a for a in asignaciones if not completadas.filter(workout=a.workout).exists()
+    ]
+
+    # 🔹 Progreso semanal (0–100)
+    total_semana = asignaciones.count()
+    completadas_count = completadas_semana.count()
+
+    if total_semana > 0:
+        progreso = int((completadas_count / total_semana) * 100)
+    else:
+        progreso = 0
 
     contexto = {
         "perfil": perfil,
-        "actividad": actividad,
-        "fuerza": fuerza,
-        "constancia": constancia,
-        "rutinas_count": rutinas_count,
+        "pendientes": pendientes,
+        "completadas_semana": completadas_count,
+        "total_semana": total_semana,
+        "progreso": progreso,
+        "historial": completadas.order_by("-completed_at")[:5],  # últimas 5
     }
     return render(request, "dashboards/cliente/dashboard_cliente.html", contexto)
+
 
 
 @login_required
@@ -57,25 +97,61 @@ def ver_rutinas(request):
     })
 
 
-
 @login_required
 def detalle_rutina(request, id):
     workout = get_object_or_404(Workout, id=id)
 
-    media = workout.media.all().order_by("orden")
+    # Determinar si la rutina YA está completada por el usuario
+    rutina_completada = RoutineCompleted.objects.filter(
+        user=request.user,
+        workout=workout
+    ).exists()
 
-    video = media.filter(tipo="video").first()
-    fotos = media.filter(tipo="foto")
-    pdfs = media.filter(tipo="pdf")
-    textos = media.filter(tipo="texto")
+    video = workout.media.filter(tipo="video").first()
 
     return render(request, "dashboards/cliente/detalle_rutina.html", {
         "workout": workout,
         "video": video,
-        "fotos": fotos,
-        "pdfs": pdfs,
-        "textos": textos,
+        "rutina_completada": rutina_completada,
     })
+
+
+
+def is_instructor(user):
+    return getattr(user, "rol", None) == "instructor"
+
+
+@login_required
+@user_passes_test(is_instructor)
+def instructor_cliente_detalle(request, cliente_id):
+
+    cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
+
+    # Rutinas asignadas por el instructor
+    asignadas = WorkoutAssignment.objects.filter(
+        cliente=cliente,
+        workout__instructor=request.user
+    ).select_related("workout")
+
+    # Rutinas completadas por el cliente
+    completadas = RoutineCompleted.objects.filter(
+        user=cliente,
+        workout__instructor=request.user
+    ).select_related("workout")
+
+    # Últimos 7 días
+    semana = completadas.filter(
+        completed_at__gte=date.today() - timedelta(days=7)
+    )
+
+    contexto = {
+        "cliente": cliente,
+        "asignadas": asignadas,
+        "completadas": completadas,
+        "completadas_semana": semana.count(),
+    }
+
+    return render(request, "dashboards/instructor/cliente_detalle.html", contexto)
 
 
 
@@ -83,18 +159,20 @@ def detalle_rutina(request, id):
 def perfil(request):
     perfil = request.user.profile  # Ajusta si tu relación se llama diferente
 
-    # Total completadas
-    total_completed = RoutineCompleted.objects.filter(user=request.user).count()
+    # 🔢 Total de rutinas completadas
+    completadas_total = RoutineCompleted.objects.filter(
+        user=request.user
+    ).count()
 
-    # Últimos 7 días
-    last_week_completed = RoutineCompleted.objects.filter(
+    # 📅 Rutinas completadas en los últimos 7 días
+    completadas_semana = RoutineCompleted.objects.filter(
         user=request.user,
         completed_at__gte=date.today() - timedelta(days=7)
     ).count()
 
     return render(request, "dashboards/cliente/perfil.html", {
         "perfil": perfil,
-        "total_completed": total_completed,
-        "last_week_completed": last_week_completed,
+        "completadas_total": completadas_total,
+        "completadas_semana": completadas_semana,
     })
 

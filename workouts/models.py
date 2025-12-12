@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+import re
+
 
 User = settings.AUTH_USER_MODEL
 
@@ -15,6 +17,7 @@ class Workout(models.Model):
 
     def __str__(self):
         return self.titulo
+
 
 
 class WorkoutMedia(models.Model):
@@ -33,7 +36,6 @@ class WorkoutMedia(models.Model):
 
     tipo = models.CharField(max_length=10, choices=MediaType.choices)
 
-    # Campos de contenido según tipo
     url_video = models.URLField(blank=True, null=True)
     archivo_pdf = models.FileField(upload_to="workouts/pdfs/", blank=True, null=True)
     texto = models.TextField(blank=True, null=True)
@@ -43,6 +45,36 @@ class WorkoutMedia(models.Model):
 
     def __str__(self):
         return f"{self.workout.titulo} - {self.tipo} ({self.orden})"
+
+    def get_youtube_id(self):
+        if not self.url_video:
+            return None
+
+        url = self.url_video.strip()
+
+        # watch?v=VIDEOID
+        match = re.search(r"v=([^&]+)", url)
+        if match:
+            return match.group(1)
+
+        # youtu.be/VIDEOID
+        match = re.search(r"youtu\.be/([^?]+)", url)
+        if match:
+            return match.group(1)
+
+        # embed/VIDEOID
+        match = re.search(r"embed/([^?]+)", url)
+        if match:
+            return match.group(1)
+
+        # shorts/VIDEOID
+        match = re.search(r"shorts/([^?]+)", url)
+        if match:
+            return match.group(1)
+
+        return None
+
+
 
 
 class WorkoutAssignment(models.Model):

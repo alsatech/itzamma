@@ -188,17 +188,17 @@
     <div class="workout-card">
 
         <!-- VIDEO -->
-        {% with v=video %}
+        {% if video %}
         <div class="video-wrapper">
-            {% if v %}
-                <iframe src="https://www.youtube.com/embed/{{ v.url_video|cut:'https://www.youtube.com/watch?v=' }}?autoplay=0"
-                        frameborder="0" allowfullscreen></iframe>
-            {% endif %}
-
+            <iframe
+                width="100%"
+                height="230"
+                src="https://www.youtube.com/embed/{{ video.get_youtube_id }}"
+                allowfullscreen>
+            </iframe>
             <div class="duration-tag">3 min</div>
-            <div class="play-button"></div>
         </div>
-        {% endwith %}
+        {% endif %}
 
         <!-- SUBTITULO -->
         <h2 class="subtitle">{{ workout.titulo }}</h2>
@@ -232,14 +232,20 @@
 
 <!-- BOTÓN COMPLETAR -->
 
-<!-- <a href="{% url 'complete_routine' workout.id %}"
-   class="w-full block py-4 bg-blue-600 text-white text-lg font-semibold rounded-2xl shadow-lg active:scale-95 transition text-center">
-    ✔ Marcar como completada
-</a> -->
+{% if rutina_completada %}
+    <div class="btn-complete" style="background:#1a1a1a; color:#17d65b; border:2px solid #17d65b;">
+        ✔ Rutina completada
+    </div>
+{% else %}
+    <a class="btn-complete" href="{% url 'complete_routine' workout.id %}">
+        ✓ Marcar como completada
+    </a>
+{% endif %}
 
+<!-- 
 <a class="btn-complete" href="{% url 'complete_routine' workout.id %}">
     ✔ Marcar como completada
-</a>
+</a> -->
 
 
 

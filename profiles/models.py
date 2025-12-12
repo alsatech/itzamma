@@ -25,6 +25,7 @@ class UserProfile(models.Model):
     telefono = models.CharField(max_length=20, null=True, blank=True)
     correo = models.EmailField(null=True, blank=True)
     residencia = models.CharField(max_length=255, null=True, blank=True)
+    foto = models.ImageField(upload_to="profiles/", blank=True, null=True)
     # Datos físicos
     peso = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     estatura = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)

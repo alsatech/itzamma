@@ -10,7 +10,9 @@ class UserProfileForm(forms.ModelForm):
             "estatura",
             "edad",
             "telefono",
+            "correo",
             "residencia",
+            "foto",
             "masa_muscular",
             "masa_grasa",
             "lesiones",
@@ -19,6 +21,7 @@ class UserProfileForm(forms.ModelForm):
             "suplementos",
             "objetivo",
             "deporte",
+            
         ]
 
         widgets = {

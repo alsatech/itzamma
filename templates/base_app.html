@@ -13,7 +13,7 @@
             margin: 0;
             padding: 0 0 90px 0; /* espacio para menú inferior */
             min-height: 100vh;
-            background: #0d1117; /* 🔥 Fondo premium */
+            background: #0d1117;
             font-family: 'Inter', sans-serif;
             color: #eaecef;
         }
@@ -41,7 +41,47 @@
             margin: 0 auto;
         }
 
-        /* ----------- MENÚ INFERIOR ----------- */
+        /* ----------- AVATAR ----------- */
+        .avatar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #22c55e;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.7);
+        }
+
+        .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #22c55e, #0f172a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e5e7eb;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+        }
+
+        .logout-btn {
+            font-size: 18px;
+            text-decoration: none;
+            color: #9ca3af;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid #374151;
+            margin-left: 4px;
+        }
+
+        /* ----------- NAV CLIENTE ----------- */
         nav.bottom-nav {
             position: fixed;
             bottom: 0;
@@ -70,9 +110,43 @@
         }
 
         nav.bottom-nav a.active {
-            color: #7f9cff; /* azul premium */
+            color: #7f9cff;
             font-weight: 600;
         }
+
+        /* ----------- NAV INSTRUCTOR ----------- */
+        footer.nav-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(3,7,18,0.95);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .nav-item span {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .nav-item:hover {
+            color: #22ff9a;
+        }
+
     </style>
 </head>
 
@@ -81,18 +155,36 @@
 <header>
     <span>{% block header_title %}Itzamma Fitness{% endblock %}</span>
 
-    {% if user.is_authenticated and user.foto %}
-        <img src="{{ user.foto.url }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-    {% else %}
-        <div style="width:40px; height:40px; background:#2c3340; border-radius:50%;"></div>
+    {% if user.is_authenticated %}
+        <div class="avatar-wrapper">
+
+            {% if user.profile.foto %}
+                <img src="{{ user.profile.foto.url }}" alt="Avatar" class="avatar-img">
+            {% else %}
+                <div class="avatar-placeholder">
+                    {% if user.first_name or user.last_name %}
+                        {{ user.first_name|default_if_none:""|slice:":1"|upper }}
+                        {{ user.last_name|default_if_none:""|slice:":1"|upper }}
+                    {% else %}
+                        {{ user.username|slice:":1"|upper }}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <a href="{% url 'logout' %}" class="logout-btn">⏻</a>
+        </div>
     {% endif %}
 </header>
+
 
 <main>
     {% block content %}{% endblock %}
 </main>
 
-<!-- MENÚ INFERIOR SOLO PARA CLIENTES -->
+
+<!-- ============================================ -->
+<!--        FOOTER CLIENTE (Solo clientes)         -->
+<!-- ============================================ -->
 {% if user.is_authenticated and user.rol == "cliente" %}
 <nav class="bottom-nav">
 
@@ -117,5 +209,36 @@
 </nav>
 {% endif %}
 
+
+<!-- ============================================ -->
+<!--      FOOTER INSTRUCTOR (Solo instructores)    -->
+<!-- ============================================ -->
+{% if user.is_authenticated and user.rol == "instructor" %}
+<footer class="nav-footer">
+
+    <a href="{% url 'instructor_dashboard' %}" class="nav-item">
+        <span>🏠</span>
+        <small>Inicio</small>
+    </a>
+
+    <a href="{% url 'instructor_clientes' %}" class="nav-item">
+        <span>👥</span>
+        <small>Clientes</small>
+    </a>
+
+    <a href="{% url 'instructor_dashboard' %}#rutinas" class="nav-item">
+        <span>🏋️</span>
+        <small>Rutinas</small>
+    </a>
+
+    <a href="#" class="nav-item">
+        <span>🔔</span>
+        <small>Notifs</small>
+    </a>
+
+</footer>
+{% endif %}
+
 </body>
 </html>
+

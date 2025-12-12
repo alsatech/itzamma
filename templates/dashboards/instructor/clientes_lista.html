@@ -1,0 +1,117 @@
+{% extends "base_app.html" %}
+{% block title %}Tus clientes{% endblock %}
+{% block header_title %}Tus clientes{% endblock %}
+
+{% block content %}
+
+<style>
+    .screen {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 20px 16px 100px;
+    }
+
+    .title-premium {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 800;
+        color: #22ff9a;
+        text-shadow: 0 0 10px rgba(34,255,154,0.35);
+        margin-bottom: 20px;
+        margin-top: 10px;
+    }
+
+    /* Tarjeta PREMIUM tipo Apple Fitness */
+    .client-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        padding: 16px;
+        margin-bottom: 14px;
+
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 20px;
+
+        backdrop-filter: blur(10px);
+        box-shadow:
+            0 4px 10px rgba(0,0,0,0.25),
+            0 0 16px rgba(34,255,154,0.25);
+
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .client-card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            0 8px 20px rgba(0,0,0,0.35),
+            0 0 22px rgba(34,255,154,0.40);
+    }
+
+    /* Avatar circular con glow */
+    .client-avatar {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #22c55e, #0f351f);
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font-size: 22px;
+        font-weight: 800;
+        color: #eafff6;
+
+        box-shadow:
+            0 0 10px rgba(34, 197, 94, 0.7),
+            0 0 20px rgba(34, 197, 94, 0.35) inset;
+    }
+
+    .info-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.3px;
+    }
+
+    .info-email {
+        font-size: 13px;
+        color: #cbd5e1;
+        margin-top: 2px;
+    }
+
+</style>
+
+
+<div class="screen">
+
+    <h2 class="title-premium">Clientes asignados</h2>
+
+    {% if clientes %}
+        {% for c in clientes %}
+            <div class="client-card">
+
+                <!-- Avatar -->
+                <div class="client-avatar">
+                    {{ c.first_name|default:c.username|slice:":1"|upper }}
+                </div>
+
+                <!-- Info del cliente -->
+                <div>
+                    <div class="info-name">{{ c.username }}</div>
+                    <div class="info-email">{{ c.email }}</div>
+                </div>
+
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-center text-gray-400 mt-6">
+            Todavía no tienes clientes con rutinas asignadas.
+        </p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

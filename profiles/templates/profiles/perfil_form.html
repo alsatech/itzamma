@@ -12,10 +12,11 @@
         box-shadow: 0 0 20px rgba(0, 255, 180, 0.07);
         border: 1px solid rgba(255,255,255,0.05);
         margin-bottom: 22px;
+        max-width: 100%;  /* ✔ EVITA DESBORDES */
     }
 
-    .input {
-        width: 100%;
+    .input, textarea, select {
+        width: 100%;      /* ✔ AHORA RESPETA EL ANCHO DEL CARD */
         padding: 12px 14px;
         background: #0d1320;
         border: 1px solid rgba(255,255,255,0.08);
@@ -23,6 +24,7 @@
         color: #e5e7eb;
         font-size: 15px;
         outline: none;
+        box-sizing: border-box;  /* ✔ PREVIENE QUE SE SALGA DEL CARD */
     }
 
     .input:focus {
@@ -51,101 +53,119 @@
         margin-top: 20px;
         box-shadow: 0 10px 20px rgba(34,197,94,0.35);
     }
-
-    .btn-submit:active {
-        transform: scale(0.96);
-    }
-
 </style>
 
+<!-- CONTENEDOR GLOBAL (CENTRADO Y RESPONSIVE) -->
+<div style="max-width:480px; margin:0 auto; padding-bottom:120px;">
 
-<h2 style="text-align:center; color:white; font-size:24px; font-weight:700;">Completa tu información</h2>
-<p style="text-align:center; color:#9ca3af; margin-bottom:25px;">
-    Esto ayudará a personalizar tus entrenamientos.
-</p>
+    <h2 style="text-align:center; color:white; font-size:24px; font-weight:700;">Completa tu información</h2>
+    <p style="text-align:center; color:#9ca3af; margin-bottom:25px;">
+        Esto ayudará a personalizar tus entrenamientos.
+    </p>
 
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
 
-<form method="POST">
-    {% csrf_token %}
+        <!-- FOTO DE PERFIL -->
+        <div class="card" style="text-align:center;">
+            <label>Foto de perfil</label>
 
-    <div class="card">
-        <label>Nombre</label>
-        <input class="input" type="text" name="nombre" value="{{ perfil.nombre }}">
-    </div>
+            {% if perfil.foto %}
+                <img src="{{ perfil.foto.url }}" 
+                    style="width:100px; height:100px; border-radius:50%; object-fit:cover; margin-bottom:12px;">
+            {% else %}
+                <div style="
+                    width:100px; 
+                    height:100px; 
+                    border-radius:50%; 
+                    background:#1f2937; 
+                    margin:0 auto 12px auto;">
+                </div>
+            {% endif %}
 
-    <div class="card">
-        <div style="display:flex; gap:12px;">
-            <div style="flex:1;">
-                <label>Peso (kg)</label>
-                <input class="input" type="number" step="0.1" name="peso" value="{{ perfil.peso }}">
+            <input class="input" type="file" name="foto" accept="image/*">
+        </div>
+
+        <!-- RESTO DE CAMPOS -->
+        <div class="card">
+            <label>Nombre</label>
+            <input class="input" type="text" name="nombre" value="{{ perfil.nombre }}">
+        </div>
+
+        <div class="card">
+            <div style="display:flex; gap:12px;">
+                <div style="flex:1;">
+                    <label>Peso (kg)</label>
+                    <input class="input" type="number" step="0.1" name="peso" value="{{ perfil.peso }}">
+                </div>
+
+                <div style="flex:1;">
+                    <label>Estatura (cm)</label>
+                    <input class="input" type="number" name="estatura" value="{{ perfil.estatura }}">
+                </div>
             </div>
 
-            <div style="flex:1;">
-                <label>Estatura (cm)</label>
-                <input class="input" type="number" name="estatura" value="{{ perfil.estatura }}">
+            <div style="display:flex; gap:12px; margin-top:14px;">
+                <div style="flex:1;">
+                    <label>Edad</label>
+                    <input class="input" type="number" name="edad" value="{{ perfil.edad }}">
+                </div>
+
+                <div style="flex:1;">
+                    <label>Teléfono</label>
+                    <input class="input" type="text" name="telefono" value="{{ perfil.telefono }}">
+                </div>
             </div>
         </div>
 
-        <div style="display:flex; gap:12px; margin-top:14px;">
-            <div style="flex:1;">
-                <label>Edad</label>
-                <input class="input" type="number" name="edad" value="{{ perfil.edad }}">
-            </div>
+        <div class="card">
+            <label>Residencia</label>
+            <input class="input" type="text" name="residencia" value="{{ perfil.residencia }}">
 
-            <div style="flex:1;">
-                <label>Teléfono</label>
-                <input class="input" type="text" name="telefono" value="{{ perfil.telefono }}">
-            </div>
-        </div>
-    </div>
+            <div style="display:flex; gap:12px; margin-top:14px;">
+                <div style="flex:1;">
+                    <label>% Masa Muscular</label>
+                    <input class="input" type="number" step="0.1" name="masa_muscular" value="{{ perfil.masa_muscular }}">
+                </div>
 
-    <div class="card">
-        <label>Residencia</label>
-        <input class="input" type="text" name="residencia" value="{{ perfil.residencia }}">
-
-        <div style="display:flex; gap:12px; margin-top:14px;">
-            <div style="flex:1;">
-                <label>% Masa Muscular</label>
-                <input class="input" type="number" step="0.1" name="masa_muscular" value="{{ perfil.masa_muscular }}">
-            </div>
-
-            <div style="flex:1;">
-                <label>% Masa Grasa</label>
-                <input class="input" type="number" step="0.1" name="masa_grasa" value="{{ perfil.masa_grasa }}">
+                <div style="flex:1;">
+                    <label>% Masa Grasa</label>
+                    <input class="input" type="number" step="0.1" name="masa_grasa" value="{{ perfil.masa_grasa }}">
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <label>Lesiones</label>
-        <textarea class="input" name="lesiones" rows="2">{{ perfil.lesiones }}</textarea>
+        <div class="card">
+            <label>Lesiones</label>
+            <textarea class="input" name="lesiones" rows="2">{{ perfil.lesiones }}</textarea>
 
-        <label>Cirugías</label>
-        <textarea class="input" name="cirugias" rows="2">{{ perfil.cirugias }}</textarea>
+            <label>Cirugías</label>
+            <textarea class="input" name="cirugias" rows="2">{{ perfil.cirugias }}</textarea>
 
-        <label>Medicamentos</label>
-        <textarea class="input" name="medicamentos" rows="2">{{ perfil.medicamentos }}</textarea>
+            <label>Medicamentos</label>
+            <textarea class="input" name="medicamentos" rows="2">{{ perfil.medicamentos }}</textarea>
 
-        <label>Suplementos</label>
-        <textarea class="input" name="suplementos" rows="2">{{ perfil.suplementos }}</textarea>
-    </div>
+            <label>Suplementos</label>
+            <textarea class="input" name="suplementos" rows="2">{{ perfil.suplementos }}</textarea>
+        </div>
 
-    <div class="card">
-        <label>Objetivo</label>
-        <input class="input" type="text" name="objetivo" value="{{ perfil.objetivo }}">
+        <div class="card">
+            <label>Objetivo</label>
+            <input class="input" type="text" name="objetivo" value="{{ perfil.objetivo }}">
 
-        <label>Deporte</label>
-        <select class="input" name="deporte">
-            <option value="">Selecciona...</option>
-            <option value="tenis" {% if perfil.deporte == "tenis" %}selected{% endif %}>Tenis</option>
-            <option value="gym" {% if perfil.deporte == "gym" %}selected{% endif %}>Gym</option>
-            <option value="running" {% if perfil.deporte == "running" %}selected{% endif %}>Running</option>
-            <option value="crossfit" {% if perfil.deporte == "crossfit" %}selected{% endif %}>Crossfit</option>
-        </select>
-    </div>
+            <label>Deporte</label>
+            <select class="input" name="deporte">
+                <option value="">Selecciona...</option>
+                <option value="tenis" {% if perfil.deporte == "tenis" %}selected{% endif %}>Tenis</option>
+                <option value="gym" {% if perfil.deporte == "gym" %}selected{% endif %}>Gym</option>
+                <option value="running" {% if perfil.deporte == "running" %}selected{% endif %}>Running</option>
+                <option value="crossfit" {% if perfil.deporte == "crossfit" %}selected{% endif %}>Crossfit</option>
+            </select>
+        </div>
 
-    <button class="btn-submit">Guardar Perfil</button>
+        <button class="btn-submit">Guardar Perfil</button>
 
-</form>
+    </form>
+</div>
 
 {% endblock %}

@@ -44,25 +44,12 @@
     background: #22c55e;
     box-shadow: 0 0 12px #22c55e;
   }
-
-  .input-group {
-    margin-top: 14px;
-  }
-
-  .input-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #9ca3af;
-    margin-bottom: 4px;
-    display: block;
-  }
-
-  .input-text,
-  .textarea,
-  .input-select,
-  .input-number,
-  .input-file {
+  .card-main input[type="text"],
+  .card-main input[type="number"],
+  .card-main input[type="url"],
+  .card-main input[type="file"],
+  .card-main textarea,
+  .card-main select {
     width: 100%;
     border-radius: 14px;
     border: 1px solid rgba(148, 163, 184, 0.4);
@@ -71,17 +58,22 @@
     background: rgba(15, 23, 42, 0.9);
     color: #e5e7eb;
     outline: none;
+    box-sizing: border-box;
     transition: border 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
   }
 
-  .input-text:focus,
-  .textarea:focus,
-  .input-select:focus,
-  .input-number:focus {
+  .card-main input[type="text"]:focus,
+  .card-main input[type="number"]:focus,
+  .card-main input[type="url"]:focus,
+  .card-main input[type="file"]:focus,
+  .card-main textarea:focus,
+  .card-main select:focus {
     border-color: #22c55e;
     box-shadow: 0 0 0 1px #22c55e55;
     transform: translateY(-1px);
   }
+
+
 
   .textarea {
     resize: vertical;
