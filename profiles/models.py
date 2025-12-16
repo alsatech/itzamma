@@ -28,7 +28,7 @@ class UserProfile(models.Model):
     foto = models.ImageField(upload_to="profiles/", blank=True, null=True)
     # Datos físicos
     peso = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
-    estatura = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    estatura = models.PositiveIntegerField(null=True, blank=True, help_text="Estatura en cm")
     masa_muscular = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     masa_grasa = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     # Historial clínico

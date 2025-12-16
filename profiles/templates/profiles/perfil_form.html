@@ -62,6 +62,13 @@
     <p style="text-align:center; color:#9ca3af; margin-bottom:25px;">
         Esto ayudará a personalizar tus entrenamientos.
     </p>
+    {% if form.errors %}
+    <div class="card" style="border:1px solid #ef4444;">
+        <p style="color:#ef4444;font-weight:700;margin:0 0 8px;">Revisa estos campos:</p>
+        {{ form.errors }}
+    </div>
+    {% endif %}
+
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}

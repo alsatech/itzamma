@@ -29,20 +29,36 @@ def detalle_rutina(request, id):
     })
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .models import UserProfile
+from .forms import UserProfileForm
+
 @login_required
 def completar_perfil(request):
-
     perfil, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        form = UserProfileForm(request.POST, instance=perfil)
+        form = UserProfileForm(
+            request.POST,
+            request.FILES,
+            instance=perfil
+        )
         if form.is_valid():
             form.save()
             return redirect("dashboard_cliente")
+        # opcional: si quieres ver en consola qué está fallando
+        # print(form.errors)
+
     else:
         form = UserProfileForm(instance=perfil)
 
-    return render(request, "profiles/perfil_form.html", {"form": form, "perfil": perfil})
+    return render(
+        request,
+        "profiles/perfil_form.html",
+        {"form": form, "perfil": perfil}
+    )
+
 
 
 @login_required
