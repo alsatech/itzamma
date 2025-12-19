@@ -61,11 +61,27 @@
 
     /* VIDEO */
     .video-wrapper {
-        position: relative;
-        border-radius: 18px;
-        overflow: hidden;
-        margin-top: 12px;
-        border: 1px solid #222;
+    position: relative;
+    }
+
+    .video-fallback {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+
+    .btn-youtube {
+        pointer-events: auto;
+        background: #ff0000;
+        color: white;
+        font-weight: 700;
+        padding: 14px 22px;
+        border-radius: 14px;
+        text-decoration: none;
+        box-shadow: 0 0 18px rgba(255, 0, 0, 0.5);
     }
 
     .video-wrapper img,
@@ -186,19 +202,30 @@
 
     <!-- TARJETA PRINCIPAL -->
     <div class="workout-card">
-
         <!-- VIDEO -->
         {% if video %}
         <div class="video-wrapper">
+
             <iframe
-                width="100%"
-                height="230"
-                src="https://www.youtube.com/embed/{{ video.get_youtube_id }}"
-                allowfullscreen>
+                src="https://www.youtube.com/embed/{{ video.get_youtube_id }}?rel=0"
+                title="Workout video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy">
             </iframe>
+
+            <!-- Fallback -->
+            <div class="video-fallback">
+                <a href="{{ video.url_video }}" target="_blank" class="btn-youtube">
+                    ▶ Ver video en YouTube
+                </a>
+            </div>
+
             <div class="duration-tag">3 min</div>
+
         </div>
         {% endif %}
+
 
         <!-- SUBTITULO -->
         <h2 class="subtitle">{{ workout.titulo }}</h2>

@@ -143,8 +143,6 @@
 
     </div>
 
-
-
     <!-- LISTA DE CLIENTES -->
     <div class="section-title text-gray-200">Tus clientes</div>
 
@@ -161,6 +159,8 @@
                     <p class="font-semibold">{{ c.username }}</p>
                     <p class="text-gray-400 text-sm">{{ c.email }}</p>
                 </div>
+                <a href="{% url 'instructor_cliente_detalle' c.id %}" class="client-card">
+
 
             </div>
         {% endfor %}
@@ -191,7 +191,6 @@
     {% endfor %}
 
 </div>
-
 
 <!-- BOTÓN FLOTANTE PREMIUM -->
 <a href="{% url 'instructor_workout_create' %}" class="btn-create-premium">

@@ -6,33 +6,38 @@ from workouts.models import WorkoutAssignment
 from workouts.models import Workout
 from workouts.models import RoutineCompleted
 from datetime import date, timedelta
-from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.models import CustomUser
+from workouts.models import Workout, WorkoutMedia
 
 @login_required
-def detalle_rutina(request, id):
-    workout = get_object_or_404(Workout, id=id)
+def detalle_rutina(request, assignment_id):
+    assignment = get_object_or_404(
+        WorkoutAssignment,
+        id=assignment_id,
+        cliente=request.user
+    )
 
-    # Determinar si la rutina YA está completada por el usuario
+    workout = assignment.workout
+
     rutina_completada = RoutineCompleted.objects.filter(
         user=request.user,
         workout=workout
     ).exists()
 
-    # Por si usas videos relacionados
-    video = workout.media.first() if hasattr(workout, "media") else None
+    medias = workout.media.order_by("orden")
+    video = medias.filter(tipo="video").first()
 
-    return render(request, "dashboards/cliente/detalle_rutina.html", {
-        "workout": workout,
-        "video": video,
-        "rutina_completada": rutina_completada,
-    })
+    return render(
+        request,
+        "dashboards/cliente/detalle_rutina.html",
+        {
+            "workout": workout,
+            "assignment": assignment,
+            "video": video,
+            "rutina_completada": rutina_completada,
+        }
+    )
 
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from .models import UserProfile
-from .forms import UserProfileForm
 
 @login_required
 def completar_perfil(request):
@@ -70,37 +75,47 @@ def dashboard_cliente(request):
         return redirect("completar_perfil")
 
     user = request.user
-    # 🔹 Rutinas asignadas al usuario
-    asignaciones = WorkoutAssignment.objects.filter(cliente=user)
-    # 🔹 Rutinas completadas (últimos 7 días)
+
+    # 🔹 Asignaciones del cliente
+    asignaciones = WorkoutAssignment.objects.filter(
+        cliente=user
+    ).select_related("workout")
+
+    # 🔹 Rutinas completadas (todas)
     completadas = RoutineCompleted.objects.filter(user=user)
 
+    # 🔹 Rutinas completadas esta semana
     completadas_semana = completadas.filter(
         completed_at__gte=date.today() - timedelta(days=7)
     )
-    # 🔹 Rutinas pendientes
+
+    # 🔹 Asignaciones pendientes (por assignment, no por workout)
     pendientes = [
-        a for a in asignaciones if not completadas.filter(workout=a.workout).exists()
+        a for a in asignaciones
+        if not completadas.filter(workout=a.workout).exists()
     ]
 
-    # 🔹 Progreso semanal (0–100)
+    # 🔹 Progreso semanal
     total_semana = asignaciones.count()
     completadas_count = completadas_semana.count()
 
-    if total_semana > 0:
-        progreso = int((completadas_count / total_semana) * 100)
-    else:
-        progreso = 0
+    progreso = int((completadas_count / total_semana) * 100) if total_semana > 0 else 0
 
     contexto = {
         "perfil": perfil,
+        "asignaciones": asignaciones,        # 👈 CLAVE
         "pendientes": pendientes,
         "completadas_semana": completadas_count,
         "total_semana": total_semana,
         "progreso": progreso,
-        "historial": completadas.order_by("-completed_at")[:5],  # últimas 5
+        "historial": completadas.order_by("-completed_at")[:5],
     }
-    return render(request, "dashboards/cliente/dashboard_cliente.html", contexto)
+
+    return render(
+        request,
+        "dashboards/cliente/dashboard_cliente.html",
+        contexto
+    )
 
 
 

@@ -1,0 +1,264 @@
+{% extends "base_app.html" %}
+{% block title %}Cliente{% endblock %}
+{% block header_title %}Cliente{% endblock %}
+
+{% block content %}
+<style>
+/* =========================
+   BASE PREMIUM
+========================= */
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 18px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.6);
+}
+
+/* =========================
+   METRICS
+========================= */
+.metric {
+    font-size: 32px;
+    font-weight: 800;
+    color: #22ff9a;
+    text-shadow: 0 0 14px rgba(34,255,154,0.45);
+}
+
+/* =========================
+   SECTION TITLES
+========================= */
+.section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #e5e7eb;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+}
+
+/* =========================
+   HEADER AVATAR
+========================= */
+.client-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #22c55e;
+    box-shadow: 0 0 18px rgba(34,197,94,0.6);
+}
+
+/* =========================
+   ICON BOXES
+========================= */
+.icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.icon-box-default {
+    background: #020617;
+    color: #22ff9a;
+    box-shadow: inset 0 0 0 1px rgba(34,255,154,0.2);
+}
+
+.icon-box-success {
+    background: rgba(34,197,94,0.15);
+    color: #22ff9a;
+    box-shadow: 0 0 14px rgba(34,197,94,0.35);
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn-create-premium {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    width: 100%;
+    padding: 16px 18px;
+
+    background: linear-gradient(90deg, #16ff8f, #00c96d);
+    border-radius: 18px;
+
+    font-size: 16px;
+    font-weight: 800;
+    color: #031b12;
+    text-align: center;
+
+    box-shadow:
+        0 0 30px rgba(0,255,140,0.45),
+        0 0 70px rgba(0,255,140,0.25);
+
+    transition: .2s ease-in-out;
+}
+
+.btn-create-premium:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 0 40px rgba(0,255,140,0.6),
+        0 0 90px rgba(0,255,140,0.35);
+}
+
+.btn-create-premium:active {
+    transform: scale(.97);
+}
+
+/* =========================
+   SECONDARY BUTTON
+========================= */
+.btn-secondary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(0,0,0,0.3);
+    color: #d1d5db;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.06);
+}
+
+/* =========================
+   TEXT HELPERS
+========================= */
+.text-muted {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.text-success {
+    color: #22ff9a;
+    font-weight: 600;
+}
+</style>
+
+<div class="max-w-md mx-auto pb-28 text-white">
+
+    <!-- HEADER CLIENTE -->
+<div class="card flex items-center gap-4 mt-6">
+    {% if perfil.foto %}
+        <img src="{{ perfil.foto.url }}"
+             class="w-16 h-16 rounded-full object-cover border-2 border-green-400 shadow-lg">
+    {% else %}
+        <div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center text-2xl text-green-400">
+            {{ cliente.username|slice:":1"|upper }}
+        </div>
+    {% endif %}
+
+    <div>
+        <h2 class="text-xl font-bold tracking-wide">
+            {{ perfil.nombre|default:cliente.username }}
+        </h2>
+        <p class="text-gray-400 text-sm">{{ cliente.email }}</p>
+        <p class="text-green-400 text-xs font-semibold mt-1">
+            Cliente activo
+        </p>
+    </div>
+</div>
+
+
+    <!-- MÉTRICAS -->
+<div class="grid grid-cols-2 gap-4 mt-6">
+
+    <div class="card text-center">
+        <p class="text-gray-400 text-xs uppercase tracking-widest">
+            Rutinas completadas
+        </p>
+        <p class="metric text-3xl mt-1">
+            {{ total_completadas }}
+        </p>
+    </div>
+
+    <div class="card text-center">
+        <p class="text-gray-400 text-xs uppercase tracking-widest">
+            Últimos 7 días
+        </p>
+        <p class="metric text-3xl mt-1">
+            {{ ultimos_7_dias }}
+        </p>
+    </div>
+
+</div>
+
+
+    <!-- RUTINAS ASIGNADAS -->
+<h3 class="section-title mt-10">
+    Rutinas asignadas
+</h3>
+
+
+{% for r in rutinas_asignadas %}
+<div class="card flex items-center gap-4 mb-3">
+
+    <div class="w-12 h-12 rounded-xl bg-gray-900 flex items-center justify-center text-green-400 text-xl">
+        🏋️
+    </div>
+
+    <div class="flex-1">
+        <p class="font-semibold">
+            {{ r.workout.titulo }}
+        </p>
+        <p class="text-gray-400 text-xs">
+            Asignada el {{ r.fecha_asignacion|date:"d M Y" }}
+        </p>
+    </div>
+
+</div>
+{% endfor %}
+
+
+    <!-- RUTINAS COMPLETADAS -->
+    <h3 class="section-title mt-8">Rutinas completadas</h3>
+
+{% for r in rutinas_completadas %}
+<div class="card flex items-center gap-4 mb-3">
+
+    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400 text-xl">
+        ✓
+    </div>
+
+    <div class="flex-1">
+        <p class="font-semibold">
+            {{ r.workout.titulo }}
+        </p>
+        <p class="text-green-400 text-xs font-semibold">
+            Completada el {{ r.completed_at|date:"d M Y" }}
+        </p>
+    </div>
+
+</div>
+{% endfor %}
+<div class="mt-10 space-y-3">
+
+    <a href="{% url 'assign_workout' cliente.id %}"
+       class="btn-create-premium">
+        ➕ Asignar nueva rutina
+    </a>
+
+    <button class="w-full py-3 rounded-xl border border-gray-700 text-gray-300">
+        📝 Agregar nota de progreso
+    </button>
+
+</div>
+
+</div>
+{% endblock %}

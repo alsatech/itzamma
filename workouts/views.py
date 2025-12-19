@@ -8,7 +8,7 @@ from accounts.models import CustomUser
 from workouts.models import Workout, WorkoutAssignment
 from django.utils import timezone
 from datetime import timedelta
-
+from profiles.models import UserProfile
 
 def is_instructor(user):
     return getattr(user, "rol", None) == "instructor"
@@ -65,9 +65,6 @@ def instructor_dashboard(request):
         "completadas_7dias": completadas_7dias,
     })
 
-
-
-
 @login_required
 @user_passes_test(is_instructor)
 def instructor_clientes(request):
@@ -83,6 +80,47 @@ def instructor_clientes(request):
         "clientes": clientes,
     })
 
+
+
+@login_required
+@user_passes_test(is_instructor)
+def instructor_cliente_detalle(request, cliente_id):
+    cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
+    perfil = get_object_or_404(UserProfile, user=cliente)
+
+    # Rutinas asignadas
+    rutinas_asignadas = WorkoutAssignment.objects.filter(
+        cliente=cliente,
+        workout__instructor=request.user
+    ).select_related("workout")
+
+    # Rutinas completadas
+    rutinas_completadas = RoutineCompleted.objects.filter(
+        user=cliente,
+        workout__instructor=request.user
+    ).select_related("workout")
+
+    # Métricas
+    total_completadas = rutinas_completadas.count()
+
+    ultimos_7_dias = rutinas_completadas.filter(
+        completed_at__gte=timezone.now() - timedelta(days=7)
+    ).count()
+
+    contexto = {
+        "cliente": cliente,
+        "perfil": perfil,
+        "rutinas_asignadas": rutinas_asignadas,
+        "rutinas_completadas": rutinas_completadas,
+        "total_completadas": total_completadas,
+        "ultimos_7_dias": ultimos_7_dias,
+    }
+
+    return render(
+        request,
+        "dashboards/instructor/cliente_detalle.html",
+        contexto
+    )
 
 
 
@@ -146,6 +184,7 @@ def assign_workout(request, workout_id):
             workout=workout,
             cliente=cliente
         )
+
 
         messages.success(request, f"Rutina asignada a {cliente.username}.")
         return redirect("instructor_dashboard")

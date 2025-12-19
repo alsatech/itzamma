@@ -74,9 +74,6 @@ class WorkoutMedia(models.Model):
 
         return None
 
-
-
-
 class WorkoutAssignment(models.Model):
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
     cliente = models.ForeignKey(
@@ -88,6 +85,7 @@ class WorkoutAssignment(models.Model):
 
     def __str__(self):
         return f"{self.workout.titulo} → {self.cliente.username}"
+
 
 
 class ProgressReport(models.Model):
