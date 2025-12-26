@@ -151,6 +151,25 @@ def detalle_rutina(request, id):
 def is_instructor(user):
     return getattr(user, "rol", None) == "instructor"
 
+@login_required
+def rutinas_semana(request):
+
+    week_schedule = [
+        {"day_number": 1, "day": "MONDAY"},
+        {"day_number": 2, "day": "TUESDAY"},
+    ]
+
+    current_day = 1
+
+    for day in week_schedule:
+        day["is_today"] = day["day_number"] == current_day
+
+    return render(
+        request,
+        "dashboards/cliente/rutinas_semana.html",
+        {"week_schedule": week_schedule}
+    )
+
 
 @login_required
 @user_passes_test(is_instructor)

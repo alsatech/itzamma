@@ -1,0 +1,42 @@
+{% extends "base_app.html" %}
+{% block content %}
+
+
+  <!-- Header -->
+<div class="min-h-screen bg-zinc-950">
+
+  <!-- Header -->
+  <div class="sticky top-0 z-10 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800">
+    <div class="px-5 py-4">
+      <h1 class="text-4xl font-black text-white">Weekly Plan</h1>
+      <p class="text-zinc-400 text-sm">
+        Your personalized training schedule
+      </p>
+    </div>
+  </div>
+
+  <!-- Horizontal scroll -->
+  <div class="overflow-x-auto px-5 py-6 hide-scrollbar">
+    <div class="flex gap-5 pb-4">
+    {% for day in week_schedule %}
+      {% include "dashboards/cliente/day_card.html" with day=day %}
+    {% endfor %}
+
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- Calendar -->
+  <div class="overflow-x-auto px-5 py-6 hide-scrollbar">
+    <div class="flex gap-5 pb-4">
+      {% for day in week_schedule %}
+        {% include "dashboards/cliente/day_card.html" with day=day current_day=current_day %}
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

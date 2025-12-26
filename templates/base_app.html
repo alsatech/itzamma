@@ -193,9 +193,9 @@
         <span class="icon">🏠</span>
         Inicio
     </a>
-
-    <a href="/profiles/rutinas/"
-       class="{% if 'rutina' in request.path %}active{% endif %}">
+    
+    <a href="{% url 'rutinas_semana' %}"
+    class="{% if 'rutinas/semana' in request.path %}active{% endif %}">
         <span class="icon">🏋️</span>
         Rutinas
     </a>
