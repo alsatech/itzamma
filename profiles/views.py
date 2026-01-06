@@ -8,6 +8,7 @@ from workouts.models import RoutineCompleted
 from datetime import date, timedelta
 from accounts.models import CustomUser
 from workouts.models import Workout, WorkoutMedia
+from django.utils.timezone import localdate
 
 @login_required
 def detalle_rutina(request, assignment_id):
@@ -118,7 +119,6 @@ def dashboard_cliente(request):
     )
 
 
-
 @login_required
 def ver_rutinas(request):
     asignaciones = WorkoutAssignment.objects.filter(cliente=request.user).select_related("workout")
@@ -128,46 +128,54 @@ def ver_rutinas(request):
     })
 
 
-@login_required
-def detalle_rutina(request, id):
-    workout = get_object_or_404(Workout, id=id)
-
-    # Determinar si la rutina YA está completada por el usuario
-    rutina_completada = RoutineCompleted.objects.filter(
-        user=request.user,
-        workout=workout
-    ).exists()
-
-    video = workout.media.filter(tipo="video").first()
-
-    return render(request, "dashboards/cliente/detalle_rutina.html", {
-        "workout": workout,
-        "video": video,
-        "rutina_completada": rutina_completada,
-    })
-
-
 
 def is_instructor(user):
     return getattr(user, "rol", None) == "instructor"
 
 @login_required
 def rutinas_semana(request):
+    today = localdate()
+    start_week = today - timedelta(days=today.weekday())  # lunes
 
-    week_schedule = [
-        {"day_number": 1, "day": "MONDAY"},
-        {"day_number": 2, "day": "TUESDAY"},
-    ]
+    # Todas las asignaciones del usuario
+    assignments = (
+        WorkoutAssignment.objects
+        .filter(cliente=request.user)
+        .select_related("workout")
+    )
 
-    current_day = 1
+    completed = set(
+        RoutineCompleted.objects.filter(user=request.user)
+        .values_list("workout_id", flat=True)
+    )
 
-    for day in week_schedule:
-        day["is_today"] = day["day_number"] == current_day
+    # Inicializar semana
+    week = []
+    for i in range(7):
+        day_date = start_week + timedelta(days=i)
+        week.append({
+            "date": day_date,
+            "day_number": i + 1,
+            "day": day_date.strftime("%A").upper(),
+            "is_today": day_date == today,
+            "assignments": [],
+            "is_rest": True,
+        })
+
+    # Asignar workouts a su día
+    for a in assignments:
+        for day in week:
+            if a.fecha_asignacion == day["date"]:
+                day["assignments"].append({
+                    "workout": a.workout,
+                    "completed": a.workout.id in completed
+                })
+                day["is_rest"] = False
 
     return render(
         request,
         "dashboards/cliente/rutinas_semana.html",
-        {"week_schedule": week_schedule}
+        {"week_schedule": week}
     )
 
 

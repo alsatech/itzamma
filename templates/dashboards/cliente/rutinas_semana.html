@@ -1,6 +1,22 @@
 {% extends "base_app.html" %}
 {% block content %}
+<style>
+.week-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+}
 
+.week-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.day-card {
+  min-width: 320px;
+  flex-shrink: 0;
+}
+</style>
 
   <!-- Header -->
 <div class="min-h-screen bg-zinc-950">
@@ -26,16 +42,12 @@
   </div>
 
 </div>
-
-
-  <!-- Calendar -->
-  <div class="overflow-x-auto px-5 py-6 hide-scrollbar">
-    <div class="flex gap-5 pb-4">
-      {% for day in week_schedule %}
-        {% include "dashboards/cliente/day_card.html" with day=day current_day=current_day %}
-      {% endfor %}
-    </div>
+  <div class="week-scroll">
+    {% for day in week_schedule %}
+      {% include "dashboards/cliente/day_card.html" with day=day current_day=current_day %}
+    {% endfor %}
   </div>
+
 
 </div>
 
