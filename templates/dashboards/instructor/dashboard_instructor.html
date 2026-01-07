@@ -5,127 +5,167 @@
 {% block content %}
 
 <style>
-    .section-title {
-        font-size: 20px;
-        font-weight: 700;
-        margin-top: 26px;
-        margin-bottom: 10px;
-    }
+/* =========================
+   BASE
+========================= */
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 26px;
+    margin-bottom: 10px;
+}
 
-    .card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 18px;
-        padding: 18px;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-        transition: 0.25s ease;
-    }
+.card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 18px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    transition: 0.25s ease;
+}
 
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.55);
-    }
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.55);
+}
 
-    .metric {
-        font-size: 28px;
-        font-weight: 800;
-        color: #00ff9a;
-        text-shadow: 0 0 12px rgba(0,255,170,0.45);
-    }
+/* =========================
+   METRICS
+========================= */
+.metric {
+    font-size: 28px;
+    font-weight: 800;
+    color: #00ff9a;
+    text-shadow: 0 0 12px rgba(0,255,170,0.45);
+}
 
-    .client-card {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 14px;
-        border-radius: 16px;
-        background: rgba(0,0,0,0.25);
-        border: 1px solid rgba(255,255,255,0.07);
-        transition: 0.25s;
-    }
+/* =========================
+   CLIENT CARD
+========================= */
+.client-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-decoration: none;
+    color: white;
+    margin-bottom: 12px;
+    transition: .2s;
+}
 
-    .client-card:hover {
-        background: rgba(0,0,0,0.35);
-        transform: translateY(-3px);
-    }
+.client-card:hover {
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-2px);
+}
 
-    .avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: #1f2937;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #00ffb3;
-        font-weight: 700;
-        font-size: 20px;
-    }
-        /* Título premium */
-    .title-premium {
-        font-size: 22px;
-        font-weight: 800;
-        color: #22ff9a;
-        text-shadow: 0 0 10px rgba(34,255,154,0.35);
-        margin-bottom: 12px;
-    }
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #1f2937;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #00ffb3;
+    font-weight: 700;
+    font-size: 20px;
+}
 
-    /* BOTÓN PREMIUM FULL */
-    .btn-create-premium {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
+/* =========================
+   TITLES
+========================= */
+.title-premium {
+    font-size: 22px;
+    font-weight: 800;
+    color: #22ff9a;
+    text-shadow: 0 0 10px rgba(34,255,154,0.35);
+    margin-bottom: 12px;
+}
 
-        width: 100%;
-        padding: 16px 18px;
+/* =========================
+   ASSIGN BUTTON (PINK GLOW)
+========================= */
+.btn-assign {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 
-        background: linear-gradient(90deg, #16ff8f, #00c96d);
-        border-radius: 16px;
+    margin-top: 8px;
+    padding: 8px 14px;
 
-        font-size: 16px;
-        font-weight: 800;
-        color: #031b12;
-        text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
 
-        margin: 28px auto 90px auto;
+    background: linear-gradient(90deg, #ff4ecd, #ff7a18);
+    border-radius: 999px;
 
-        box-shadow: 0 0 25px rgba(0,255,140,0.45),
-                    0 0 60px rgba(0,255,140,0.25);
+    box-shadow:
+        0 0 16px rgba(255,78,205,0.45),
+        0 0 32px rgba(255,122,24,0.35);
 
-        transition: .2s ease-in-out;
-    }
+    transition: .2s;
+}
 
-    .btn-create-premium:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0 35px rgba(0,255,140,0.6),
-                    0 0 70px rgba(0,255,140,0.35);
-    }
+.btn-assign:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 0 22px rgba(255,78,205,0.6),
+        0 0 40px rgba(255,122,24,0.45);
+}
 
-    .btn-create-premium:active {
-        transform: scale(.97);
-    }
+/* =========================
+   CREATE BUTTON (GREEN)
+========================= */
+.btn-create-premium {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 
-    .icon-plus {
-        font-size: 18px;
-        font-weight: 900;
-    }
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 18px;
+
+    background: linear-gradient(90deg, #16ff8f, #00c96d);
+    border-radius: 18px;
+
+    font-size: 16px;
+    font-weight: 800;
+    color: #031b12;
+    text-align: center;
+
+    margin: 24px auto 90px;
+
+    box-shadow:
+        0 0 25px rgba(0,255,140,0.45),
+        0 0 60px rgba(0,255,140,0.25);
+
+    transition: .2s;
+}
+
+.btn-create-premium:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 0 35px rgba(0,255,140,0.6),
+        0 0 70px rgba(0,255,140,0.35);
+}
 </style>
-
 
 <div class="max-w-md mx-auto pb-28 text-white">
 
-    <!-- ENCABEZADO -->
+    <!-- HEADER -->
     <div class="text-center mt-6">
         <h2 class="title-premium mt-8">{{ request.user.username }}</h2>
         <p class="text-gray-400">Instructor certificado de Itzamma Fitness</p>
     </div>
 
-
-    <!-- MÉTRICAS APPLE-STYLE -->
+    <!-- METRICS -->
     <div class="grid grid-cols-2 gap-4 mt-6">
-
         <div class="card text-center">
             <p class="text-gray-400 text-sm">Clientes activos</p>
             <p class="metric">{{ total_clients }}</p>
@@ -140,64 +180,42 @@
             <p class="text-gray-400 text-sm">Últimos 7 días</p>
             <p class="metric">{{ ultimos_7_dias }}</p>
         </div>
-
     </div>
 
-    <!-- LISTA DE CLIENTES -->
+    <!-- CLIENTS -->
     <div class="section-title text-gray-200">Tus clientes</div>
 
-    {% if clientes_asignados %}
-        {% for c in clientes_asignados %}
-            <div class="client-card">
-
-                <!-- Avatar -->
-                <div class="avatar">
-                    {{ c.first_name|default:c.username|slice:":1" }}
-                </div>
-
-                <div>
-                    <p class="font-semibold">{{ c.username }}</p>
-                    <p class="text-gray-400 text-sm">{{ c.email }}</p>
-                </div>
-                <a href="{% url 'instructor_cliente_detalle' c.id %}" class="client-card">
-
-
-            </div>
-        {% endfor %}
-    {% else %}
-        <p class="text-gray-400">Aún no tienes clientes asignados.</p>
-    {% endif %}
-
-    <!-- RUTINAS DEL INSTRUCTOR -->
-    <h3 class="title-premium mt-8">Tus rutinas creadas</h3>
-
-    {% for w in workouts %}
-        <div class="card flex items-center gap-4 mb-3">
-
-            <div class="w-14 h-14 bg-gray-900 rounded-lg flex justify-center items-center text-green-400 text-2xl">
-                🏋️
-            </div>
-
-            <div class="flex-1">
-                <p class="font-semibold text-lg">{{ w.titulo }}</p>
-                <p class="text-gray-400 text-sm">{{ w.descripcion|default:"Sin descripción" }}</p>
-
-                <a href="{% url 'assign_workout' w.id %}" class="text-green-400 text-sm font-bold">
-                    Asignar →
-                </a>
-            </div>
-
+    {% for c in clientes_asignados %}
+    <a href="{% url 'instructor_cliente_detalle' c.id %}" class="client-card">
+        <div class="avatar">
+            {{ c.first_name|default:c.username|slice:":1"|upper }}
         </div>
+        <div>
+            <p class="font-semibold">{{ c.username }}</p>
+            <p class="text-gray-400 text-sm">{{ c.email }}</p>
+        </div>
+    </a>
     {% endfor %}
 
+    <!-- WORKOUTS -->
+    <h3 class="section-title mt-10">Tus rutinas creadas</h3>
+
+    {% for w in workouts %}
+    <div class="card mb-3">
+        <p class="font-semibold">{{ w.titulo }}</p>
+        <p class="text-gray-400 text-sm">{{ w.descripcion|default:"Sin descripción" }}</p>
+
+        <a href="{% url 'assign_workout' w.id %}" class="btn-assign">
+            ➕ Asignar rutina
+        </a>
+    </div>
+    {% endfor %}
+
+    <!-- CREATE -->
+    <a href="{% url 'instructor_workout_create' %}" class="btn-create-premium">
+        ➕ Crear nueva rutina
+    </a>
+
 </div>
-
-<!-- BOTÓN FLOTANTE PREMIUM -->
-<a href="{% url 'instructor_workout_create' %}" class="btn-create-premium">
-    <span class="icon-plus">➕</span>
-    Crear nueva rutina
-</a>
-
-
 
 {% endblock %}

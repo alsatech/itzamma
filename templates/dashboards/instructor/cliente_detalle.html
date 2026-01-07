@@ -4,151 +4,243 @@
 
 {% block content %}
 <style>
-/* =========================
-   BASE PREMIUM
-========================= */
-.card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
-    padding: 18px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 8px 22px rgba(0,0,0,0.45);
-    transition: transform .25s ease, box-shadow .25s ease;
-}
+    /* =========================
+    BASE PREMIUM
+    ========================= */
+    .card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 18px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+        transition: transform .25s ease, box-shadow .25s ease;
+        overflow: hidden;
+    }
 
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 32px rgba(0,0,0,0.6);
-}
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 32px rgba(0,0,0,0.6);
+    }
 
-/* =========================
-   METRICS
-========================= */
-.metric {
-    font-size: 32px;
-    font-weight: 800;
-    color: #22ff9a;
-    text-shadow: 0 0 14px rgba(34,255,154,0.45);
-}
+    /* =========================
+    METRICS
+    ========================= */
+    .metric {
+        font-size: 32px;
+        font-weight: 800;
+        color: #22ff9a;
+        text-shadow: 0 0 14px rgba(34,255,154,0.45);
+    }
 
-/* =========================
-   SECTION TITLES
-========================= */
-.section-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #e5e7eb;
-    margin-top: 32px;
-    margin-bottom: 12px;
-    letter-spacing: 0.02em;
-}
+    /* =========================
+    SECTION TITLES
+    ========================= */
+    .section-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: #e5e7eb;
+        margin-top: 32px;
+        margin-bottom: 12px;
+        letter-spacing: 0.02em;
+    }
 
-/* =========================
-   HEADER AVATAR
-========================= */
-.client-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #22c55e;
-    box-shadow: 0 0 18px rgba(34,197,94,0.6);
-}
+    /* =========================
+    HEADER AVATAR
+    ========================= */
+    .client-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #22c55e;
+        box-shadow: 0 0 18px rgba(34,197,94,0.6);
+    }
 
-/* =========================
-   ICON BOXES
-========================= */
-.icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-}
+    /* =========================
+    ICON BOXES
+    ========================= */
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
 
-.icon-box-default {
-    background: #020617;
-    color: #22ff9a;
-    box-shadow: inset 0 0 0 1px rgba(34,255,154,0.2);
-}
+    .icon-box-default {
+        background: #020617;
+        color: #22ff9a;
+        box-shadow: inset 0 0 0 1px rgba(34,255,154,0.2);
+    }
 
-.icon-box-success {
-    background: rgba(34,197,94,0.15);
-    color: #22ff9a;
-    box-shadow: 0 0 14px rgba(34,197,94,0.35);
-}
+    .icon-box-success {
+        background: rgba(34,197,94,0.15);
+        color: #22ff9a;
+        box-shadow: 0 0 14px rgba(34,197,94,0.35);
+    }
 
-/* =========================
-   BUTTONS
-========================= */
-.btn-create-premium {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    /* =========================
+    BUTTONS
+    ========================= */
+    .btn-create-premium {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
 
-    width: 100%;
-    padding: 16px 18px;
+        width: 100%;
+        padding: 16px 18px;
 
-    background: linear-gradient(90deg, #16ff8f, #00c96d);
-    border-radius: 18px;
+        background: linear-gradient(90deg, #16ff8f, #00c96d);
+        border-radius: 18px;
 
-    font-size: 16px;
-    font-weight: 800;
-    color: #031b12;
-    text-align: center;
+        font-size: 16px;
+        font-weight: 800;
+        color: #031b12;
+        text-align: center;
 
-    box-shadow:
-        0 0 30px rgba(0,255,140,0.45),
-        0 0 70px rgba(0,255,140,0.25);
+        box-shadow:
+            0 0 30px rgba(0,255,140,0.45),
+            0 0 70px rgba(0,255,140,0.25);
 
-    transition: .2s ease-in-out;
-}
+        transition: .2s ease-in-out;
+    }
 
-.btn-create-premium:hover {
-    transform: translateY(-2px);
-    box-shadow:
-        0 0 40px rgba(0,255,140,0.6),
-        0 0 90px rgba(0,255,140,0.35);
-}
+    .btn-create-premium:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 0 40px rgba(0,255,140,0.6),
+            0 0 90px rgba(0,255,140,0.35);
+    }
 
-.btn-create-premium:active {
-    transform: scale(.97);
-}
+    .btn-create-premium:active {
+        transform: scale(.97);
+    }
 
-/* =========================
-   SECONDARY BUTTON
-========================= */
-.btn-secondary {
-    width: 100%;
-    padding: 14px;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(0,0,0,0.3);
-    color: #d1d5db;
-    font-weight: 600;
-    transition: .2s;
-}
+    /* =========================
+    SECONDARY BUTTON
+    ========================= */
+    .btn-secondary {
+        width: 100%;
+        padding: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(0,0,0,0.3);
+        color: #d1d5db;
+        font-weight: 600;
+        transition: .2s;
+    }
 
-.btn-secondary:hover {
-    background: rgba(255,255,255,0.06);
-}
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.06);
+    }
 
-/* =========================
-   TEXT HELPERS
-========================= */
-.text-muted {
-    color: #9ca3af;
-    font-size: 13px;
-}
+    /* =========================
+    TEXT HELPERS
+    ========================= */
+    .text-muted {
+        color: #9ca3af;
+        font-size: 13px;
+    }
 
-.text-success {
-    color: #22ff9a;
-    font-weight: 600;
-}
+    .text-success {
+        color: #22ff9a;
+        font-weight: 600;
+    }
+    /* =========================
+    REPORT BUTTON (ORANGE / PINK GLOW)
+    ========================= */
+    .btn-reportes {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        width: 100%;
+        padding: 15px 18px;
+
+        background: linear-gradient(
+            135deg,
+            #ff8a00,
+            #ff3d81
+        );
+
+        border-radius: 18px;
+        color: #1b0a02;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        text-decoration: none;
+
+        box-shadow:
+            0 0 20px rgba(255,138,0,0.55),
+            0 0 50px rgba(255,61,129,0.35);
+
+        transition: all .25s ease;
+    }
+
+    .btn-reportes:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 0 28px rgba(255,138,0,0.75),
+            0 0 70px rgba(255,61,129,0.55);
+    }
+
+    .btn-reportes:active {
+        transform: scale(.97);
+    }
+
+    /* =========================
+    PROGRESS NOTE BUTTON
+    ========================= */
+    .btn-progress-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        width: 100%;
+        padding: 14px;
+
+        border-radius: 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px dashed rgba(255,255,255,0.18);
+
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: 14px;
+
+        transition: all .2s ease;
+    }
+
+    .btn-progress-note:hover {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,138,0,0.6);
+        color: #ff9f1c;
+    }
+
+    /* =========================
+    SECTION SUBTITLE
+    ========================= */
+    .section-subtitle {
+        font-size: 14px;
+        color: #9ca3af;
+        margin-top: -6px;
+        margin-bottom: 14px;
+    }
+    /* =========================
+    FIX OVERFLOW BUTTONS
+    ========================= */
+    .btn-create-premium,
+    .btn-progress-note,
+    .btn-reportes {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
 </style>
 
 <div class="max-w-md mx-auto pb-28 text-white">
@@ -226,8 +318,8 @@
 {% endfor %}
 
 
-    <!-- RUTINAS COMPLETADAS -->
-    <h3 class="section-title mt-8">Rutinas completadas</h3>
+<!-- RUTINAS COMPLETADAS -->
+<h3 class="section-title mt-8">Rutinas completadas</h3>
 
 {% for r in rutinas_completadas %}
 <div class="card flex items-center gap-4 mb-3">
@@ -247,18 +339,42 @@
 
 </div>
 {% endfor %}
-<div class="mt-10 space-y-3">
+<div class="mt-10 space-y-4">
 
+    <!-- CTA PRINCIPAL -->
     <a href="{% url 'assign_workout' cliente.id %}"
        class="btn-create-premium">
         ➕ Asignar nueva rutina
     </a>
 
-    <button class="w-full py-3 rounded-xl border border-gray-700 text-gray-300">
+    <!-- PROGRESS NOTE -->
+    <button class="btn-progress-note">
         📝 Agregar nota de progreso
     </button>
 
 </div>
 
+<!-- REPORTE SEMANAL -->
+<h3 class="section-title mt-10">
+    Reporte semanal
+</h3>
+<p class="section-subtitle">
+    Seguimiento del progreso (lunes a domingo)
+</p>
+
+<div class="card mt-4 space-y-4">
+
+    <p class="text-gray-400 text-sm leading-relaxed">
+        Genera un reporte semanal del progreso del cliente,
+        incluyendo cumplimiento de rutinas, métricas clave
+        y observaciones del instructor.
+    </p>
+
+    <a href="{% url 'reportes_cliente' cliente.id %}" class="btn-reportes">
+        📊 Ver reportes
+    </a>
+
 </div>
+
+
 {% endblock %}

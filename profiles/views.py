@@ -9,6 +9,9 @@ from datetime import date, timedelta
 from accounts.models import CustomUser
 from workouts.models import Workout, WorkoutMedia
 from django.utils.timezone import localdate
+from django.contrib import messages
+from workouts.models import ProgressReport
+
 
 @login_required
 def detalle_rutina(request, assignment_id):
@@ -210,6 +213,118 @@ def instructor_cliente_detalle(request, cliente_id):
     }
 
     return render(request, "dashboards/instructor/cliente_detalle.html", contexto)
+
+@login_required
+@user_passes_test(is_instructor)
+def reportes_cliente(request, cliente_id):
+    cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
+
+    # ✅ Seguridad: solo si el instructor tiene relación con ese cliente
+    tiene_relacion = WorkoutAssignment.objects.filter(
+        cliente=cliente,
+        workout__instructor=request.user
+    ).exists()
+
+    if not tiene_relacion:
+        messages.error(request, "No tienes permiso para ver reportes de este cliente.")
+        return redirect("instructor_dashboard")
+
+    reportes = ProgressReport.objects.filter(
+        cliente=cliente,
+        instructor=request.user
+    ).order_by("-fecha")
+
+    # Semana actual (lunes-domingo)
+    today = localdate()
+    start_week = today - timedelta(days=today.weekday())  # lunes
+    end_week = start_week + timedelta(days=6)            # domingo
+
+    reporte_semana = ProgressReport.objects.filter(
+        cliente=cliente,
+        instructor=request.user,
+        fecha__range=(start_week, end_week)
+    ).exists()
+
+    return render(
+        request,
+        "dashboards/instructor/reportes_cliente.html",
+        {
+            "cliente": cliente,
+            "reportes": reportes,
+            "start_week": start_week,
+            "end_week": end_week,
+            "reporte_semana": reporte_semana,
+        }
+    )
+
+
+@login_required
+@user_passes_test(is_instructor)
+def crear_reporte(request, cliente_id):
+    cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
+
+    # ✅ Seguridad: solo si el instructor tiene relación con ese cliente
+    tiene_relacion = WorkoutAssignment.objects.filter(
+        cliente=cliente,
+        workout__instructor=request.user
+    ).exists()
+
+    if not tiene_relacion:
+        messages.error(request, "No tienes permiso para crear reportes de este cliente.")
+        return redirect("instructor_dashboard")
+
+    # Semana actual (lunes-domingo)
+    today = localdate()
+    start_week = today - timedelta(days=today.weekday())
+    end_week = start_week + timedelta(days=6)
+
+    # ✅ Regla: 1 por semana
+    if ProgressReport.objects.filter(
+        cliente=cliente,
+        instructor=request.user,
+        fecha__range=(start_week, end_week)
+    ).exists():
+        messages.warning(request, "Ya existe un reporte para esta semana.")
+        return redirect("reportes_cliente", cliente_id=cliente.id)
+
+    if request.method == "POST":
+        comentario = (request.POST.get("comentario") or "").strip()
+        calificacion_raw = request.POST.get("calificacion")
+
+        # Validación simple
+        try:
+            calificacion = int(calificacion_raw)
+        except (TypeError, ValueError):
+            calificacion = None
+
+        errores = []
+        if not comentario:
+            errores.append("El comentario es obligatorio.")
+        if calificacion is None or not (1 <= calificacion <= 10):
+            errores.append("La calificación debe ser un número del 1 al 10.")
+
+        if errores:
+            for e in errores:
+                messages.error(request, e)
+        else:
+            ProgressReport.objects.create(
+                cliente=cliente,
+                instructor=request.user,
+                comentario=comentario,
+                calificacion=calificacion
+            )
+            messages.success(request, "Reporte creado correctamente.")
+            return redirect("reportes_cliente", cliente_id=cliente.id)
+
+    return render(
+        request,
+        "dashboards/instructor/reporte_form.html",
+        {
+            "cliente": cliente,
+            "start_week": start_week,
+            "end_week": end_week,
+        }
+    )
 
 
 

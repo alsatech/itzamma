@@ -1,0 +1,68 @@
+{% extends "base_app.html" %}
+{% block title %}Reportes | {{ cliente.username }}{% endblock %}
+{% block header_title %}Reportes{% endblock %}
+
+{% block content %}
+<style>
+  .wrap { max-width: 900px; margin: 0 auto; padding: 18px; color: #e5e7eb; }
+  .card { background:#0b1220; border:1px solid rgba(255,255,255,0.06); border-radius:18px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,0.35); }
+  .top { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+  .title { font-size:22px; font-weight:900; margin:0; }
+  .sub { margin:6px 0 0; font-size:13px; color:#9ca3af; }
+  .btn {
+    display:inline-block; padding:10px 14px; border-radius:14px;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    color:#022c22; font-weight:800; text-decoration:none;
+    box-shadow:0 10px 25px rgba(34,197,94,0.25);
+  }
+  .btn-disabled {
+    display:inline-block; padding:10px 14px; border-radius:14px;
+    background:#111827; color:#9ca3af; font-weight:800; text-decoration:none;
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .list { margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+  .item { padding:14px; border-radius:16px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); }
+  .meta { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .date { font-size:12px; color:#9ca3af; }
+  .score { font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(34,197,94,0.15); color:#86efac; font-weight:800; border:1px solid rgba(34,197,94,0.35); }
+  .comment { margin:10px 0 0; color:#d1d5db; font-size:14px; line-height:1.35; white-space:pre-wrap; }
+  .empty { padding:18px; border-radius:16px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.10); color:#9ca3af; }
+</style>
+
+<div class="wrap">
+  <div class="card">
+    <div class="top">
+      <div>
+        <h2 class="title">Reportes — {{ cliente.username }}</h2>
+        <p class="sub">
+          Semana actual: {{ start_week }} → {{ end_week }}
+        </p>
+      </div>
+
+      <div>
+        {% if reporte_semana %}
+          <span class="btn-disabled">✅ Reporte de esta semana creado</span>
+        {% else %}
+          <a class="btn" href="{% url 'crear_reporte' cliente.id %}">+ Crear reporte semanal</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="list">
+      {% for r in reportes %}
+        <div class="item">
+          <div class="meta">
+            <div class="date">{{ r.fecha }}</div>
+            <div class="score">Calificación: {{ r.calificacion }}/10</div>
+          </div>
+          <div class="comment">{{ r.comentario }}</div>
+        </div>
+      {% empty %}
+        <div class="empty">
+          Aún no hay reportes para este cliente.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
