@@ -43,6 +43,8 @@ def detalle_rutina(request, assignment_id):
     )
 
 
+
+
 @login_required
 def completar_perfil(request):
     perfil, created = UserProfile.objects.get_or_create(user=request.user)

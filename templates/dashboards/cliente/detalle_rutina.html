@@ -264,8 +264,11 @@
         ✔ Rutina completada
     </div>
 {% else %}
-    <a class="btn-complete" href="{% url 'complete_routine' workout.id %}">
+    <!-- <a class="btn-complete" href="{% url 'complete_routine' workout.id %}">
         ✓ Marcar como completada
+    </a> -->
+    <a class="btn-complete" href="{% url 'complete_routine' assignment.id %}">
+    ✓ Marcar como completada
     </a>
 {% endif %}
 
