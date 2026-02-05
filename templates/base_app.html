@@ -200,6 +200,12 @@
         Rutinas
     </a>
 
+    <a href="{% url 'suplementos' %}"
+       class="{% if 'suplementos' in request.path %}active{% endif %}">
+        <span class="icon">💊</span>
+        Suplementos
+    </a>
+
     <a href="{% url 'perfil' %}"
        class="{% if 'mi-perfil' in request.path %}active{% endif %}">
         <span class="icon">👤</span>

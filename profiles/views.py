@@ -351,3 +351,8 @@ def perfil(request):
         "completadas_semana": completadas_semana,
     })
 
+
+@login_required
+def suplementos(request):
+    return render(request, "dashboards/cliente/suplementos.html")
+
