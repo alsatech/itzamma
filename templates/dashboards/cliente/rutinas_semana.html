@@ -1,32 +1,14 @@
 {% extends "base_app.html" %}
 {% block content %}
-<style>
-.week-scroll {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding-bottom: 16px;
-}
 
-.week-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.day-card {
-  min-width: 320px;
-  flex-shrink: 0;
-}
-</style>
+<div class="min-h-screen">
 
   <!-- Header -->
-<div class="min-h-screen bg-zinc-950">
-
-  <!-- Header -->
-  <div class="sticky top-0 z-10 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800">
+  <div class="sticky top-0 z-10 backdrop-blur-xl border-b border-zinc-800" style="background:rgba(13,17,23,0.8)">
     <div class="px-5 py-4">
-      <h1 class="text-4xl font-black text-white">Weekly Plan</h1>
+      <h1 class="text-4xl font-black text-white">Plan Semanal</h1>
       <p class="text-zinc-400 text-sm">
-        Your personalized training schedule
+        Tu plan de entrenamiento personalizado
       </p>
     </div>
   </div>
@@ -40,14 +22,6 @@
 
     </div>
   </div>
-
-</div>
-  <div class="week-scroll">
-    {% for day in week_schedule %}
-      {% include "dashboards/cliente/day_card.html" with day=day current_day=current_day %}
-    {% endfor %}
-  </div>
-
 
 </div>
 

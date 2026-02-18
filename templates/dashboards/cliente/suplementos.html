@@ -7,337 +7,239 @@
 
 <style>
   body {
-    background: #050608 !important;
     color: #fff;
     font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
-  .suplementos-page {
+  .shop-page {
     max-width: 480px;
     margin: 0 auto;
     padding: 16px 16px 120px 16px;
   }
 
-  .suplementos-section-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 8px;
+  /* HERO */
+  .shop-hero {
+    background: radial-gradient(circle at top left, #f59e0b 0, #111827 45%, #020617 100%);
+    border-radius: 26px;
+    padding: 20px 18px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 20px 40px rgba(245, 158, 11, 0.25);
+  }
+  .shop-hero-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fde68a;
+  }
+  .shop-hero-title {
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 4px;
     color: #f9fafb;
   }
+  .shop-hero-desc {
+    font-size: 13px;
+    color: #d1d5db;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .shop-hero .blur-circle {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    background: rgba(251, 191, 36, 0.2);
+    border-radius: 999px;
+    filter: blur(40px);
+    right: -30px;
+    bottom: -50px;
+  }
 
-  .suplementos-subtitle {
+  /* SECTION TITLE */
+  .shop-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f9fafb;
+    margin-bottom: 4px;
+  }
+  .shop-section-sub {
     font-size: 12px;
     color: #9ca3af;
     margin-bottom: 16px;
   }
 
-  /* HERO CARD */
-  .hero-suplementos {
-    background: radial-gradient(circle at top left, #f59e0b 0, #111827 45%, #020617 100%);
-    border-radius: 26px;
-    padding: 18px 16px 16px 16px;
-    box-shadow: 0 24px 45px rgba(245, 158, 11, 0.35);
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 22px;
-  }
-
-  .hero-suplementos-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    color: #fde68a;
-  }
-
-  .hero-suplementos-title {
-    font-size: 22px;
-    font-weight: 800;
-    margin-top: 4px;
-    color: #f9fafb;
-  }
-
-  .hero-suplementos-desc {
-    font-size: 13px;
-    color: #d1d5db;
-    margin-top: 10px;
-    line-height: 1.5;
-  }
-
-  .hero-blur-circle {
-    position: absolute;
-    width: 160px;
-    height: 160px;
-    background: rgba(251, 191, 36, 0.22);
-    border-radius: 999px;
-    filter: blur(40px);
-    right: -40px;
-    bottom: -60px;
-    opacity: 0.9;
-  }
-
-  /* CATEGORIAS */
-  .categorias-list {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 20px;
-  }
-
-  .categoria-chip {
-    flex-shrink: 0;
-    padding: 8px 16px;
-    border-radius: 999px;
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    color: #9ca3af;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .categoria-chip:hover,
-  .categoria-chip.active {
-    background: #f59e0b;
-    color: #0f172a;
-    border-color: #f59e0b;
-  }
-
-  /* PRODUCTOS GRID */
-  .productos-grid {
+  /* CATEGORY GRID */
+  .cat-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
-  .producto-card {
-    background: #020617;
+  .cat-card {
+    display: block;
+    background: #111827;
     border-radius: 18px;
-    border: 1px solid #111827;
-    padding: 12px;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.85);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #1e293b;
+    overflow: hidden;
+    text-decoration: none;
+    color: white;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   }
-
-  .producto-card:hover {
+  .cat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.95);
+    border-color: #f59e0b;
+    box-shadow: 0 12px 32px rgba(245, 158, 11, 0.2);
   }
 
-  .producto-img {
+  .cat-card-img {
     width: 100%;
     height: 120px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    margin-bottom: 10px;
-  }
-
-  .producto-img img {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
-    border-radius: 14px;
   }
 
-  .producto-categoria {
-    font-size: 10px;
-    text-transform: uppercase;
-    color: #f59e0b;
-    letter-spacing: 0.05em;
+  .cat-card-body {
+    padding: 12px;
   }
 
-  .producto-nombre {
-    font-size: 13px;
-    font-weight: 600;
-    color: #e5e7eb;
-    margin-top: 4px;
+  .cat-card-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f9fafb;
     line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
-  .producto-precio {
-    font-size: 16px;
-    font-weight: 700;
-    color: #22c55e;
+  .cat-card-count {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+  }
+
+  .cat-card-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     margin-top: 8px;
-  }
-
-  .producto-btn {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px 0;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #0f172a;
     font-size: 12px;
-    font-weight: 700;
-    text-align: center;
-    text-decoration: none;
-    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.4);
-    transition: all 0.2s ease;
+    font-weight: 600;
+    color: #f59e0b;
   }
 
-  .producto-btn:hover {
-    box-shadow: 0 12px 24px rgba(245, 158, 11, 0.6);
-    transform: translateY(-2px);
+  /* FEATURED - full width card */
+  .cat-card-featured {
+    grid-column: 1 / -1;
+  }
+  .cat-card-featured .cat-card-img {
+    height: 160px;
   }
 
-  /* AVISO AMAZON */
-  .amazon-notice {
+  /* NOTICE */
+  .shop-notice {
     background: #0f172a;
     border: 1px solid #1e293b;
     border-radius: 16px;
     padding: 14px;
-    margin-top: 24px;
+    margin-top: 20px;
     display: flex;
     align-items: center;
     gap: 12px;
   }
-
-  .amazon-notice-icon {
-    font-size: 28px;
+  .shop-notice-icon {
+    font-size: 26px;
     flex-shrink: 0;
   }
-
-  .amazon-notice-text {
+  .shop-notice-text {
     font-size: 11px;
     color: #9ca3af;
     line-height: 1.5;
   }
-
-  .amazon-notice-text strong {
+  .shop-notice-text strong {
     color: #f59e0b;
   }
 
-  /* RESPONSIVE */
   @media (max-width: 390px) {
-    .hero-suplementos-title {
-      font-size: 20px;
-    }
-    .productos-grid {
-      gap: 10px;
-    }
-    .producto-img {
-      height: 100px;
-    }
+    .shop-hero-title { font-size: 20px; }
+    .cat-card-img { height: 100px; }
+    .cat-card-featured .cat-card-img { height: 130px; }
   }
 </style>
 
-<div class="suplementos-page">
+<div class="shop-page">
 
   <!-- HERO -->
-  <section class="hero-suplementos">
-    <p class="hero-suplementos-label">Tienda oficial</p>
-    <h2 class="hero-suplementos-title">Suplementos Recomendados</h2>
-    <p class="hero-suplementos-desc">
-      Los mejores productos para potenciar tu entrenamiento, seleccionados por nuestros expertos.
+  <section class="shop-hero">
+    <p class="shop-hero-label">Tienda Oficial</p>
+    <h2 class="shop-hero-title">Tienda de Suplementos</h2>
+    <p class="shop-hero-desc">
+      Productos seleccionados por nuestros expertos para potenciar tu entrenamiento.
     </p>
-    <div class="hero-blur-circle"></div>
+    <div class="blur-circle"></div>
   </section>
 
   <!-- CATEGORIAS -->
-  <section>
-    <p class="suplementos-section-title">Categorias</p>
-    <div class="categorias-list">
-      <span class="categoria-chip active">Todos</span>
-      <span class="categoria-chip">Proteinas</span>
-      <span class="categoria-chip">Pre-entreno</span>
-      <span class="categoria-chip">Vitaminas</span>
-      <span class="categoria-chip">Creatina</span>
-      <span class="categoria-chip">Aminoacidos</span>
-    </div>
-  </section>
+  <p class="shop-section-title">Categorias</p>
+  <p class="shop-section-sub">Explora por tipo de suplemento</p>
 
-  <!-- PRODUCTOS -->
-  <section>
-    <p class="suplementos-section-title">Productos destacados</p>
-    <p class="suplementos-subtitle">Compra segura a traves de Amazon</p>
+  <div class="cat-grid">
 
-    <div class="productos-grid">
-
-      <!-- Producto 1 -->
-      <div class="producto-card">
-        <div class="producto-img">
-          <img src="{% static 'img/PROTEIN.jpg' %}" alt="Whey Protein">
-        </div>
-        <p class="producto-categoria">Proteina</p>
-        <p class="producto-nombre">Whey Protein Isolate 2kg</p>
-        <p class="producto-precio">$899 MXN</p>
-        <a href="#" class="producto-btn" target="_blank" rel="noopener">
-          Ver en Amazon
-        </a>
+    <!-- Proteinas (featured) -->
+    <a href="{% url 'suplementos_proteinas' %}" class="cat-card cat-card-featured">
+      <img src="{% static 'img/PROTEIN.jpg' %}" alt="Proteinas" class="cat-card-img" />
+      <div class="cat-card-body">
+        <p class="cat-card-name">Proteinas</p>
+        <p class="cat-card-count">2 productos disponibles</p>
+        <span class="cat-card-arrow">Ver productos &rarr;</span>
       </div>
+    </a>
 
-      <!-- Producto 2 -->
-      <div class="producto-card">
-        <div class="producto-img">
-          <img src="{% static 'img/PREWORKOUT.jpg' %}" alt="Pre-Workout">
-        </div>
-        <p class="producto-categoria">Pre-entreno</p>
-        <p class="producto-nombre">Pre-Workout Energy Boost</p>
-        <p class="producto-precio">$649 MXN</p>
-        <a href="#" class="producto-btn" target="_blank" rel="noopener">
-          Ver en Amazon
-        </a>
+    <!-- Pre-entreno -->
+    <a href="{% url 'suplementos_preentreno' %}" class="cat-card">
+      <img src="{% static 'img/PREWORKOUT.jpg' %}" alt="Pre-entreno" class="cat-card-img" />
+      <div class="cat-card-body">
+        <p class="cat-card-name">Pre-entreno</p>
+        <p class="cat-card-count">2 productos</p>
+        <span class="cat-card-arrow">Ver &rarr;</span>
       </div>
+    </a>
 
-      <!-- Producto 3 -->
-      <div class="producto-card">
-        <div class="producto-img">
-          <img src="{% static 'img/CREATINE.jpg' %}" alt="Creatina">
-        </div>
-        <p class="producto-categoria">Creatina</p>
-        <p class="producto-nombre">Creatina Monohidratada 500g</p>
-        <p class="producto-precio">$459 MXN</p>
-        <a href="#" class="producto-btn" target="_blank" rel="noopener">
-          Ver en Amazon
-        </a>
+    <!-- Creatina -->
+    <a href="{% url 'suplementos_creatina' %}" class="cat-card">
+      <img src="{% static 'img/CREATINE.jpg' %}" alt="Creatina" class="cat-card-img" />
+      <div class="cat-card-body">
+        <p class="cat-card-name">Creatina</p>
+        <p class="cat-card-count">2 productos</p>
+        <span class="cat-card-arrow">Ver &rarr;</span>
       </div>
+    </a>
 
-      <!-- Producto 4 -->
-      <div class="producto-card">
-        <div class="producto-img">
-          <img src="{% static 'img/VITAMINS.jpg' %}" alt="Vitaminas">
-        </div>
-        <p class="producto-categoria">Vitaminas</p>
-        <p class="producto-nombre">Multivitaminico Deportivo</p>
-        <p class="producto-precio">$349 MXN</p>
-        <a href="#" class="producto-btn" target="_blank" rel="noopener">
-          Ver en Amazon
-        </a>
+    <!-- Vitaminas -->
+    <a href="{% url 'suplementos_vitaminas' %}" class="cat-card">
+      <img src="{% static 'img/VITAMINS.jpg' %}" alt="Vitaminas" class="cat-card-img" />
+      <div class="cat-card-body">
+        <p class="cat-card-name">Vitaminas</p>
+        <p class="cat-card-count">2 productos</p>
+        <span class="cat-card-arrow">Ver &rarr;</span>
       </div>
+    </a>
 
-      <!-- Producto 5 -->
-      <div class="producto-card">
-        <div class="producto-img">
-          <img src="{% static 'img/VEGANPROTEIN.jpg' %}" alt="Proteina Vegana">
-        </div>
-        <p class="producto-categoria">Proteina</p>
-        <p class="producto-nombre">Proteina Vegana Plant-Based</p>
-        <p class="producto-precio">$749 MXN</p>
-        <a href="#" class="producto-btn" target="_blank" rel="noopener">
-          Ver en Amazon
-        </a>
+    <!-- Aminoacidos -->
+    <a href="{% url 'suplementos_aminoacidos' %}" class="cat-card">
+      <img src="{% static 'img/VEGANPROTEIN.jpg' %}" alt="Aminoacidos" class="cat-card-img" />
+      <div class="cat-card-body">
+        <p class="cat-card-name">Aminoacidos</p>
+        <p class="cat-card-count">2 productos</p>
+        <span class="cat-card-arrow">Ver &rarr;</span>
       </div>
+    </a>
 
-    </div>
-  </section>
+  </div>
 
   <!-- AVISO -->
-  <section class="amazon-notice">
-    <span class="amazon-notice-icon">📦</span>
-    <p class="amazon-notice-text">
-      <strong>Compra segura:</strong> Todos los productos son vendidos y enviados por Amazon.
-      Al hacer clic seras redirigido a la tienda oficial.
+  <section class="shop-notice">
+    <span class="shop-notice-icon">🛒</span>
+    <p class="shop-notice-text">
+      <strong>Compra segura:</strong> Al hacer clic seras redirigido a Amazon o Mercado Libre para completar tu compra.
     </p>
   </section>
 

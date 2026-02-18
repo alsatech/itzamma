@@ -142,6 +142,8 @@ def rutinas_semana(request):
     today = localdate()
     start_week = today - timedelta(days=today.weekday())  # lunes
 
+    DIAS_ES = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"]
+
     # Todas las asignaciones del usuario
     assignments = (
         WorkoutAssignment.objects
@@ -161,7 +163,7 @@ def rutinas_semana(request):
         week.append({
             "date": day_date,
             "day_number": i + 1,
-            "day": day_date.strftime("%A").upper(),
+            "day": DIAS_ES[i],
             "is_today": day_date == today,
             "assignments": [],
             "is_rest": True,
@@ -355,4 +357,24 @@ def perfil(request):
 @login_required
 def suplementos(request):
     return render(request, "dashboards/cliente/suplementos.html")
+
+@login_required
+def suplementos_proteinas(request):
+    return render(request, "dashboards/cliente/suplementos_proteinas.html")
+
+@login_required
+def suplementos_preentreno(request):
+    return render(request, "dashboards/cliente/suplementos_preentreno.html")
+
+@login_required
+def suplementos_creatina(request):
+    return render(request, "dashboards/cliente/suplementos_creatina.html")
+
+@login_required
+def suplementos_vitaminas(request):
+    return render(request, "dashboards/cliente/suplementos_vitaminas.html")
+
+@login_required
+def suplementos_aminoacidos(request):
+    return render(request, "dashboards/cliente/suplementos_aminoacidos.html")
 

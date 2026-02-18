@@ -6,7 +6,6 @@
 
 <style>
   body {
-    background: #050608 !important;
     color: #fff;
     font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
@@ -128,65 +127,6 @@
     opacity: 0.9;
   }
 
-  /* COLECCIONES (SCROLL HORIZONTAL) */
-  .collections-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    margin-top: 4px;
-  }
-
-  .collections-row a {
-    font-size: 11px;
-    color: #9ca3af;
-    text-decoration: none;
-  }
-
-  .collections-list {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 6px;
-    margin-bottom: 16px;
-  }
-
-  .col-card {
-    min-width: 140px;
-    max-width: 160px;
-    background: #020617;
-    border-radius: 18px;
-    border: 1px solid #111827;
-    padding: 8px;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.8);
-  }
-
-  .col-thumb {
-    height: 90px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #0ea5e9, #22c55e);
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding: 8px;
-    color: #f9fafb;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  .col-meta {
-    margin-top: 6px;
-    font-size: 10px;
-    color: #9ca3af;
-  }
-
-  .col-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #e5e7eb;
-    margin-top: 2px;
-  }
-
   /* STATS GRID */
   .stats-grid {
     display: grid;
@@ -264,13 +204,13 @@
     </div>
 
     <div class="hero-metrics">
-      <span>⏱ <strong>45 min</strong></span>
-      <span>🔥 <strong>420 cal</strong></span>
-      <span>🏋️ <strong>{{ rutinas_count|default:0 }}</strong> rutinas</span>
+      <span>🏋️ <strong>{{ total_semana }}</strong> asignadas</span>
+      <span>✅ <strong>{{ completadas_semana }}</strong> completadas</span>
+      <span>📊 <strong>{{ progreso }}%</strong> progreso</span>
     </div>
 
     <div class="hero-cta">
-      <a href="{% url 'ver_rutinas' %}">Comenzar</a>
+      <a href="{% url 'rutinas_semana' %}">Comenzar</a>
     </div>
 
     <div class="hero-blur-circle"></div>
@@ -308,43 +248,6 @@
       {% endfor %}
   </section>
 
-
-  <!-- COLECCIONES -->
-  <section>
-    <div class="collections-row">
-      <div>
-        <p class="dash-section-title">Colecciones</p>
-        <p class="dash-subtitle">Explora entrenamientos por intensidad</p>
-      </div>
-      <a href="{% url 'ver_rutinas' %}">Ver todas</a>
-    </div>
-
-    <div class="collections-list">
-      <div class="col-card">
-        <div class="col-thumb">
-          Easy
-        </div>
-        <div class="col-meta">Ideal para empezar</div>
-        <div class="col-title">Baja intensidad</div>
-      </div>
-
-      <div class="col-card">
-        <div class="col-thumb" style="background:linear-gradient(135deg,#f97316,#ef4444);">
-          Intense
-        </div>
-        <div class="col-meta">Para retarte al máximo</div>
-        <div class="col-title">Alta intensidad</div>
-      </div>
-
-      <div class="col-card">
-        <div class="col-thumb" style="background:linear-gradient(135deg,#6366f1,#22c55e);">
-          Core
-        </div>
-        <div class="col-meta">Fuerza y estabilidad</div>
-        <div class="col-title">Zona media</div>
-      </div>
-    </div>
-  </section>
 
     <!-- PROGRESO SEMANAL -->
   <section style="margin-top: 25px;">
@@ -427,9 +330,9 @@
       </div>
 
       <div class="stat-card">
-        <p class="stat-label">Rutinas activas</p>
+        <p class="stat-label">Rutinas asignadas</p>
         <p class="stat-value">
-          {{ rutinas_count|default:0 }}
+          {{ total_semana }}
         </p>
         <p class="stat-pill">
           Deporte:

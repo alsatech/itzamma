@@ -38,15 +38,15 @@ def instructor_dashboard(request):
     # Rutinas del instructor
     workouts = Workout.objects.filter(instructor=request.user)
 
-    # Clientes asignados a cualquier rutina del instructor
-    asignaciones = WorkoutAssignment.objects.filter(
+    # Clientes asignados (sin duplicados)
+    clientes_ids = WorkoutAssignment.objects.filter(
         workout__instructor=request.user
-    ).select_related("cliente").distinct()
+    ).values_list("cliente_id", flat=True).distinct()
 
-    clientes_asignados = [a.cliente for a in asignaciones]
+    clientes_asignados = CustomUser.objects.filter(id__in=clientes_ids)
 
     # Métricas
-    total_clients = len(clientes_asignados)
+    total_clients = clientes_asignados.count()
 
     total_completadas = RoutineCompleted.objects.filter(
         workout__instructor=request.user
