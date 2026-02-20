@@ -79,3 +79,22 @@ class WorkoutAssignment(models.Model):
 
     def __str__(self):
         return f"{self.workout.titulo} asignado a {self.cliente.username}"
+
+
+class InstructorClient(models.Model):
+    instructor = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='mis_clientes',
+        limit_choices_to={'rol': 'instructor'}
+    )
+    cliente = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='mi_instructor',
+        limit_choices_to={'rol': 'cliente'}
+    )
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.cliente.username} → {self.instructor.username}"

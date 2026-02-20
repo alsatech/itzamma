@@ -1,0 +1,200 @@
+{% extends "base_app.html" %}
+{% block title %}Agregar Cliente{% endblock %}
+{% block header_title %}Nuevo Cliente{% endblock %}
+
+{% block content %}
+
+<style>
+.form-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #9ca3af;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    border-color: #00ff9a;
+    box-shadow: 0 0 0 2px rgba(0,255,154,0.15);
+}
+
+.form-input::placeholder {
+    color: #4b5563;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(90deg, #16ff8f, #00c96d);
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #031b12;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 0 25px rgba(0,255,140,0.4);
+    transition: 0.2s;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(0,255,140,0.55);
+}
+
+.btn-cancel {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    color: #6b7280;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.btn-cancel:hover {
+    color: #9ca3af;
+}
+
+.error-list {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    color: #fca5a5;
+    font-size: 13px;
+}
+
+.field-error {
+    color: #f87171;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #22ff9a;
+    text-shadow: 0 0 10px rgba(34,255,154,0.35);
+    margin-bottom: 4px;
+}
+</style>
+
+<div class="max-w-md mx-auto pb-28 text-white">
+
+    <div class="text-center mt-8 mb-6">
+        <p class="text-4xl mb-2">👤</p>
+        <h2 class="page-title">Agregar Cliente</h2>
+        <p class="text-gray-400 text-sm">El cliente podrá acceder con estas credenciales</p>
+    </div>
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="error-list">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if form.non_field_errors %}
+        <div class="error-list">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="form-card">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 18px;">
+                <label class="form-label">Usuario</label>
+                <input
+                    type="text"
+                    name="username"
+                    class="form-input"
+                    placeholder="nombre_usuario"
+                    value="{{ form.username.value|default:'' }}"
+                    autocomplete="off"
+                    required
+                >
+                {% if form.username.errors %}
+                    <p class="field-error">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label class="form-label">Correo electrónico</label>
+                <input
+                    type="email"
+                    name="email"
+                    class="form-input"
+                    placeholder="cliente@email.com"
+                    value="{{ form.email.value|default:'' }}"
+                    required
+                >
+                {% if form.email.errors %}
+                    <p class="field-error">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label class="form-label">Contraseña</label>
+                <input
+                    type="password"
+                    name="password1"
+                    class="form-input"
+                    placeholder="••••••••"
+                    required
+                >
+                {% if form.password1.errors %}
+                    <p class="field-error">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <label class="form-label">Confirmar contraseña</label>
+                <input
+                    type="password"
+                    name="password2"
+                    class="form-input"
+                    placeholder="••••••••"
+                    required
+                >
+                {% if form.password2.errors %}
+                    <p class="field-error">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-submit">➕ Crear Cliente</button>
+        </form>
+    </div>
+
+    <a href="{% url 'instructor_dashboard' %}" class="btn-cancel">← Volver al Dashboard</a>
+
+</div>
+
+{% endblock %}

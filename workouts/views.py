@@ -4,7 +4,7 @@ from .models import Workout, RoutineCompleted
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import WorkoutForm, WorkoutMediaFormSet
-from accounts.models import CustomUser
+from accounts.models import CustomUser, InstructorClient
 from workouts.models import Workout, WorkoutAssignment
 from django.utils import timezone
 from datetime import timedelta
@@ -38,12 +38,10 @@ def instructor_dashboard(request):
     # Rutinas del instructor
     workouts = Workout.objects.filter(instructor=request.user)
 
-    # Clientes asignados (sin duplicados)
-    clientes_ids = WorkoutAssignment.objects.filter(
-        workout__instructor=request.user
-    ).values_list("cliente_id", flat=True).distinct()
-
-    clientes_asignados = CustomUser.objects.filter(id__in=clientes_ids)
+    # Clientes del instructor via InstructorClient
+    clientes_asignados = CustomUser.objects.filter(
+        mi_instructor__instructor=request.user
+    )
 
     # Métricas
     total_clients = clientes_asignados.count()
@@ -69,12 +67,10 @@ def instructor_dashboard(request):
 @user_passes_test(is_instructor)
 def instructor_clientes(request):
 
-    # todos los clientes que tengan rutinas asignadas por este instructor
-    clientes_ids = WorkoutAssignment.objects.filter(
-        workout__instructor=request.user
-    ).values_list("cliente_id", flat=True).distinct()
-
-    clientes = CustomUser.objects.filter(id__in=clientes_ids)
+    # Clientes del instructor via InstructorClient
+    clientes = CustomUser.objects.filter(
+        mi_instructor__instructor=request.user
+    )
 
     return render(request, "dashboards/instructor/clientes_lista.html", {
         "clientes": clientes,
@@ -86,6 +82,12 @@ def instructor_clientes(request):
 @user_passes_test(is_instructor)
 def instructor_cliente_detalle(request, cliente_id):
     cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
+
+    # Verificar que el cliente pertenece a este instructor
+    if not InstructorClient.objects.filter(instructor=request.user, cliente=cliente).exists():
+        messages.error(request, "No tienes acceso a este cliente.")
+        return redirect("instructor_dashboard")
+
     perfil = get_object_or_404(UserProfile, user=cliente)
 
     # Rutinas asignadas
@@ -167,8 +169,10 @@ def instructor_workout_create(request):
 def assign_workout(request, workout_id):
     workout = get_object_or_404(Workout, id=workout_id)
 
-    # SOLO clientes
-    clientes = CustomUser.objects.filter(rol="cliente")
+    # Solo clientes de este instructor
+    clientes = CustomUser.objects.filter(
+        mi_instructor__instructor=request.user
+    )
 
     if request.method == "POST":
         cliente_id = request.POST.get("cliente")
@@ -179,12 +183,16 @@ def assign_workout(request, workout_id):
             messages.error(request, "Cliente no válido.")
             return redirect("instructor_dashboard")
 
+        # Verificar que el cliente pertenece a este instructor
+        if not InstructorClient.objects.filter(instructor=request.user, cliente=cliente).exists():
+            messages.error(request, "No tienes permiso para asignar rutinas a este cliente.")
+            return redirect("instructor_dashboard")
+
         # Crear asignación
         WorkoutAssignment.objects.create(
             workout=workout,
             cliente=cliente
         )
-
 
         messages.success(request, f"Rutina asignada a {cliente.username}.")
         return redirect("instructor_dashboard")
@@ -197,5 +205,3 @@ def assign_workout(request, workout_id):
             "clientes": clientes,
         }
     )
-
-

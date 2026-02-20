@@ -1,0 +1,194 @@
+{% extends "base_app.html" %}
+{% block title %}Panel Admin{% endblock %}
+{% block header_title %}Super Admin{% endblock %}
+
+{% block content %}
+
+<style>
+.metric-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 18px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #fbbf24;
+    text-shadow: 0 0 14px rgba(251,191,36,0.5);
+}
+
+.metric-label {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e5e7eb;
+    margin-top: 28px;
+    margin-bottom: 12px;
+}
+
+.instructor-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+.instructor-card:hover {
+    background: rgba(255,255,255,0.07);
+}
+
+.avatar-gold {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #1c1408;
+    font-weight: 800;
+    font-size: 18px;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(251,191,36,0.4);
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fbbf24;
+    text-shadow: 0 0 12px rgba(251,191,36,0.4);
+    margin-bottom: 4px;
+}
+
+.btn-add-instructor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1c1408;
+    text-decoration: none;
+    margin: 24px auto 90px;
+    box-shadow: 0 0 25px rgba(245,158,11,0.4);
+    transition: 0.2s;
+}
+
+.btn-add-instructor:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(245,158,11,0.6);
+}
+
+.badge {
+    background: rgba(251,191,36,0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+}
+
+{% if messages %}
+.msg-success {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #86efac;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+{% endif %}
+</style>
+
+<div class="max-w-md mx-auto pb-28 text-white">
+
+    <!-- HEADER -->
+    <div class="text-center mt-8 mb-6">
+        <p class="text-4xl mb-2">👑</p>
+        <h2 class="page-title">Panel de Administración</h2>
+        <p class="text-gray-400 text-sm">Gestión global de la plataforma</p>
+    </div>
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="msg-success">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- MÉTRICAS GLOBALES -->
+    <div class="grid grid-cols-2 gap-4">
+        <div class="metric-card">
+            <p class="metric-value">{{ instructores.count }}</p>
+            <p class="metric-label">Instructores</p>
+        </div>
+        <div class="metric-card">
+            <p class="metric-value">{{ total_clientes }}</p>
+            <p class="metric-label">Clientes</p>
+        </div>
+        <div class="metric-card">
+            <p class="metric-value">{{ total_rutinas }}</p>
+            <p class="metric-label">Rutinas</p>
+        </div>
+        <div class="metric-card">
+            <p class="metric-value">{{ total_completadas }}</p>
+            <p class="metric-label">Completadas</p>
+        </div>
+    </div>
+
+    <!-- LISTA DE INSTRUCTORES -->
+    <p class="section-title">Instructores registrados</p>
+
+    {% if instructores %}
+        {% for instructor in instructores %}
+        <div class="instructor-card">
+            <div class="avatar-gold">
+                {{ instructor.username|slice:":1"|upper }}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <p class="font-semibold" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ instructor.username }}
+                </p>
+                <p class="text-gray-400 text-sm" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ instructor.email }}
+                </p>
+                {% if instructor.instructor_profile %}
+                    <span class="badge">{{ instructor.instructor_profile.deporte }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-gray-500 text-sm text-center py-6">No hay instructores registrados aún.</p>
+    {% endif %}
+
+    <!-- BOTÓN AGREGAR INSTRUCTOR -->
+    <a href="{% url 'crear_instructor' %}" class="btn-add-instructor">
+        ➕ Agregar Instructor
+    </a>
+
+</div>
+
+{% endblock %}
