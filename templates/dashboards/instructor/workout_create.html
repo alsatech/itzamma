@@ -248,6 +248,54 @@
     cursor: pointer;
   }
 
+  /* ---- SPORT PICKER ---- */
+  .sport-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .sport-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 6px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+
+  .sport-option:active {
+    transform: scale(0.94);
+  }
+
+  .sport-option .s-emoji {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .sport-option .s-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: #6B7280;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .sport-option.selected {
+    background: rgba(168,213,194,0.15);
+    border-color: #A8D5C2;
+  }
+
+  .sport-option.selected .s-name {
+    color: #A8D5C2;
+  }
+
   /* ---- ERRORLIST ---- */
   .errorlist {
     margin: 6px 0 0;
@@ -261,22 +309,21 @@
   .btn-submit {
     width: 100%;
     padding: 17px;
-    background: linear-gradient(90deg, #16ff8f, #00c96d);
+    background: #A8D5C2;
     border: none;
     border-radius: 18px;
     font-size: 17px;
     font-weight: 800;
-    color: #031b12;
+    color: #0d2a1a;
     cursor: pointer;
-    box-shadow: 0 0 28px rgba(0, 255, 140, 0.4), 0 0 60px rgba(0, 255, 140, 0.15);
-    transition: box-shadow 0.2s, transform 0.2s;
+    transition: opacity 0.2s, transform 0.2s;
     font-family: inherit;
     margin-bottom: 12px;
   }
 
   .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 38px rgba(0, 255, 140, 0.55), 0 0 70px rgba(0, 255, 140, 0.25);
+    opacity: 0.9;
+    transform: translateY(-1px);
   }
 
   .btn-cancel {
@@ -310,7 +357,7 @@
 
     <!-- INTRO -->
     <div class="intro">
-      <div class="intro-icon">🏋️</div>
+      <div class="intro-icon" id="intro-icon">🏋️</div>
       <h2 class="intro-title">Crear rutina</h2>
       <p class="intro-sub">Define el contenido y los bloques de trabajo</p>
     </div>
@@ -330,6 +377,101 @@
         {{ form.descripcion }}
         {{ form.descripcion.errors }}
       </div>
+
+      <!-- SPORT PICKER -->
+      <div class="field">
+        <label class="field-label">Deporte</label>
+        {{ form.deporte }}
+        <div class="sport-grid" id="sport-grid">
+
+          <div class="sport-option {% if form.deporte.value == 'gym' or not form.deporte.value %}selected{% endif %}"
+               data-value="gym">
+            <span class="s-emoji">🏋️</span>
+            <span class="s-name">Gym</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'futbol' %}selected{% endif %}"
+               data-value="futbol">
+            <span class="s-emoji">⚽</span>
+            <span class="s-name">Fútbol</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'tenis' %}selected{% endif %}"
+               data-value="tenis">
+            <span class="s-emoji">🎾</span>
+            <span class="s-name">Tenis</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'basketball' %}selected{% endif %}"
+               data-value="basketball">
+            <span class="s-emoji">🏀</span>
+            <span class="s-name">Basketball</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'natacion' %}selected{% endif %}"
+               data-value="natacion">
+            <span class="s-emoji">🏊</span>
+            <span class="s-name">Natación</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'ciclismo' %}selected{% endif %}"
+               data-value="ciclismo">
+            <span class="s-emoji">🚴</span>
+            <span class="s-name">Ciclismo</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'boxeo' %}selected{% endif %}"
+               data-value="boxeo">
+            <span class="s-emoji">🥊</span>
+            <span class="s-name">Boxeo</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'yoga' %}selected{% endif %}"
+               data-value="yoga">
+            <span class="s-emoji">🧘</span>
+            <span class="s-name">Yoga</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'running' %}selected{% endif %}"
+               data-value="running">
+            <span class="s-emoji">🏃</span>
+            <span class="s-name">Running</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'voleibol' %}selected{% endif %}"
+               data-value="voleibol">
+            <span class="s-emoji">🏐</span>
+            <span class="s-name">Voleibol</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'beisbol' %}selected{% endif %}"
+               data-value="beisbol">
+            <span class="s-emoji">⚾</span>
+            <span class="s-name">Béisbol</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'atletismo' %}selected{% endif %}"
+               data-value="atletismo">
+            <span class="s-emoji">🎽</span>
+            <span class="s-name">Atletismo</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'pingpong' %}selected{% endif %}"
+               data-value="pingpong">
+            <span class="s-emoji">🏓</span>
+            <span class="s-name">Ping Pong</span>
+          </div>
+
+          <div class="sport-option {% if form.deporte.value == 'otro' %}selected{% endif %}"
+               data-value="otro">
+            <span class="s-emoji">🏅</span>
+            <span class="s-name">Otro</span>
+          </div>
+
+        </div>
+        {{ form.deporte.errors }}
+      </div>
+
     </div>
 
     <!-- BLOQUES DE CONTENIDO -->
@@ -396,5 +538,27 @@
   <a href="{% url 'instructor_dashboard' %}" class="btn-cancel">← Volver al panel</a>
 
 </div>
+
+<script>
+(function () {
+  const hiddenInput = document.getElementById('id_deporte');
+  const options     = document.querySelectorAll('#sport-grid .sport-option');
+  const introIcon   = document.getElementById('intro-icon');
+
+  function select(opt) {
+    options.forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    hiddenInput.value = opt.dataset.value;
+    introIcon.textContent = opt.querySelector('.s-emoji').textContent;
+  }
+
+  // Init: mark already-selected (handles form re-render on error)
+  const current = hiddenInput.value || 'gym';
+  options.forEach(opt => {
+    if (opt.dataset.value === current) select(opt);
+    opt.addEventListener('click', () => select(opt));
+  });
+})();
+</script>
 
 {% endblock %}

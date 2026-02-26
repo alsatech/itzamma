@@ -5,199 +5,322 @@
 {% block content %}
 
 <style>
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    color: #fff;
+  /* ---- TOKENS ---- */
+  :root {
+    --mint:       #A8D5C2;
+    --mint-light: #C2E8D8;
+    --peach:      #F0C4A8;
+    --lime:       #C8E8A0;
+    --bg-card:    #1C1F2A;
+    --border:     rgba(255,255,255,0.07);
   }
 
   .dash-page {
     max-width: 480px;
     margin: 0 auto;
-    padding: 18px 0 110px 0;
+    padding: 0 18px 110px;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* ---- SECTION TITLE ---- */
+  /* ---- GREETING ---- */
+  .greeting {
+    padding: 20px 0 22px;
+  }
+  .greeting-sub {
+    font-size: 13px;
+    color: #9CA3AF;
+    margin: 0 0 6px;
+    font-weight: 500;
+  }
+  .greeting-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.08;
+    letter-spacing: -0.8px;
+    margin: 0;
+  }
+
+  /* ---- HERO CARD (menta) ---- */
+  .hero-card {
+    background: var(--mint);
+    border-radius: 28px;
+    padding: 22px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .hero-left { flex: 1; }
+  .hero-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(10,40,25,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .hero-big {
+    font-size: 52px;
+    font-weight: 900;
+    color: #111827;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 6px;
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: rgba(10,40,25,0.55);
+    font-weight: 500;
+  }
+  /* Ring */
+  .ring-wrapper {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+  }
+  .ring-wrapper svg { transform: rotate(-90deg); }
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .ring-val {
+    font-size: 18px;
+    font-weight: 900;
+    color: #111827;
+    line-height: 1;
+  }
+  .ring-lbl {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(10,40,25,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ---- ACTIVITY BANNER (lima) ---- */
+  .activity-banner {
+    background: var(--lime);
+    border-radius: 20px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .activity-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .activity-icon { font-size: 22px; }
+  .activity-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a3005;
+    margin: 0 0 2px;
+  }
+  .activity-sub {
+    font-size: 11px;
+    color: rgba(20,50,5,0.6);
+    margin: 0;
+    font-weight: 500;
+  }
+  .activity-count {
+    font-size: 26px;
+    font-weight: 900;
+    color: #1a3005;
+  }
+
+  /* ---- STATS ROW ---- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    border-radius: 22px;
+    padding: 18px 16px;
+  }
+  .s-mint  { background: var(--mint); }
+  .s-peach { background: var(--peach); }
+  .s-lime  { background: var(--lime); }
+  .s-dark  { background: var(--bg-card); border: 1px solid var(--border); }
+
+  .s-mint  .s-lbl, .s-mint  .s-unit { color: rgba(10,45,30,0.6); }
+  .s-mint  .s-val                    { color: #0d2a1a; }
+  .s-peach .s-lbl, .s-peach .s-unit { color: rgba(80,30,10,0.6); }
+  .s-peach .s-val                    { color: #3d1505; }
+  .s-lime  .s-lbl, .s-lime  .s-unit { color: rgba(20,60,5,0.6); }
+  .s-lime  .s-val                    { color: #1a3a05; }
+  .s-dark  .s-lbl, .s-dark  .s-unit { color: #6B7280; }
+  .s-dark  .s-val                    { color: #f1f5f9; }
+
+  .s-icon { font-size: 22px; display: block; margin-bottom: 10px; }
+  .s-lbl  { font-size: 12px; font-weight: 500; margin: 0 0 4px; }
+  .s-val  { font-size: 34px; font-weight: 900; line-height: 1; margin: 0; letter-spacing: -1px; }
+  .s-unit { font-size: 13px; font-weight: 500; margin-left: 2px; }
+
+  /* ---- SECTION ---- */
+  .section { margin-bottom: 28px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
   .section-title {
     font-size: 18px;
     font-weight: 700;
     color: #f1f5f9;
     letter-spacing: -0.2px;
-    margin: 0 0 14px 0;
+    margin: 0;
   }
-
-  .section {
-    margin-bottom: 30px;
-  }
-
-  /* ---- METRICS GRID ---- */
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 30px;
-  }
-
-  .metric-card {
-    background: #0f172a;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 22px;
-    padding: 18px 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  }
-
-  .metric-card.wide {
-    grid-column: span 2;
-  }
-
-  .metric-label {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0 0 8px 0;
+  .see-all {
+    font-size: 12px;
+    color: #9CA3AF;
+    text-decoration: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 999px;
     font-weight: 500;
   }
 
-  .metric-value {
-    font-size: 40px;
-    font-weight: 900;
-    color: #00ff9a;
-    text-shadow: 0 0 18px rgba(0, 255, 154, 0.5);
-    line-height: 1;
-    margin: 0;
-  }
-
-  .metric-icon {
-    font-size: 22px;
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  /* ---- CLIENT CARD ---- */
-  .client-card {
+  /* ---- CLIENT ROW ---- */
+  .client-row {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 16px;
-    border-radius: 20px;
-    background: #0f172a;
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
     text-decoration: none;
-    color: white;
-    margin-bottom: 10px;
-    transition: background 0.2s;
   }
-
-  .client-card:hover {
-    background: #1a2438;
-  }
-
+  .client-row:last-of-type { border-bottom: none; }
   .client-avatar {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #00c96d, #0f172a);
+    background: var(--mint-light);
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 20px;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0d3322;
     flex-shrink: 0;
-    box-shadow: 0 0 14px rgba(0, 201, 109, 0.4);
   }
-
-  .client-info {
-    flex: 1;
-    min-width: 0;
+  .client-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
   }
-
+  .client-info { flex: 1; min-width: 0; }
   .client-name {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
     color: #f1f5f9;
-    margin: 0 0 2px 0;
+    margin: 0 0 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
   .client-email {
-    font-size: 13px;
-    color: #6b7280;
+    font-size: 12px;
+    color: #6B7280;
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
   .client-arrow {
-    color: #374151;
-    font-size: 18px;
+    color: #4B5563;
+    font-size: 20px;
     flex-shrink: 0;
   }
 
-  /* ---- WORKOUT CARD ---- */
-  .workout-card {
-    background: #0f172a;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 20px;
-    padding: 16px 18px;
-    margin-bottom: 10px;
-  }
-
-  .workout-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin: 0 0 4px 0;
-  }
-
-  .workout-desc {
-    font-size: 14px;
-    color: #6b7280;
-    margin: 0 0 14px 0;
-  }
-
-  /* ---- BUTTONS ---- */
-  .btn-assign {
-    display: inline-flex;
+  /* ---- ADD CLIENT BUTTON ---- */
+  .btn-add {
+    display: flex;
     align-items: center;
-    gap: 7px;
-    padding: 10px 18px;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    margin-top: 12px;
+    border-radius: 16px;
+    background: var(--bg-card);
+    border: 1px dashed rgba(168,213,194,0.35);
     font-size: 14px;
+    font-weight: 600;
+    color: #A8D5C2;
+    text-decoration: none;
+  }
+
+  /* ---- WORKOUT ROW ---- */
+  .workout-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .workout-row:last-of-type { border-bottom: none; }
+  .workout-thumb {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+  .workout-body { flex: 1; min-width: 0; }
+  .workout-name {
+    font-size: 15px;
     font-weight: 700;
-    color: #fff;
-    background: linear-gradient(90deg, #ff4ecd, #ff7a18);
-    border-radius: 999px;
+    color: #f1f5f9;
+    margin: 0 0 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .workout-desc {
+    font-size: 12px;
+    color: #6B7280;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .btn-assign {
+    flex-shrink: 0;
+    background: var(--peach);
+    color: #5a2e10;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 12px;
     text-decoration: none;
-    box-shadow: 0 0 18px rgba(255, 78, 205, 0.4), 0 0 36px rgba(255, 122, 24, 0.25);
-    transition: box-shadow 0.2s, transform 0.2s;
+    white-space: nowrap;
   }
 
-  .btn-assign:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 0 24px rgba(255, 78, 205, 0.6), 0 0 44px rgba(255, 122, 24, 0.35);
-  }
-
-  .btn-add-client {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #22ff9a;
-    background: rgba(34, 255, 154, 0.08);
-    border: 1px solid rgba(34, 255, 154, 0.3);
-    border-radius: 999px;
-    text-decoration: none;
-    margin-bottom: 6px;
-    transition: background 0.2s;
-  }
-
-  .btn-add-client:hover {
-    background: rgba(34, 255, 154, 0.14);
-  }
-
+  /* ---- CREATE WORKOUT BUTTON ---- */
   .btn-create {
     display: flex;
     align-items: center;
@@ -205,64 +328,115 @@
     gap: 10px;
     width: 100%;
     padding: 18px;
-    background: linear-gradient(90deg, #16ff8f, #00c96d);
-    border-radius: 20px;
-    font-size: 17px;
+    background: var(--mint);
+    border-radius: 22px;
+    font-size: 16px;
     font-weight: 800;
-    color: #031b12;
+    color: #0d2a1a;
     text-decoration: none;
-    box-shadow: 0 0 28px rgba(0, 255, 140, 0.45), 0 0 60px rgba(0, 255, 140, 0.2);
-    transition: box-shadow 0.2s, transform 0.2s;
+    margin-top: 4px;
   }
 
-  .btn-create:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 36px rgba(0, 255, 140, 0.6), 0 0 70px rgba(0, 255, 140, 0.3);
-  }
-
-  /* ---- EMPTY STATE ---- */
+  /* ---- EMPTY ---- */
   .empty-state {
     text-align: center;
-    padding: 24px 0;
+    padding: 28px 0;
     color: #4b5563;
     font-size: 15px;
   }
 </style>
 
+
 <div class="dash-page">
 
-  <!-- MÉTRICAS -->
-  <div class="metrics-grid">
+  <!-- GREETING -->
+  <div class="greeting">
+    <p class="greeting-sub">Welcome Back 👋</p>
+    <h1 class="greeting-title">Panel de<br>Instructor</h1>
+  </div>
 
-    <div class="metric-card">
-      <span class="metric-icon">👥</span>
-      <p class="metric-label">Clientes activos</p>
-      <p class="metric-value">{{ total_clients }}</p>
+
+  <!-- HERO CARD: clientes + ring de completadas -->
+  <div class="hero-card">
+    <div class="hero-left">
+      <div class="hero-label">◎ Resumen</div>
+      <div class="hero-big">{{ total_clients }}</div>
+      <div class="hero-sub">Clientes activos</div>
     </div>
 
-    <div class="metric-card">
-      <span class="metric-icon">✅</span>
-      <p class="metric-label">Rutinas completadas</p>
-      <p class="metric-value">{{ total_completadas }}</p>
+    <div class="ring-wrapper">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="38"
+                fill="none"
+                stroke="rgba(0,0,0,0.12)"
+                stroke-width="9"/>
+        <circle cx="48" cy="48" r="38"
+                fill="none"
+                stroke="#fff"
+                stroke-width="9"
+                stroke-linecap="round"
+                stroke-dasharray="238.8"
+                stroke-dashoffset="238.8"
+                id="instructor-ring"/>
+      </svg>
+      <div class="ring-center">
+        <span class="ring-val">{{ total_completadas }}</span>
+        <span class="ring-lbl">Completadas</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ACTIVITY BANNER: últimos 7 días -->
+  <div class="activity-banner">
+    <div class="activity-left">
+      <span class="activity-icon">📅</span>
+      <div>
+        <p class="activity-title">Actividad reciente</p>
+        <p class="activity-sub">Rutinas completadas esta semana</p>
+      </div>
+    </div>
+    <span class="activity-count">{{ completadas_7dias }}</span>
+  </div>
+
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card s-mint">
+      <span class="s-icon">👥</span>
+      <p class="s-lbl">Clientes</p>
+      <p class="s-val">{{ total_clients }}</p>
     </div>
 
-    <div class="metric-card wide">
-      <span class="metric-icon">📅</span>
-      <p class="metric-label">Actividad últimos 7 días</p>
-      <p class="metric-value">{{ ultimos_7_dias }}</p>
+    <div class="stat-card s-peach">
+      <span class="s-icon">✅</span>
+      <p class="s-lbl">Completadas</p>
+      <p class="s-val">{{ total_completadas }}</p>
     </div>
 
+    <div class="stat-card s-lime" style="grid-column: span 2;">
+      <span class="s-icon">🏋️</span>
+      <p class="s-lbl">Rutinas creadas</p>
+      <p class="s-val">{{ workouts|length }}</p>
+    </div>
   </div>
 
 
   <!-- CLIENTES -->
   <section class="section">
-    <p class="section-title">Tus clientes</p>
+    <div class="section-header">
+      <p class="section-title">Tus clientes</p>
+      <a href="{% url 'instructor_clientes' %}" class="see-all">Ver todo ↗</a>
+    </div>
 
-    {% for c in clientes_asignados %}
-    <a href="{% url 'instructor_cliente_detalle' c.id %}" class="client-card">
+    {% for c in clientes_asignados|slice:":4" %}
+    <a href="{% url 'instructor_cliente_detalle' c.id %}" class="client-row">
       <div class="client-avatar">
-        {{ c.first_name|default:c.username|slice:":1"|upper }}
+        {% if c.profile.foto %}
+          <img src="{{ c.profile.foto.url }}" alt="">
+        {% else %}
+          {{ c.first_name|default:c.username|slice:":1"|upper }}
+        {% endif %}
       </div>
       <div class="client-info">
         <p class="client-name">{{ c.get_full_name|default:c.username }}</p>
@@ -274,23 +448,26 @@
     <div class="empty-state">Sin clientes asignados aún</div>
     {% endfor %}
 
-    <a href="{% url 'crear_cliente' %}" class="btn-add-client" style="margin-top: 6px;">
-      👤 Agregar cliente
+    <a href="{% url 'crear_cliente' %}" class="btn-add">
+      ＋ Agregar cliente
     </a>
   </section>
 
 
   <!-- RUTINAS -->
   <section class="section" id="rutinas">
-    <p class="section-title">Tus rutinas</p>
+    <div class="section-header">
+      <p class="section-title">Tus rutinas</p>
+    </div>
 
     {% for w in workouts %}
-    <div class="workout-card">
-      <p class="workout-title">{{ w.titulo }}</p>
-      <p class="workout-desc">{{ w.descripcion|default:"Sin descripción" }}</p>
-      <a href="{% url 'assign_workout' w.id %}" class="btn-assign">
-        ➕ Asignar
-      </a>
+    <div class="workout-row">
+      <div class="workout-thumb">{{ w.emoji }}</div>
+      <div class="workout-body">
+        <p class="workout-name">{{ w.titulo }}</p>
+        <p class="workout-desc">{{ w.descripcion|default:"Sin descripción"|truncatechars:38 }}</p>
+      </div>
+      <a href="{% url 'assign_workout' w.id %}" class="btn-assign">Asignar</a>
     </div>
     {% empty %}
     <div class="empty-state">Sin rutinas creadas aún</div>
@@ -300,9 +477,27 @@
 
   <!-- CREAR RUTINA -->
   <a href="{% url 'instructor_workout_create' %}" class="btn-create">
-    ➕ Crear nueva rutina
+    ＋ Crear nueva rutina
   </a>
 
 </div>
+
+
+<script>
+  // Animate ring: representa % de completadas respecto al total de clientes (o simplemente visual)
+  (function() {
+    const ring = document.getElementById('instructor-ring');
+    if (!ring) return;
+    const circumference = 238.8;
+    const total = {{ total_completadas }};
+    // Animar al 75% visual si hay completadas, 0% si no hay
+    const pct = total > 0 ? Math.min(75 + (total % 25), 95) : 0;
+    const offset = circumference - (circumference * pct / 100);
+    requestAnimationFrame(function() {
+      ring.style.transition = 'stroke-dashoffset 0.9s cubic-bezier(0.4,0,0.2,1)';
+      ring.style.strokeDashoffset = offset;
+    });
+  })();
+</script>
 
 {% endblock %}

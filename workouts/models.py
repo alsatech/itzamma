@@ -6,6 +6,41 @@ import re
 User = settings.AUTH_USER_MODEL
 
 class Workout(models.Model):
+
+    DEPORTES = [
+        ("gym",        "Gym"),
+        ("futbol",     "Fútbol"),
+        ("tenis",      "Tenis"),
+        ("basketball", "Basketball"),
+        ("natacion",   "Natación"),
+        ("ciclismo",   "Ciclismo"),
+        ("boxeo",      "Boxeo"),
+        ("yoga",       "Yoga"),
+        ("running",    "Running"),
+        ("voleibol",   "Voleibol"),
+        ("beisbol",    "Béisbol"),
+        ("atletismo",  "Atletismo"),
+        ("pingpong",   "Ping Pong"),
+        ("otro",       "Otro"),
+    ]
+
+    DEPORTE_EMOJIS = {
+        "gym":        "🏋️",
+        "futbol":     "⚽",
+        "tenis":      "🎾",
+        "basketball": "🏀",
+        "natacion":   "🏊",
+        "ciclismo":   "🚴",
+        "boxeo":      "🥊",
+        "yoga":       "🧘",
+        "running":    "🏃",
+        "voleibol":   "🏐",
+        "beisbol":    "⚾",
+        "atletismo":  "🎽",
+        "pingpong":   "🏓",
+        "otro":       "🏅",
+    }
+
     instructor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -13,10 +48,15 @@ class Workout(models.Model):
     )
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True, null=True)
+    deporte = models.CharField(max_length=20, choices=DEPORTES, default="gym")
     creado = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.titulo
+
+    @property
+    def emoji(self):
+        return self.DEPORTE_EMOJIS.get(self.deporte, "🏅")
 
 
 

@@ -8,7 +8,7 @@ from .models import Workout, WorkoutMedia
 class WorkoutForm(forms.ModelForm):
     class Meta:
         model = Workout
-        fields = ["titulo", "descripcion"]
+        fields = ["titulo", "descripcion", "deporte"]
         widgets = {
             "titulo": forms.TextInput(attrs={
                 "class": "input-text",
@@ -19,6 +19,7 @@ class WorkoutForm(forms.ModelForm):
                 "rows": 4,
                 "placeholder": "Descripción general de la rutina...",
             }),
+            "deporte": forms.HiddenInput(),
         }
 
 
