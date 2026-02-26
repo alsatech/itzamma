@@ -1,224 +1,307 @@
 {% extends "base_app.html" %}
 {% block title %}Panel Instructor{% endblock %}
-{% block header_title %}Instructor{% endblock %}
+{% block header_title %}Panel{% endblock %}
 
 {% block content %}
 
 <style>
-/* =========================
-   BASE
-========================= */
-.section-title {
-    font-size: 20px;
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #fff;
+  }
+
+  .dash-page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 18px 0 110px 0;
+  }
+
+  /* ---- SECTION TITLE ---- */
+  .section-title {
+    font-size: 18px;
     font-weight: 700;
-    margin-top: 26px;
-    margin-bottom: 10px;
-}
+    color: #f1f5f9;
+    letter-spacing: -0.2px;
+    margin: 0 0 14px 0;
+  }
 
-.card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 18px;
-    padding: 18px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-    transition: 0.25s ease;
-}
+  .section {
+    margin-bottom: 30px;
+  }
 
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(0,0,0,0.55);
-}
+  /* ---- METRICS GRID ---- */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 30px;
+  }
 
-/* =========================
-   METRICS
-========================= */
-.metric {
-    font-size: 28px;
-    font-weight: 800;
+  .metric-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 22px;
+    padding: 18px 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .metric-card.wide {
+    grid-column: span 2;
+  }
+
+  .metric-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+  }
+
+  .metric-value {
+    font-size: 40px;
+    font-weight: 900;
     color: #00ff9a;
-    text-shadow: 0 0 12px rgba(0,255,170,0.45);
-}
+    text-shadow: 0 0 18px rgba(0, 255, 154, 0.5);
+    line-height: 1;
+    margin: 0;
+  }
 
-/* =========================
-   CLIENT CARD
-========================= */
-.client-card {
+  .metric-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* ---- CLIENT CARD ---- */
+  .client-card {
     display: flex;
     align-items: center;
     gap: 14px;
     padding: 16px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
     text-decoration: none;
     color: white;
-    margin-bottom: 12px;
-    transition: .2s;
-}
+    margin-bottom: 10px;
+    transition: background 0.2s;
+  }
 
-.client-card:hover {
-    background: rgba(255,255,255,0.07);
-    transform: translateY(-2px);
-}
+  .client-card:hover {
+    background: #1a2438;
+  }
 
-.avatar {
-    width: 48px;
-    height: 48px;
+  .client-avatar {
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
-    background: #1f2937;
+    background: radial-gradient(circle at 30% 30%, #00c96d, #0f172a);
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #00ffb3;
+    color: #fff;
     font-weight: 700;
     font-size: 20px;
-}
+    flex-shrink: 0;
+    box-shadow: 0 0 14px rgba(0, 201, 109, 0.4);
+  }
 
-/* =========================
-   TITLES
-========================= */
-.title-premium {
-    font-size: 22px;
-    font-weight: 800;
-    color: #22ff9a;
-    text-shadow: 0 0 10px rgba(34,255,154,0.35);
-    margin-bottom: 12px;
-}
+  .client-info {
+    flex: 1;
+    min-width: 0;
+  }
 
-/* =========================
-   ASSIGN BUTTON (PINK GLOW)
-========================= */
-.btn-assign {
+  .client-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .client-email {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .client-arrow {
+    color: #374151;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ---- WORKOUT CARD ---- */
+  .workout-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+
+  .workout-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 4px 0;
+  }
+
+  .workout-desc {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 14px 0;
+  }
+
+  /* ---- BUTTONS ---- */
+  .btn-assign {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-
-    margin-top: 8px;
-    padding: 8px 14px;
-
-    font-size: 13px;
-    font-weight: 800;
+    gap: 7px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 700;
     color: #fff;
-
     background: linear-gradient(90deg, #ff4ecd, #ff7a18);
     border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 0 18px rgba(255, 78, 205, 0.4), 0 0 36px rgba(255, 122, 24, 0.25);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
 
-    box-shadow:
-        0 0 16px rgba(255,78,205,0.45),
-        0 0 32px rgba(255,122,24,0.35);
-
-    transition: .2s;
-}
-
-.btn-assign:hover {
+  .btn-assign:hover {
     transform: translateY(-1px);
-    box-shadow:
-        0 0 22px rgba(255,78,205,0.6),
-        0 0 40px rgba(255,122,24,0.45);
-}
+    box-shadow: 0 0 24px rgba(255, 78, 205, 0.6), 0 0 44px rgba(255, 122, 24, 0.35);
+  }
 
-/* =========================
-   CREATE BUTTON (GREEN)
-========================= */
-.btn-create-premium {
+  .btn-add-client {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #22ff9a;
+    background: rgba(34, 255, 154, 0.08);
+    border: 1px solid rgba(34, 255, 154, 0.3);
+    border-radius: 999px;
+    text-decoration: none;
+    margin-bottom: 6px;
+    transition: background 0.2s;
+  }
+
+  .btn-add-client:hover {
+    background: rgba(34, 255, 154, 0.14);
+  }
+
+  .btn-create {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-
     width: 100%;
-    max-width: 100%;
-    padding: 16px 18px;
-
+    padding: 18px;
     background: linear-gradient(90deg, #16ff8f, #00c96d);
-    border-radius: 18px;
-
-    font-size: 16px;
+    border-radius: 20px;
+    font-size: 17px;
     font-weight: 800;
     color: #031b12;
-    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 0 28px rgba(0, 255, 140, 0.45), 0 0 60px rgba(0, 255, 140, 0.2);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
 
-    margin: 24px auto 90px;
-
-    box-shadow:
-        0 0 25px rgba(0,255,140,0.45),
-        0 0 60px rgba(0,255,140,0.25);
-
-    transition: .2s;
-}
-
-.btn-create-premium:hover {
+  .btn-create:hover {
     transform: translateY(-2px);
-    box-shadow:
-        0 0 35px rgba(0,255,140,0.6),
-        0 0 70px rgba(0,255,140,0.35);
-}
+    box-shadow: 0 0 36px rgba(0, 255, 140, 0.6), 0 0 70px rgba(0, 255, 140, 0.3);
+  }
+
+  /* ---- EMPTY STATE ---- */
+  .empty-state {
+    text-align: center;
+    padding: 24px 0;
+    color: #4b5563;
+    font-size: 15px;
+  }
 </style>
 
-<div class="max-w-md mx-auto pb-28 text-white">
+<div class="dash-page">
 
-    <!-- HEADER -->
-    <div class="text-center mt-6">
-        <h2 class="title-premium mt-8">{{ request.user.username }}</h2>
-        <p class="text-gray-400">Instructor certificado de Itzamma Fitness</p>
+  <!-- MÉTRICAS -->
+  <div class="metrics-grid">
+
+    <div class="metric-card">
+      <span class="metric-icon">👥</span>
+      <p class="metric-label">Clientes activos</p>
+      <p class="metric-value">{{ total_clients }}</p>
     </div>
 
-    <!-- METRICS -->
-    <div class="grid grid-cols-2 gap-4 mt-6">
-        <div class="card text-center">
-            <p class="text-gray-400 text-sm">Clientes activos</p>
-            <p class="metric">{{ total_clients }}</p>
-        </div>
-
-        <div class="card text-center">
-            <p class="text-gray-400 text-sm">Rutinas completadas</p>
-            <p class="metric">{{ total_completadas }}</p>
-        </div>
-
-        <div class="card text-center col-span-2">
-            <p class="text-gray-400 text-sm">Últimos 7 días</p>
-            <p class="metric">{{ ultimos_7_dias }}</p>
-        </div>
+    <div class="metric-card">
+      <span class="metric-icon">✅</span>
+      <p class="metric-label">Rutinas completadas</p>
+      <p class="metric-value">{{ total_completadas }}</p>
     </div>
 
-    <!-- CLIENTS -->
-    <div class="section-title text-gray-200">Tus clientes</div>
+    <div class="metric-card wide">
+      <span class="metric-icon">📅</span>
+      <p class="metric-label">Actividad últimos 7 días</p>
+      <p class="metric-value">{{ ultimos_7_dias }}</p>
+    </div>
+
+  </div>
+
+
+  <!-- CLIENTES -->
+  <section class="section">
+    <p class="section-title">Tus clientes</p>
 
     {% for c in clientes_asignados %}
     <a href="{% url 'instructor_cliente_detalle' c.id %}" class="client-card">
-        <div class="avatar">
-            {{ c.first_name|default:c.username|slice:":1"|upper }}
-        </div>
-        <div>
-            <p class="font-semibold">{{ c.username }}</p>
-            <p class="text-gray-400 text-sm">{{ c.email }}</p>
-        </div>
+      <div class="client-avatar">
+        {{ c.first_name|default:c.username|slice:":1"|upper }}
+      </div>
+      <div class="client-info">
+        <p class="client-name">{{ c.get_full_name|default:c.username }}</p>
+        <p class="client-email">{{ c.email }}</p>
+      </div>
+      <span class="client-arrow">›</span>
     </a>
+    {% empty %}
+    <div class="empty-state">Sin clientes asignados aún</div>
     {% endfor %}
 
-    <a href="{% url 'crear_cliente' %}" class="btn-assign" style="display: inline-flex; margin-bottom: 8px;">
-        👤 Agregar Cliente
+    <a href="{% url 'crear_cliente' %}" class="btn-add-client" style="margin-top: 6px;">
+      👤 Agregar cliente
     </a>
+  </section>
 
-    <!-- WORKOUTS -->
-    <h3 class="section-title mt-10">Tus rutinas creadas</h3>
+
+  <!-- RUTINAS -->
+  <section class="section" id="rutinas">
+    <p class="section-title">Tus rutinas</p>
 
     {% for w in workouts %}
-    <div class="card mb-3">
-        <p class="font-semibold">{{ w.titulo }}</p>
-        <p class="text-gray-400 text-sm">{{ w.descripcion|default:"Sin descripción" }}</p>
-
-        <a href="{% url 'assign_workout' w.id %}" class="btn-assign">
-            ➕ Asignar rutina
-        </a>
+    <div class="workout-card">
+      <p class="workout-title">{{ w.titulo }}</p>
+      <p class="workout-desc">{{ w.descripcion|default:"Sin descripción" }}</p>
+      <a href="{% url 'assign_workout' w.id %}" class="btn-assign">
+        ➕ Asignar
+      </a>
     </div>
+    {% empty %}
+    <div class="empty-state">Sin rutinas creadas aún</div>
     {% endfor %}
+  </section>
 
-    <!-- CREATE -->
-    <a href="{% url 'instructor_workout_create' %}" class="btn-create-premium">
-        ➕ Crear nueva rutina
-    </a>
+
+  <!-- CREAR RUTINA -->
+  <a href="{% url 'instructor_workout_create' %}" class="btn-create">
+    ➕ Crear nueva rutina
+  </a>
 
 </div>
 

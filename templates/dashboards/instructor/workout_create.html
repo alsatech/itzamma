@@ -2,286 +2,399 @@
 {% load static %}
 
 {% block title %}Nueva rutina{% endblock %}
-{% block header_title %}Crear rutina{% endblock %}
+{% block header_title %}Nueva rutina{% endblock %}
 
 {% block content %}
+
 <style>
-  .screen-instructor {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #fff;
+  }
+
+  .create-page {
     max-width: 480px;
     margin: 0 auto;
-    padding: 16px 16px 110px;
-    background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
-    color: #f9fafb;
-    min-height: calc(100vh - 110px);
+    padding: 24px 0 110px 0;
   }
 
-  .card-main {
-    background: radial-gradient(circle at top left, #16a34a22, #020617);
-    border-radius: 24px;
-    padding: 20px;
-    border: 1px solid #16a34a33;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
-  }
-
-  .badge-level {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    background: rgba(15, 23, 42, 0.9);
-    border: 1px solid #22c55e55;
-    color: #bbf7d0;
-  }
-
-  .badge-level-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: #22c55e;
-    box-shadow: 0 0 12px #22c55e;
-  }
-  .card-main input[type="text"],
-  .card-main input[type="number"],
-  .card-main input[type="url"],
-  .card-main input[type="file"],
-  .card-main textarea,
-  .card-main select {
-    width: 100%;
-    border-radius: 14px;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-    padding: 10px 12px;
-    font-size: 14px;
-    background: rgba(15, 23, 42, 0.9);
-    color: #e5e7eb;
-    outline: none;
-    box-sizing: border-box;
-    transition: border 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
-  }
-
-  .card-main input[type="text"]:focus,
-  .card-main input[type="number"]:focus,
-  .card-main input[type="url"]:focus,
-  .card-main input[type="file"]:focus,
-  .card-main textarea:focus,
-  .card-main select:focus {
-    border-color: #22c55e;
-    box-shadow: 0 0 0 1px #22c55e55;
-    transform: translateY(-1px);
-  }
-
-
-
-  .textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .pill-section-title {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: #6b7280;
-    margin: 22px 0 8px;
-  }
-
-  .media-card {
-    background: rgba(15, 23, 42, 0.96);
-    border-radius: 18px;
-    padding: 14px 14px 10px;
-    border: 1px solid rgba(55, 65, 81, 0.9);
-    margin-bottom: 10px;
-  }
-
-  .media-card-header {
+  /* ---- INTRO ---- */
+  .intro {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    font-size: 12px;
+    margin-bottom: 28px;
+  }
+
+  .intro-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #16a34a, #0a0f1a);
+    border: 2px solid rgba(34, 197, 94, 0.4);
+    box-shadow: 0 0 22px rgba(34, 197, 94, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 14px;
+  }
+
+  .intro-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: -0.4px;
+    margin: 0 0 6px 0;
+    text-align: center;
+  }
+
+  .intro-sub {
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+    margin: 0;
+  }
+
+  /* ---- SECTION TITLE ---- */
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #9ca3af;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 12px 0;
+  }
+
+  /* ---- CARDS ---- */
+  .form-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 24px;
+    padding: 22px 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    margin-bottom: 14px;
+  }
+
+  .form-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0 0 18px 0;
+    letter-spacing: -0.2px;
+  }
+
+  /* ---- FIELDS ---- */
+  .field {
+    margin-bottom: 18px;
+  }
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
     color: #9ca3af;
     margin-bottom: 8px;
   }
 
-  .media-card-tag {
-    padding: 3px 9px;
-    border-radius: 999px;
-    border: 1px solid rgba(148, 163, 184, 0.5);
-    font-size: 11px;
-  }
-
-  .btn-primary {
-    display: block;
+  /* ---- INPUTS — aplica a todos los widgets del form ---- */
+  .input-text,
+  .input-select,
+  .input-number,
+  .textarea {
     width: 100%;
-    margin-top: 18px;
-    border: none;
-    border-radius: 999px;
-    padding: 13px 16px;
-    font-size: 15px;
-    font-weight: 600;
-    background: linear-gradient(to right, #22c55e, #4ade80);
-    color: #022c22;
-    box-shadow:
-      0 18px 45px rgba(34, 197, 94, 0.4),
-      0 0 24px rgba(74, 222, 128, 0.7);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: #f1f5f9;
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .input-text:focus,
+  .input-select:focus,
+  .input-number:focus,
+  .textarea:focus {
+    border-color: rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  }
+
+  .input-text::placeholder,
+  .textarea::placeholder {
+    color: #374151;
+  }
+
+  .textarea {
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.5;
+  }
+
+  .input-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
     cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.12s;
   }
 
-  .btn-primary:hover {
-    filter: brightness(1.05);
+  .input-select option {
+    background: #0f172a;
+    color: #f1f5f9;
   }
 
-  .btn-primary:active {
-    transform: translateY(1px);
-    box-shadow:
-      0 8px 25px rgba(34, 197, 94, 0.35),
-      0 0 14px rgba(74, 222, 128, 0.6);
+  .input-number {
+    max-width: 120px;
   }
 
-  .btn-secondary {
+  .input-file {
+    width: 100%;
+    font-size: 14px;
+    color: #9ca3af;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  .input-file::file-selector-button {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 8px;
+    color: #22c55e;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    margin-right: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ---- DIVIDER ---- */
+  .divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 18px 0;
+  }
+
+  /* ---- MEDIA BLOCK CARD ---- */
+  .media-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 22px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  }
+
+  .media-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .media-card-num {
     display: inline-flex;
     align-items: center;
+    gap: 8px;
+  }
+
+  .media-card-num-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 6px;
-    margin-top: 8px;
-    padding: 8px 12px;
     font-size: 13px;
-    border-radius: 999px;
-    border: 1px dashed rgba(148, 163, 184, 0.7);
-    color: #e5e7eb;
-    background: transparent;
+    font-weight: 700;
+    color: #22c55e;
+  }
+
+  .media-card-num-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  .media-card-delete {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #6b7280;
     cursor: pointer;
   }
 
-  .btn-secondary span {
-    font-size: 16px;
+  .media-card-delete input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #f87171;
+    cursor: pointer;
   }
 
+  /* ---- ERRORLIST ---- */
   .errorlist {
-    margin: 4px 0 0;
+    margin: 6px 0 0;
     padding: 0;
     list-style: none;
-    font-size: 11px;
-    color: #f97373;
+    font-size: 13px;
+    color: #f87171;
   }
 
-  .top-info-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+  /* ---- BUTTONS ---- */
+  .btn-submit {
+    width: 100%;
+    padding: 17px;
+    background: linear-gradient(90deg, #16ff8f, #00c96d);
+    border: none;
+    border-radius: 18px;
+    font-size: 17px;
+    font-weight: 800;
+    color: #031b12;
+    cursor: pointer;
+    box-shadow: 0 0 28px rgba(0, 255, 140, 0.4), 0 0 60px rgba(0, 255, 140, 0.15);
+    transition: box-shadow 0.2s, transform 0.2s;
+    font-family: inherit;
     margin-bottom: 12px;
   }
 
-  .top-title {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 38px rgba(0, 255, 140, 0.55), 0 0 70px rgba(0, 255, 140, 0.25);
   }
 
-  .top-meta {
+  .btn-cancel {
     display: flex;
-    gap: 12px;
-    font-size: 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 15px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    box-sizing: border-box;
+  }
+
+  .btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.07);
     color: #9ca3af;
   }
 </style>
 
-<div class="screen-instructor">
+<div class="create-page">
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <!-- CARD PRINCIPAL -->
-    <div class="card-main">
+    <!-- INTRO -->
+    <div class="intro">
+      <div class="intro-icon">🏋️</div>
+      <h2 class="intro-title">Crear rutina</h2>
+      <p class="intro-sub">Define el contenido y los bloques de trabajo</p>
+    </div>
 
-      <div class="top-info-row">
-        <div>
-          <div class="badge-level">
-            <span class="badge-level-dot"></span>
-            NUEVA RUTINA
-          </div>
-          <h2 class="top-title">Full Body Power</h2>
-        </div>
-        <div class="top-meta">
-          <span>👤 {{ request.user.username }}</span>
-        </div>
-      </div>
+    <!-- INFO BÁSICA -->
+    <div class="form-card">
+      <p class="form-card-title">Información básica</p>
 
-      <!-- TÍTULO -->
-      <div class="input-group">
-        <label class="input-label">Nombre de la rutina</label>
+      <div class="field">
+        <label class="field-label">Nombre de la rutina</label>
         {{ form.titulo }}
         {{ form.titulo.errors }}
       </div>
 
-      <!-- DESCRIPCIÓN -->
-      <div class="input-group">
-        <label class="input-label">Descripción</label>
+      <div class="field">
+        <label class="field-label">Descripción</label>
         {{ form.descripcion }}
         {{ form.descripcion.errors }}
       </div>
-
-      <!-- MEDIA -->
-      <div class="pill-section-title">Contenido</div>
-
-      {{ formset.management_form }}
-      {% for subform in formset %}
-        <div class="media-card">
-          <div class="media-card-header">
-            <span class="media-card-tag">Bloque {{ forloop.counter }}</span>
-            {% if subform.DELETE %}
-              <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#fca5a5;">
-                {{ subform.DELETE }} eliminar
-              </label>
-            {% endif %}
-          </div>
-
-          <div class="input-group" style="margin-top:4px;">
-            <label class="input-label">Tipo</label>
-            {{ subform.tipo }}
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">Video (YouTube)</label>
-            {{ subform.url_video }}
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">PDF</label>
-            {{ subform.archivo_pdf }}
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">Texto / instrucciones</label>
-            {{ subform.texto }}
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">Imagen</label>
-            {{ subform.imagen }}
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">Orden</label>
-            {{ subform.orden }}
-          </div>
-        </div>
-      {% endfor %}
-
-      <button type="button" class="btn-secondary" onclick="alert('Para agregar más bloques, aumenta extra en el FormSet o lo hacemos luego con JS.')">
-        <span>＋</span> Agregar otro bloque
-      </button>
-
-      <!-- BOTÓN GUARDAR -->
-      <button type="submit" class="btn-primary">
-        Guardar rutina
-      </button>
     </div>
+
+    <!-- BLOQUES DE CONTENIDO -->
+    <p class="section-title">Bloques de contenido</p>
+
+    {{ formset.management_form }}
+
+    {% for subform in formset %}
+    <div class="media-card">
+
+      <div class="media-card-header">
+        <div class="media-card-num">
+          <span class="media-card-num-badge">{{ forloop.counter }}</span>
+          <span class="media-card-num-label">Bloque {{ forloop.counter }}</span>
+        </div>
+        {% if subform.DELETE %}
+          <label class="media-card-delete">
+            {{ subform.DELETE }}
+            Eliminar
+          </label>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label class="field-label">Tipo de contenido</label>
+        {{ subform.tipo }}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label class="field-label">Video (YouTube)</label>
+        {{ subform.url_video }}
+      </div>
+
+      <div class="field">
+        <label class="field-label">Texto / instrucciones</label>
+        {{ subform.texto }}
+      </div>
+
+      <div class="field">
+        <label class="field-label">Imagen</label>
+        {{ subform.imagen }}
+      </div>
+
+      <div class="field">
+        <label class="field-label">PDF</label>
+        {{ subform.archivo_pdf }}
+      </div>
+
+      <div class="field">
+        <label class="field-label">Orden</label>
+        {{ subform.orden }}
+      </div>
+
+    </div>
+    {% endfor %}
+
+    <!-- GUARDAR -->
+    <button type="submit" class="btn-submit">Guardar rutina</button>
 
   </form>
 
+  <a href="{% url 'instructor_dashboard' %}" class="btn-cancel">← Volver al panel</a>
+
 </div>
+
 {% endblock %}

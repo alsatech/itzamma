@@ -65,6 +65,31 @@ def instructor_dashboard(request):
 
 @login_required
 @user_passes_test(is_instructor)
+def instructor_perfil(request):
+    total_clients = CustomUser.objects.filter(
+        mi_instructor__instructor=request.user
+    ).count()
+
+    total_workouts = Workout.objects.filter(instructor=request.user).count()
+
+    total_completadas = RoutineCompleted.objects.filter(
+        workout__instructor=request.user
+    ).count()
+
+    completadas_7dias = RoutineCompleted.objects.filter(
+        workout__instructor=request.user,
+        completed_at__gte=timezone.now() - timedelta(days=7)
+    ).count()
+
+    return render(request, "dashboards/instructor/perfil_instructor.html", {
+        "total_clients": total_clients,
+        "total_workouts": total_workouts,
+        "total_completadas": total_completadas,
+        "completadas_7dias": completadas_7dias,
+    })
+
+@login_required
+@user_passes_test(is_instructor)
 def instructor_clientes(request):
 
     # Clientes del instructor via InstructorClient

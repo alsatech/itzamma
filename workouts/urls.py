@@ -1,10 +1,11 @@
 
 from django.urls import path
-from .views import complete_routine, instructor_workout_create, instructor_dashboard, assign_workout, instructor_clientes
+from .views import complete_routine, instructor_workout_create, instructor_dashboard, assign_workout, instructor_clientes, instructor_perfil
 from .views import instructor_cliente_detalle
 
 urlpatterns = [
     path("instructor/dashboard/", instructor_dashboard, name="instructor_dashboard"),
+    path("instructor/perfil/", instructor_perfil, name="instructor_perfil"),
     path("complete/<int:workout_id>/", complete_routine, name="complete_routine"),
     path("instructor/workouts/new/", instructor_workout_create, name="instructor_workout_create"),
     path("instructor/clientes/", instructor_clientes, name="instructor_clientes"),

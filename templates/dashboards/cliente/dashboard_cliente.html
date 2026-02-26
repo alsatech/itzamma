@@ -6,341 +6,379 @@
 
 <style>
   body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     color: #fff;
-    font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .dash-page {
     max-width: 480px;
     margin: 0 auto;
-    padding: 16px 16px 120px 16px; /* bottom para no chocar con el footer */
+    padding: 18px 0 110px 0;
   }
 
-  .dash-section-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #f9fafb;
+  /* ---- SECTION TITLES ---- */
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.2px;
   }
 
-  .dash-subtitle {
-    font-size: 12px;
-    color: #9ca3af;
-  }
-
-  /* CARD PRINCIPAL (PRÓXIMO ENTRENAMIENTO) */
+  /* ---- HERO CARD ---- */
   .hero-card {
-    background: radial-gradient(circle at top left, #16a34a 0, #111827 45%, #020617 100%);
-    border-radius: 26px;
-    padding: 18px 16px 16px 16px;
-    box-shadow: 0 24px 45px rgba(22, 163, 74, 0.45);
+    background: radial-gradient(circle at top left, #16a34a 0%, #0d1f12 50%, #020617 100%);
+    border-radius: 28px;
+    padding: 22px 20px 20px;
+    box-shadow: 0 20px 50px rgba(22, 163, 74, 0.4);
     position: relative;
     overflow: hidden;
-    margin-bottom: 22px;
-  }
-
-  .hero-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    margin-bottom: 28px;
   }
 
   .hero-label {
-    font-size: 10px;
+    font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.09em;
-    color: #bbf7d0;
+    letter-spacing: 0.1em;
+    color: #86efac;
+    font-weight: 500;
+    margin-bottom: 6px;
   }
 
   .hero-title {
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 800;
-    margin-top: 4px;
-    color: #f9fafb;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 16px;
   }
 
-  .hero-chip {
-    font-size: 11px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.8);
-    color: #a7f3d0;
-    border: 1px solid rgba(74, 222, 128, 0.6);
+  .hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(74, 222, 128, 0.5);
+    font-size: 13px;
+    font-weight: 600;
+    color: #a7f3d0;
+    position: absolute;
+    top: 22px;
+    right: 20px;
   }
 
-  .hero-chip span.dot {
-    width: 7px;
-    height: 7px;
+  .hero-badge .dot {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: #22c55e;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+    box-shadow: 0 0 8px rgba(34, 197, 94, 1);
   }
 
   .hero-metrics {
     display: flex;
-    gap: 14px;
-    margin-top: 14px;
-    font-size: 11px;
-    color: #d1d5db;
+    gap: 18px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
   }
 
-  .hero-metrics span {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+  .hero-metric-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
   }
 
-  .hero-metrics strong {
-    font-weight: 600;
-    color: #f9fafb;
+  .hero-metric-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .hero-metric-label {
+    font-size: 12px;
+    color: #86efac;
+    font-weight: 500;
   }
 
   .hero-cta {
-    margin-top: 16px;
-  }
-
-  .hero-cta a {
-    display: inline-block;
+    display: block;
     width: 100%;
     text-align: center;
-    padding: 10px 0;
+    padding: 14px 0;
     border-radius: 999px;
     background: #22c55e;
     color: #022c22;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
-    box-shadow: 0 14px 28px rgba(34, 197, 94, 0.7);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.65);
+    text-decoration: none;
+    letter-spacing: 0.01em;
   }
 
-  .hero-blur-circle {
+  .hero-glow {
     position: absolute;
-    width: 160px;
-    height: 160px;
-    background: rgba(56, 189, 248, 0.22);
-    border-radius: 999px;
-    filter: blur(40px);
-    right: -40px;
-    bottom: -60px;
-    opacity: 0.9;
+    width: 180px;
+    height: 180px;
+    background: rgba(56, 189, 248, 0.18);
+    border-radius: 50%;
+    filter: blur(50px);
+    right: -50px;
+    bottom: -70px;
   }
 
-  /* STATS GRID */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 8px;
+  /* ---- SECTION WRAPPER ---- */
+  .section {
+    margin-bottom: 28px;
   }
 
-  .stat-card {
-    background: #020617;
-    border-radius: 18px;
-    padding: 10px 12px;
-    border: 1px solid #111827;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.85);
+  .section-header {
+    margin-bottom: 14px;
   }
 
-  .stat-label {
-    font-size: 11px;
+  /* ---- ROUTINE CARD ---- */
+  .routine-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .routine-card-info p:first-child {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 3px 0;
+  }
+
+  .routine-card-info p:last-child {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .routine-card-btn {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+    color: #22c55e;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    background: rgba(34, 197, 94, 0.06);
+    white-space: nowrap;
+  }
+
+  /* ---- PROGRESS SECTION ---- */
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+
+  .progress-count {
+    font-size: 14px;
     color: #9ca3af;
   }
 
+  .progress-pct {
+    font-size: 20px;
+    font-weight: 800;
+    color: #22c55e;
+    text-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+  }
+
+  .progress-bar-bg {
+    width: 100%;
+    height: 14px;
+    background: #1f2937;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+    border-radius: 999px;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    transition: width 0.5s ease;
+  }
+
+  /* ---- STATS GRID ---- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 8px 0;
+  }
+
   .stat-value {
-    margin-top: 4px;
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
     color: #f9fafb;
+    line-height: 1;
+    margin: 0;
   }
 
   .stat-unit {
-    font-size: 11px;
-    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    color: #9ca3af;
     margin-left: 2px;
   }
 
-  .stat-pill {
-    margin-top: 6px;
-    font-size: 10px;
-    color: #22c55e;
+  .stat-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+    display: block;
   }
 
-  /* RESPONSIVE */
-  @media (max-width: 390px) {
-    .hero-title {
-      font-size: 20px;
-    }
-    .hero-metrics {
-      font-size: 10px;
-      flex-wrap: wrap;
-    }
-    .stat-value {
-      font-size: 16px;
-    }
+  /* ---- EMPTY STATE ---- */
+  .empty-state {
+    text-align: center;
+    padding: 24px 0;
+    color: #4b5563;
+    font-size: 15px;
   }
 </style>
 
 <div class="dash-page">
 
-  <!-- CARD PRINCIPAL -->
+  <!-- HERO CARD -->
   <section class="hero-card">
-    <div class="hero-top-row">
-      <div>
-        <p class="hero-label">Tu próximo entrenamiento</p>
-        <h2 class="hero-title">
-          {% if perfil.objetivo %}
-            {{ perfil.objetivo }}
-          {% else %}
-            Full Body Power
-          {% endif %}
-        </h2>
-      </div>
-      <div class="hero-chip">
-        <span class="dot"></span>
-        Activo
-      </div>
+
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Activo
     </div>
+
+    <p class="hero-label">Tu próximo entrenamiento</p>
+    <h2 class="hero-title">
+      {% if perfil.objetivo %}
+        {{ perfil.objetivo }}
+      {% else %}
+        Full Body Power
+      {% endif %}
+    </h2>
 
     <div class="hero-metrics">
-      <span>🏋️ <strong>{{ total_semana }}</strong> asignadas</span>
-      <span>✅ <strong>{{ completadas_semana }}</strong> completadas</span>
-      <span>📊 <strong>{{ progreso }}%</strong> progreso</span>
+      <div class="hero-metric-item">
+        <span class="hero-metric-value">{{ total_semana }}</span>
+        <span class="hero-metric-label">🏋️ Asignadas</span>
+      </div>
+      <div class="hero-metric-item">
+        <span class="hero-metric-value">{{ completadas_semana }}</span>
+        <span class="hero-metric-label">✅ Completadas</span>
+      </div>
+      <div class="hero-metric-item">
+        <span class="hero-metric-value">{{ progreso }}%</span>
+        <span class="hero-metric-label">📊 Progreso</span>
+      </div>
     </div>
 
-    <div class="hero-cta">
-      <a href="{% url 'rutinas_semana' %}">Comenzar</a>
-    </div>
+    <a href="{% url 'rutinas_semana' %}" class="hero-cta">Comenzar entrenamiento</a>
 
-    <div class="hero-blur-circle"></div>
+    <div class="hero-glow"></div>
   </section>
+
+
+  <!-- PROGRESO SEMANAL -->
+  <section class="section">
+    <div class="section-header">
+      <p class="section-title">Progreso semanal</p>
+    </div>
+
+    <div class="progress-row">
+      <span class="progress-count">{{ completadas_semana }} de {{ total_semana }} completadas</span>
+      <span class="progress-pct">{{ progreso }}%</span>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: {{ progreso }}%;"></div>
+    </div>
+  </section>
+
 
   <!-- RUTINAS PENDIENTES -->
-  <section style="margin-top: 25px;">
-      <p class="dash-section-title">Tus rutinas pendientes</p>
+  <section class="section">
+    <div class="section-header">
+      <p class="section-title">Pendientes</p>
+    </div>
 
-      {% for a in pendientes %}
-      <div style="
-          background: #0f172a;
-          border: 1px solid #1e293b;
-          border-radius: 16px;
-          padding: 14px;
-          margin-bottom: 10px;
-      ">
-          <p style="font-size:15px; font-weight:600; color:#f1f5f9;">
-              {{ a.workout.titulo }}
-          </p>
-          <p style="font-size:12px; color:#9ca3af;">Pendiente</p>
-
-          <div style="text-align:right; margin-top:6px;">
-              <a href="{% url 'detalle_rutina' a.id %}" style="
-                  padding:6px 14px;
-                  border-radius:12px;
-                  border:1px solid #22c55e;
-                  color:#22c55e;
-                  font-size:13px;
-              ">Comenzar</a>
-          </div>
+    {% for a in pendientes %}
+    <div class="routine-card">
+      <div class="routine-card-info">
+        <p>{{ a.workout.titulo }}</p>
+        <p>Pendiente</p>
       </div>
-      {% empty %}
-      <p style="color:#6b7280; font-size:13px;">No tienes rutinas pendientes 🎉</p>
-      {% endfor %}
+      <a href="{% url 'detalle_rutina' a.id %}" class="routine-card-btn">Comenzar</a>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      🎉 Sin pendientes por hoy
+    </div>
+    {% endfor %}
   </section>
-
-
-    <!-- PROGRESO SEMANAL -->
-  <section style="margin-top: 25px;">
-      <p class="dash-section-title">Progreso semanal</p>
-      <p class="dash-subtitle">
-          {{ completadas_semana }} completadas de {{ total_semana }} asignadas
-      </p>
-
-      <div style="
-          width: 100%;
-          height: 10px;
-          background: #1f2937;
-          border-radius: 999px;
-          overflow: hidden;
-          margin-top: 8px;
-      ">
-          <div style="
-              width: {{ progreso }}%;
-              height: 100%;
-              background: #22c55e;
-              transition: width 0.3s ease;
-          "></div>
-      </div>
-  </section>
-  <!-- HISTORIAL RÁPIDO -->
-  <section style="margin-top: 25px;">
-      <p class="dash-section-title">Historial rápido</p>
-
-      {% for r in historial %}
-      <div style="
-          background:#0f172a;
-          border:1px solid #1e293b;
-          border-radius:16px;
-          padding:14px;
-          margin-bottom:10px;
-      ">
-          <p style="font-size:15px; font-weight:600; color:#f1f5f9;">
-              {{ r.workout.titulo }}
-          </p>
-          <p style="font-size:12px; color:#22c55e;">
-              Completada ✓
-          </p>
-      </div>
-      {% endfor %}
-  </section>
-
 
 
   <!-- TUS STATS -->
-  <section style="margin-top:10px;">
-    <p class="dash-section-title">Tu progreso</p>
-    <p class="dash-subtitle">Resumen rápido de tus métricas</p>
+  <section class="section">
+    <div class="section-header">
+      <p class="section-title">Tu progreso</p>
+    </div>
 
     <div class="stats-grid">
       <div class="stat-card">
+        <span class="stat-icon">⚖️</span>
         <p class="stat-label">Peso</p>
         <p class="stat-value">
-          {{ perfil.peso|default:"—" }}
-          <span class="stat-unit">kg</span>
+          {{ perfil.peso|default:"—" }}<span class="stat-unit">kg</span>
         </p>
-        <p class="stat-pill">Objetivo saludable</p>
       </div>
 
       <div class="stat-card">
-        <p class="stat-label">% Grasa corporal</p>
+        <span class="stat-icon">🔥</span>
+        <p class="stat-label">Grasa corporal</p>
         <p class="stat-value">
-          {{ perfil.masa_grasa|default:"—" }}
-          <span class="stat-unit">%</span>
+          {{ perfil.masa_grasa|default:"—" }}<span class="stat-unit">%</span>
         </p>
-        <p class="stat-pill">Seguimiento mensual</p>
       </div>
 
       <div class="stat-card">
-        <p class="stat-label">% Masa muscular</p>
+        <span class="stat-icon">💪</span>
+        <p class="stat-label">Masa muscular</p>
         <p class="stat-value">
-          {{ perfil.masa_muscular|default:"—" }}
-          <span class="stat-unit">%</span>
+          {{ perfil.masa_muscular|default:"—" }}<span class="stat-unit">%</span>
         </p>
-        <p class="stat-pill">En construcción 💪</p>
       </div>
 
       <div class="stat-card">
-        <p class="stat-label">Rutinas asignadas</p>
-        <p class="stat-value">
-          {{ total_semana }}
-        </p>
-        <p class="stat-pill">
-          Deporte:
-          {% if perfil.deporte %}
-            {{ perfil.deporte }}
-          {% else %}
-            Gym
-          {% endif %}
+        <span class="stat-icon">📋</span>
+        <p class="stat-label">Deporte</p>
+        <p class="stat-value" style="font-size: 18px;">
+          {% if perfil.deporte %}{{ perfil.deporte }}{% else %}Gym{% endif %}
         </p>
       </div>
     </div>

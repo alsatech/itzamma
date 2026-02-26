@@ -1,199 +1,285 @@
 {% extends "base_app.html" %}
-{% block title %}Agregar Cliente{% endblock %}
+{% block title %}Nuevo Cliente{% endblock %}
 {% block header_title %}Nuevo Cliente{% endblock %}
 
 {% block content %}
 
 <style>
-.form-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 24px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
-}
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #fff;
+  }
 
-.form-label {
+  .crear-page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 28px 0 110px 0;
+  }
+
+  /* ---- INTRO ---- */
+  .intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .intro-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #00c96d, #0a0f1a);
+    border: 2px solid rgba(34, 255, 154, 0.4);
+    box-shadow: 0 0 24px rgba(34, 255, 154, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin-bottom: 16px;
+  }
+
+  .intro-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: -0.4px;
+    margin: 0 0 6px 0;
+    text-align: center;
+  }
+
+  .intro-sub {
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+    margin: 0;
+  }
+
+  /* ---- ALERT ---- */
+  .alert-error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    color: #fca5a5;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ---- FORM CARD ---- */
+  .form-card {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 24px;
+    padding: 24px 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    margin-bottom: 14px;
+  }
+
+  /* ---- FIELD ---- */
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-label {
     display: block;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: #9ca3af;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+    margin-bottom: 8px;
+  }
 
-.form-input {
+  .field-input {
     width: 100%;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
-    padding: 12px 14px;
-    color: #fff;
-    font-size: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: #f1f5f9;
+    font-size: 16px;
+    font-family: inherit;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s;
-}
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
 
-.form-input:focus {
-    border-color: #00ff9a;
-    box-shadow: 0 0 0 2px rgba(0,255,154,0.15);
-}
+  .field-input:focus {
+    border-color: rgba(34, 255, 154, 0.5);
+    box-shadow: 0 0 0 3px rgba(34, 255, 154, 0.1);
+  }
 
-.form-input::placeholder {
-    color: #4b5563;
-}
+  .field-input::placeholder {
+    color: #374151;
+  }
 
-.btn-submit {
+  .field-error {
+    color: #f87171;
+    font-size: 13px;
+    margin-top: 6px;
+    display: block;
+  }
+
+  /* ---- DIVIDER ---- */
+  .divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 20px 0;
+  }
+
+  /* ---- SUBMIT ---- */
+  .btn-submit {
     width: 100%;
-    padding: 15px;
+    padding: 17px;
     background: linear-gradient(90deg, #16ff8f, #00c96d);
     border: none;
-    border-radius: 14px;
-    font-size: 16px;
+    border-radius: 18px;
+    font-size: 17px;
     font-weight: 800;
     color: #031b12;
     cursor: pointer;
-    margin-top: 8px;
-    box-shadow: 0 0 25px rgba(0,255,140,0.4);
-    transition: 0.2s;
-}
+    box-shadow: 0 0 28px rgba(0, 255, 140, 0.4), 0 0 60px rgba(0, 255, 140, 0.15);
+    transition: box-shadow 0.2s, transform 0.2s;
+    font-family: inherit;
+  }
 
-.btn-submit:hover {
+  .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 35px rgba(0,255,140,0.55);
-}
+    box-shadow: 0 0 38px rgba(0, 255, 140, 0.55), 0 0 70px rgba(0, 255, 140, 0.25);
+  }
 
-.btn-cancel {
-    display: block;
-    text-align: center;
-    margin-top: 14px;
+  /* ---- CANCEL ---- */
+  .btn-cancel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 15px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: #6b7280;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 500;
     text-decoration: none;
-}
+    transition: background 0.2s, color 0.2s;
+  }
 
-.btn-cancel:hover {
+  .btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.07);
     color: #9ca3af;
-}
-
-.error-list {
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.3);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-    color: #fca5a5;
-    font-size: 13px;
-}
-
-.field-error {
-    color: #f87171;
-    font-size: 12px;
-    margin-top: 4px;
-}
-
-.page-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #22ff9a;
-    text-shadow: 0 0 10px rgba(34,255,154,0.35);
-    margin-bottom: 4px;
-}
+  }
 </style>
 
-<div class="max-w-md mx-auto pb-28 text-white">
+<div class="crear-page">
 
-    <div class="text-center mt-8 mb-6">
-        <p class="text-4xl mb-2">👤</p>
-        <h2 class="page-title">Agregar Cliente</h2>
-        <p class="text-gray-400 text-sm">El cliente podrá acceder con estas credenciales</p>
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="intro-icon">👤</div>
+    <h2 class="intro-title">Agregar cliente</h2>
+    <p class="intro-sub">El cliente accederá con estas credenciales</p>
+  </div>
+
+  <!-- ERRORES GLOBALES -->
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="alert-error">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if form.non_field_errors %}
+    <div class="alert-error">
+      {% for error in form.non_field_errors %}
+        <p style="margin: 0;">{{ error }}</p>
+      {% endfor %}
     </div>
+  {% endif %}
 
-    {% if messages %}
-        {% for msg in messages %}
-            <div class="error-list">{{ msg }}</div>
-        {% endfor %}
-    {% endif %}
-
-    {% if form.non_field_errors %}
-        <div class="error-list">
-            {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
+  <!-- FORMULARIO -->
+  <form method="POST">
+    {% csrf_token %}
 
     <div class="form-card">
-        <form method="POST">
-            {% csrf_token %}
 
-            <div style="margin-bottom: 18px;">
-                <label class="form-label">Usuario</label>
-                <input
-                    type="text"
-                    name="username"
-                    class="form-input"
-                    placeholder="nombre_usuario"
-                    value="{{ form.username.value|default:'' }}"
-                    autocomplete="off"
-                    required
-                >
-                {% if form.username.errors %}
-                    <p class="field-error">{{ form.username.errors.0 }}</p>
-                {% endif %}
-            </div>
+      <!-- USUARIO -->
+      <div class="field">
+        <label class="field-label">Usuario</label>
+        <input
+          type="text"
+          name="username"
+          class="field-input"
+          placeholder="nombre_usuario"
+          value="{{ form.username.value|default:'' }}"
+          autocomplete="off"
+          required
+        >
+        {% if form.username.errors %}
+          <span class="field-error">{{ form.username.errors.0 }}</span>
+        {% endif %}
+      </div>
 
-            <div style="margin-bottom: 18px;">
-                <label class="form-label">Correo electrónico</label>
-                <input
-                    type="email"
-                    name="email"
-                    class="form-input"
-                    placeholder="cliente@email.com"
-                    value="{{ form.email.value|default:'' }}"
-                    required
-                >
-                {% if form.email.errors %}
-                    <p class="field-error">{{ form.email.errors.0 }}</p>
-                {% endif %}
-            </div>
+      <!-- EMAIL -->
+      <div class="field">
+        <label class="field-label">Correo electrónico</label>
+        <input
+          type="email"
+          name="email"
+          class="field-input"
+          placeholder="cliente@email.com"
+          value="{{ form.email.value|default:'' }}"
+          required
+        >
+        {% if form.email.errors %}
+          <span class="field-error">{{ form.email.errors.0 }}</span>
+        {% endif %}
+      </div>
 
-            <div style="margin-bottom: 18px;">
-                <label class="form-label">Contraseña</label>
-                <input
-                    type="password"
-                    name="password1"
-                    class="form-input"
-                    placeholder="••••••••"
-                    required
-                >
-                {% if form.password1.errors %}
-                    <p class="field-error">{{ form.password1.errors.0 }}</p>
-                {% endif %}
-            </div>
+      <div class="divider"></div>
 
-            <div style="margin-bottom: 24px;">
-                <label class="form-label">Confirmar contraseña</label>
-                <input
-                    type="password"
-                    name="password2"
-                    class="form-input"
-                    placeholder="••••••••"
-                    required
-                >
-                {% if form.password2.errors %}
-                    <p class="field-error">{{ form.password2.errors.0 }}</p>
-                {% endif %}
-            </div>
+      <!-- CONTRASEÑA -->
+      <div class="field">
+        <label class="field-label">Contraseña</label>
+        <input
+          type="password"
+          name="password1"
+          class="field-input"
+          placeholder="••••••••"
+          required
+        >
+        {% if form.password1.errors %}
+          <span class="field-error">{{ form.password1.errors.0 }}</span>
+        {% endif %}
+      </div>
 
-            <button type="submit" class="btn-submit">➕ Crear Cliente</button>
-        </form>
+      <!-- CONFIRMAR -->
+      <div class="field">
+        <label class="field-label">Confirmar contraseña</label>
+        <input
+          type="password"
+          name="password2"
+          class="field-input"
+          placeholder="••••••••"
+          required
+        >
+        {% if form.password2.errors %}
+          <span class="field-error">{{ form.password2.errors.0 }}</span>
+        {% endif %}
+      </div>
+
     </div>
 
-    <a href="{% url 'instructor_dashboard' %}" class="btn-cancel">← Volver al Dashboard</a>
+    <button type="submit" class="btn-submit">Crear cliente</button>
+  </form>
+
+  <div style="height: 12px;"></div>
+
+  <a href="{% url 'instructor_dashboard' %}" class="btn-cancel">
+    ← Volver al panel
+  </a>
 
 </div>
 

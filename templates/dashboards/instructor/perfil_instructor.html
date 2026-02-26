@@ -21,21 +21,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
   }
 
   .avatar-ring {
-    width: 96px;
-    height: 96px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
-    border: 2.5px solid #22c55e;
-    box-shadow: 0 0 22px rgba(34, 197, 94, 0.55);
+    border: 2.5px solid #22ff9a;
+    box-shadow: 0 0 24px rgba(34, 255, 154, 0.5);
     overflow: hidden;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle at 30% 30%, #22c55e, #0f172a);
+    background: radial-gradient(circle at 30% 30%, #00c96d, #0a0f1a);
   }
 
   .avatar-ring img {
@@ -45,7 +45,7 @@
   }
 
   .avatar-initials {
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 700;
     color: #fff;
   }
@@ -55,27 +55,16 @@
     font-weight: 800;
     color: #f1f5f9;
     letter-spacing: -0.4px;
-    margin: 0 0 16px 0;
+    margin: 0 0 6px 0;
     text-align: center;
   }
 
-  .btn-edit {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 22px;
-    border-radius: 999px;
-    border: 1px solid rgba(34, 197, 94, 0.4);
-    color: #22c55e;
+  .perfil-role {
     font-size: 14px;
+    color: #22ff9a;
     font-weight: 600;
-    text-decoration: none;
-    background: rgba(34, 197, 94, 0.07);
-    transition: background 0.2s;
-  }
-
-  .btn-edit:hover {
-    background: rgba(34, 197, 94, 0.14);
+    text-shadow: 0 0 10px rgba(34, 255, 154, 0.4);
+    margin: 0 0 18px 0;
   }
 
   /* ---- STATS GRID ---- */
@@ -108,19 +97,12 @@
   }
 
   .stat-value {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 900;
     color: #00ff9a;
-    text-shadow: 0 0 16px rgba(0, 255, 154, 0.45);
+    text-shadow: 0 0 18px rgba(0, 255, 154, 0.45);
     line-height: 1;
     margin: 0;
-  }
-
-  .stat-unit {
-    font-size: 16px;
-    font-weight: 600;
-    color: #4ade80;
-    margin-left: 2px;
   }
 
   /* ---- INFO CARD ---- */
@@ -172,6 +154,28 @@
     color: #e2e8f0;
     text-align: right;
   }
+
+  /* ---- LOGOUT FULL ---- */
+  .btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #f87171;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-logout:hover {
+    background: rgba(239, 68, 68, 0.15);
+  }
 </style>
 
 <div class="perfil-page">
@@ -195,87 +199,63 @@
         {{ user.username }}
       {% endif %}
     </p>
-
-    <a href="{% url 'completar_perfil' %}" class="btn-edit">
-      ✏️ Editar perfil
-    </a>
+    <p class="perfil-role">Instructor · Itzamma Fitness</p>
   </div>
 
 
-  <!-- STATS RÁPIDOS -->
+  <!-- STATS -->
   <div class="stats-grid">
+
+    <div class="stat-card">
+      <span class="stat-icon">👥</span>
+      <p class="stat-label">Clientes activos</p>
+      <p class="stat-value">{{ total_clients }}</p>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-icon">🏋️</span>
+      <p class="stat-label">Rutinas creadas</p>
+      <p class="stat-value">{{ total_workouts }}</p>
+    </div>
 
     <div class="stat-card">
       <span class="stat-icon">✅</span>
       <p class="stat-label">Total completadas</p>
-      <p class="stat-value">{{ completadas_total }}</p>
+      <p class="stat-value">{{ total_completadas }}</p>
     </div>
 
     <div class="stat-card">
       <span class="stat-icon">📅</span>
       <p class="stat-label">Últimos 7 días</p>
-      <p class="stat-value">{{ completadas_semana }}</p>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-icon">⚖️</span>
-      <p class="stat-label">Peso</p>
-      <p class="stat-value">{{ perfil.peso|default:"—" }}<span class="stat-unit">kg</span></p>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-icon">💪</span>
-      <p class="stat-label">Masa muscular</p>
-      <p class="stat-value">{{ perfil.masa_muscular|default:"—" }}<span class="stat-unit">%</span></p>
+      <p class="stat-value">{{ completadas_7dias }}</p>
     </div>
 
   </div>
 
 
-  <!-- INFORMACIÓN PERSONAL -->
+  <!-- CUENTA -->
   <div class="info-card">
-    <p class="info-card-title">Información personal</p>
+    <p class="info-card-title">Cuenta</p>
 
     <div class="info-row">
-      <span class="info-key">Edad</span>
-      <span class="info-val">{{ perfil.edad|default:"—" }}</span>
+      <span class="info-key">Usuario</span>
+      <span class="info-val">{{ user.username }}</span>
     </div>
     <div class="info-row">
-      <span class="info-key">Altura</span>
-      <span class="info-val">{{ perfil.estatura|default:"—" }} cm</span>
+      <span class="info-key">Correo</span>
+      <span class="info-val">{{ user.email|default:"—" }}</span>
     </div>
     <div class="info-row">
-      <span class="info-key">Objetivo</span>
-      <span class="info-val">{{ perfil.objetivo|default:"—" }}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-key">Deporte</span>
-      <span class="info-val">{{ perfil.deporte|default:"—"|title }}</span>
+      <span class="info-key">Rol</span>
+      <span class="info-val">Instructor</span>
     </div>
   </div>
 
 
-  <!-- SALUD -->
-  <div class="info-card">
-    <p class="info-card-title">Salud y antecedentes</p>
-
-    <div class="info-row">
-      <span class="info-key">Lesiones</span>
-      <span class="info-val">{{ perfil.lesiones|default:"Ninguna" }}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-key">Cirugías</span>
-      <span class="info-val">{{ perfil.cirugias|default:"Ninguna" }}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-key">Medicamentos</span>
-      <span class="info-val">{{ perfil.medicamentos|default:"Ninguno" }}</span>
-    </div>
-    <div class="info-row">
-      <span class="info-key">Suplementos</span>
-      <span class="info-val">{{ perfil.suplementos|default:"Ninguno" }}</span>
-    </div>
-  </div>
+  <!-- CERRAR SESIÓN -->
+  <a href="{% url 'logout' %}" class="btn-logout">
+    ⏻ Cerrar sesión
+  </a>
 
 </div>
 
