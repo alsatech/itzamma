@@ -1,0 +1,429 @@
+{% extends "base_app.html" %}
+{% block title %}Nueva Rutina{% endblock %}
+{% block header_title %}Nueva Rutina{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --lime:   #C8E8A0;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 120px; }
+  .page-title { font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -0.5px; margin: 20px 0 24px; }
+
+  label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: #9CA3AF; margin-bottom: 7px;
+  }
+  .input-text, .textarea {
+    width: 100%; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 14px;
+    color: #f1f5f9; font-size: 15px; padding: 14px 16px;
+    font-family: inherit; outline: none; box-sizing: border-box;
+  }
+  .textarea { resize: none; }
+  .input-text:focus, .textarea:focus { border-color: var(--mint); }
+  .field { margin-bottom: 18px; }
+
+  /* ── Deporte chips ── */
+  .deporte-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin-bottom: 24px;
+  }
+  .dep-chip {
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 10px 4px; text-align: center;
+    cursor: pointer; font-size: 22px; transition: border-color .15s;
+  }
+  .dep-chip small { display: block; font-size: 9px; color: #9CA3AF; margin-top: 2px; font-weight: 600; }
+  .dep-chip.active { border-color: var(--mint); }
+
+  /* ── Días ── */
+  .dias-section { margin-bottom: 20px; }
+  .dias-title { font-size: 18px; font-weight: 800; color: #f1f5f9; margin-bottom: 14px; }
+
+  .dia-block {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 18px; margin-bottom: 12px; overflow: hidden;
+  }
+  .dia-header {
+    display: flex; align-items: center;
+    justify-content: space-between; padding: 14px 16px;
+    cursor: pointer;
+  }
+  .dia-name { font-size: 15px; font-weight: 700; color: var(--mint); }
+  .dia-toggle { color: #6B7280; font-size: 18px; transition: transform .2s; }
+  .dia-block.open .dia-toggle { transform: rotate(90deg); }
+  .dia-body { padding: 0 16px 16px; display: none; }
+  .dia-block.open .dia-body { display: block; }
+  .btn-remove-dia { background: none; border: none; color: #4B5563; font-size: 13px; cursor: pointer; }
+
+  /* ── Secciones ── */
+  .seccion-block { margin-bottom: 12px; }
+  .seccion-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: #6B7280; margin-bottom: 8px;
+  }
+  .seccion-label.cardio        { color: #F87171; }
+  .seccion-label.calentamiento { color: var(--peach); }
+  .seccion-label.medular       { color: var(--mint); }
+  .seccion-label.cierre        { color: var(--lime); }
+
+  /* ── Ejercicio row ── */
+  .ej-row {
+    background: rgba(255,255,255,0.04); border-radius: 12px;
+    padding: 10px 12px; margin-bottom: 8px;
+  }
+  .ej-row-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 8px;
+  }
+  .ej-row-name { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+  .btn-remove-ej { background: none; border: none; color: #4B5563; cursor: pointer; font-size: 16px; }
+  .ej-metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  }
+  .metric-field label { font-size: 10px; color: #6B7280; margin-bottom: 3px; }
+  .metric-input {
+    width: 100%; background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: #f1f5f9; font-size: 13px; padding: 6px 8px;
+    font-family: inherit; outline: none; box-sizing: border-box;
+  }
+  .metric-input:focus { border-color: var(--mint); }
+
+  /* ── Search / add exercise ── */
+  .search-ej {
+    width: 100%; background: rgba(255,255,255,0.05);
+    border: 1px dashed rgba(168,213,194,0.3); border-radius: 12px;
+    color: #9CA3AF; font-size: 13px; padding: 10px 14px;
+    font-family: inherit; outline: none; box-sizing: border-box;
+    margin-bottom: 8px;
+  }
+  .search-ej:focus { border-color: var(--mint); color: #f1f5f9; }
+  .ej-suggestions {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; max-height: 160px; overflow-y: auto;
+    margin-bottom: 8px; display: none;
+  }
+  .ej-suggestion-item {
+    padding: 10px 14px; font-size: 14px; color: #f1f5f9;
+    cursor: pointer; border-bottom: 1px solid var(--border);
+  }
+  .ej-suggestion-item:last-child { border-bottom: none; }
+  .ej-suggestion-item:hover { background: rgba(168,213,194,0.1); }
+  .ej-suggestion-item .badge {
+    font-size: 10px; font-weight: 700; padding: 2px 6px;
+    border-radius: 999px; margin-left: 6px;
+  }
+
+  /* ── Add día button ── */
+  .btn-add-dia {
+    width: 100%; padding: 14px; border-radius: 14px;
+    background: transparent; border: 1px dashed rgba(168,213,194,0.4);
+    color: var(--mint); font-size: 14px; font-weight: 700;
+    cursor: pointer; margin-bottom: 24px; display: flex;
+    align-items: center; justify-content: center; gap: 8px;
+  }
+  .dia-selector {
+    display: none; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 12px; margin-bottom: 12px;
+  }
+  .dia-selector.visible { display: block; }
+  .dia-option-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .dia-option {
+    padding: 10px 4px; text-align: center; border-radius: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    font-size: 12px; font-weight: 700; color: #9CA3AF; cursor: pointer;
+  }
+  .dia-option:hover { border-color: var(--mint); color: var(--mint); }
+
+  /* ── Submit ── */
+  .btn-submit {
+    width: 100%; padding: 18px; border-radius: 18px;
+    background: var(--mint); border: none;
+    font-size: 16px; font-weight: 800; color: #0d2a1a; cursor: pointer;
+  }
+
+  .msg-error { color: #F87171; font-size: 13px; margin-bottom: 12px; display: none; }
+</style>
+
+<div class="page">
+  <h1 class="page-title">Nueva rutina</h1>
+
+  <!-- Nombre -->
+  <div class="field">
+    <label>Nombre de la rutina</label>
+    <input type="text" class="input-text" id="rutina-nombre"
+           placeholder="Ej. Full Body Fuerza — Semana 1">
+  </div>
+
+  <!-- Descripción -->
+  <div class="field">
+    <label>Descripción (opcional)</label>
+    <textarea class="textarea" id="rutina-desc" rows="2" placeholder="Notas generales..."></textarea>
+  </div>
+
+  <!-- Deporte -->
+  <div class="field">
+    <label>Deporte</label>
+    <input type="hidden" id="rutina-deporte" value="gym">
+    <div class="deporte-grid" id="deporte-grid">
+      {% with deportes=form.deporte.field.choices %}
+        {% for val, label in deportes %}
+        <div class="dep-chip {% if val == 'gym' %}active{% endif %}"
+             data-deporte="{{ val }}"
+             onclick="selectDeporte(this)">
+          <span>{% if val == 'gym' %}🏋️{% elif val == 'futbol' %}⚽{% elif val == 'tenis' %}🎾{% elif val == 'basketball' %}🏀{% elif val == 'natacion' %}🏊{% elif val == 'ciclismo' %}🚴{% elif val == 'boxeo' %}🥊{% elif val == 'yoga' %}🧘{% elif val == 'running' %}🏃{% elif val == 'voleibol' %}🏐{% elif val == 'beisbol' %}⚾{% elif val == 'atletismo' %}🎽{% elif val == 'pingpong' %}🏓{% else %}🏅{% endif %}</span>
+          <small>{{ label }}</small>
+        </div>
+        {% endfor %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <!-- Días builder -->
+  <div class="dias-section">
+    <p class="dias-title">Días de entrenamiento</p>
+
+    <div id="dias-container"></div>
+
+    <!-- Selector de día -->
+    <div class="dia-selector" id="dia-selector">
+      <label style="margin-bottom: 10px;">¿Qué día?</label>
+      <div class="dia-option-grid">
+        {% for val, label in form.fields|dictsort:"0" %}{% endfor %}
+        <div class="dia-option" data-dia="lunes"     onclick="addDia(this)">Lun</div>
+        <div class="dia-option" data-dia="martes"    onclick="addDia(this)">Mar</div>
+        <div class="dia-option" data-dia="miercoles" onclick="addDia(this)">Mié</div>
+        <div class="dia-option" data-dia="jueves"    onclick="addDia(this)">Jue</div>
+        <div class="dia-option" data-dia="viernes"   onclick="addDia(this)">Vie</div>
+        <div class="dia-option" data-dia="sabado"    onclick="addDia(this)">Sáb</div>
+        <div class="dia-option" data-dia="domingo"   onclick="addDia(this)">Dom</div>
+      </div>
+    </div>
+
+    <button type="button" class="btn-add-dia" id="btn-add-dia" onclick="toggleDiaSelector()">
+      ＋ Agregar día
+    </button>
+  </div>
+
+  <p class="msg-error" id="form-error"></p>
+  <button type="button" class="btn-submit" onclick="submitRutina()">
+    Guardar rutina
+  </button>
+</div>
+
+<script>
+const SECCIONES = [
+  { tipo: 'cardio',        label: 'Subida de Freq. Cardiaca' },
+  { tipo: 'calentamiento', label: 'Calentamiento' },
+  { tipo: 'medular',       label: 'Medular' },
+  { tipo: 'cierre',        label: 'Cierre' },
+];
+
+const DIA_LABELS = {
+  lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
+  jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo',
+};
+
+let ejCache = null;
+const diasContainer = document.getElementById('dias-container');
+
+// ── Deporte ──
+function selectDeporte(chip) {
+  document.querySelectorAll('.dep-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  document.getElementById('rutina-deporte').value = chip.dataset.deporte;
+}
+
+// ── Día selector toggle ──
+function toggleDiaSelector() {
+  document.getElementById('dia-selector').classList.toggle('visible');
+}
+
+// ── Agregar día ──
+function addDia(option) {
+  const dia = option.dataset.dia;
+  const label = DIA_LABELS[dia];
+  document.getElementById('dia-selector').classList.remove('visible');
+
+  const diaId = 'dia-' + Date.now();
+  const html = `
+    <div class="dia-block open" id="${diaId}" data-dia="${dia}">
+      <div class="dia-header" onclick="toggleDia('${diaId}')">
+        <span class="dia-name">${label}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button type="button" class="btn-remove-dia"
+                  onclick="event.stopPropagation();removeDia('${diaId}')">Quitar</button>
+          <span class="dia-toggle">›</span>
+        </div>
+      </div>
+      <div class="dia-body">
+        ${SECCIONES.map(s => buildSeccionHTML(diaId, s)).join('')}
+      </div>
+    </div>`;
+  diasContainer.insertAdjacentHTML('beforeend', html);
+}
+
+function buildSeccionHTML(diaId, sec) {
+  const secId = `${diaId}-${sec.tipo}`;
+  return `
+    <div class="seccion-block" id="${secId}" data-tipo="${sec.tipo}">
+      <p class="seccion-label ${sec.tipo}">${sec.label}</p>
+      <div class="ej-list" id="${secId}-ejs"></div>
+      <input class="search-ej" placeholder="Buscar ejercicio..."
+             oninput="searchEj(this, '${secId}')"
+             onfocus="showSuggestions('${secId}', this.value)">
+      <div class="ej-suggestions" id="${secId}-suggestions"></div>
+    </div>`;
+}
+
+function toggleDia(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function removeDia(id) {
+  document.getElementById(id).remove();
+}
+
+// ── Ejercicio search ──
+async function getEjercicios() {
+  if (ejCache) return ejCache;
+  const r = await fetch('{% url "ejercicios_json" %}');
+  ejCache = await r.json();
+  return ejCache;
+}
+
+async function searchEj(input, secId) {
+  const q = input.value.toLowerCase().trim();
+  const all = await getEjercicios();
+  const filtered = q ? all.filter(e => e.nombre.toLowerCase().includes(q)) : all;
+  renderSuggestions(secId, filtered);
+}
+
+async function showSuggestions(secId, q) {
+  const all = await getEjercicios();
+  const filtered = q ? all.filter(e => e.nombre.toLowerCase().includes(q.toLowerCase())) : all;
+  renderSuggestions(secId, filtered);
+}
+
+function renderSuggestions(secId, items) {
+  const box = document.getElementById(`${secId}-suggestions`);
+  if (!items.length) { box.style.display = 'none'; return; }
+  const badgeColors = { fuerza: '#F0C4A8', funcional: '#A8D5C2', potencia: '#C8E8A0' };
+  const badgeText   = { fuerza: '#3d1505',  funcional: '#0d2a1a',  potencia: '#1a3a05' };
+  box.innerHTML = items.slice(0, 8).map(e => `
+    <div class="ej-suggestion-item"
+         onclick="addEjercicio('${secId}', ${e.id}, '${e.nombre.replace(/'/g,"\\'")}', '${e.categoria_display}')">
+      ${e.nombre}
+      <span class="badge" style="background:${badgeColors[e.categoria]};color:${badgeText[e.categoria]}">
+        ${e.categoria_display}
+      </span>
+    </div>`).join('');
+  box.style.display = 'block';
+}
+
+function addEjercicio(secId, ejId, ejNombre, ejCat) {
+  document.getElementById(`${secId}-suggestions`).style.display = 'none';
+  const searchInput = document.querySelector(`#${CSS.escape(secId)} .search-ej`);
+  if (searchInput) searchInput.value = '';
+
+  const ejRowId = `ej-${Date.now()}`;
+  const html = `
+    <div class="ej-row" id="${ejRowId}" data-ej-id="${ejId}">
+      <div class="ej-row-header">
+        <span class="ej-row-name">${ejNombre}</span>
+        <button type="button" class="btn-remove-ej"
+                onclick="document.getElementById('${ejRowId}').remove()">✕</button>
+      </div>
+      <div class="ej-metrics">
+        <div class="metric-field">
+          <label>Series</label>
+          <input class="metric-input" type="number" name="series" value="3" min="1">
+        </div>
+        <div class="metric-field">
+          <label>Reps</label>
+          <input class="metric-input" type="text" name="repeticiones" value="12" placeholder="12">
+        </div>
+        <div class="metric-field">
+          <label>Desc (s)</label>
+          <input class="metric-input" type="number" name="descanso" value="60" min="0">
+        </div>
+        <div class="metric-field">
+          <label>%</label>
+          <input class="metric-input" type="number" name="porcentaje" placeholder="—" min="0" max="100">
+        </div>
+      </div>
+    </div>`;
+  document.getElementById(`${secId}-ejs`).insertAdjacentHTML('beforeend', html);
+}
+
+// Cerrar sugerencias al click afuera
+document.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('search-ej')) {
+    document.querySelectorAll('.ej-suggestions').forEach(b => b.style.display = 'none');
+  }
+});
+
+// ── Submit ──
+function showError(msg) {
+  const el = document.getElementById('form-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function submitRutina() {
+  const nombre = document.getElementById('rutina-nombre').value.trim();
+  if (!nombre) { showError('El nombre de la rutina es requerido.'); return; }
+
+  const dias = [];
+  document.querySelectorAll('#dias-container .dia-block').forEach(diaEl => {
+    const dia = diaEl.dataset.dia;
+    const secciones = [];
+    diaEl.querySelectorAll('.seccion-block').forEach(secEl => {
+      const tipo = secEl.dataset.tipo;
+      const ejercicios = [];
+      secEl.querySelectorAll('.ej-row').forEach(ejEl => {
+        ejercicios.push({
+          ejercicio_id: parseInt(ejEl.dataset.ejId),
+          series:       parseInt(ejEl.querySelector('[name=series]').value) || 3,
+          repeticiones: ejEl.querySelector('[name=repeticiones]').value || '12',
+          descanso:     parseInt(ejEl.querySelector('[name=descanso]').value) || 60,
+          porcentaje:   parseInt(ejEl.querySelector('[name=porcentaje]').value) || null,
+        });
+      });
+      if (ejercicios.length) secciones.push({ tipo, ejercicios });
+    });
+    if (secciones.length) dias.push({ dia, secciones });
+  });
+
+  const payload = {
+    nombre,
+    descripcion: document.getElementById('rutina-desc').value.trim(),
+    deporte:     document.getElementById('rutina-deporte').value,
+    dias,
+  };
+
+  const resp = await fetch('{% url "rutina_create" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}',
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await resp.json();
+  if (data.ok) {
+    window.location.href = `/workouts/instructor/rutinas/${data.rutina_id}/`;
+  } else {
+    showError(data.error || 'Error al guardar la rutina.');
+  }
+}
+</script>
+{% endblock %}

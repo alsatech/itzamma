@@ -160,19 +160,39 @@
             <label>Objetivo</label>
             <input class="input" type="text" name="objetivo" value="{{ perfil.objetivo }}">
 
-            <label>Deporte</label>
-            <select class="input" name="deporte">
-                <option value="">Selecciona...</option>
-                <option value="tenis" {% if perfil.deporte == "tenis" %}selected{% endif %}>Tenis</option>
-                <option value="gym" {% if perfil.deporte == "gym" %}selected{% endif %}>Gym</option>
-                <option value="running" {% if perfil.deporte == "running" %}selected{% endif %}>Running</option>
-                <option value="crossfit" {% if perfil.deporte == "crossfit" %}selected{% endif %}>Crossfit</option>
-            </select>
+            <label>Actividad física</label>
+            <input type="hidden" name="deporte" id="deporte-val" value="{{ perfil.deporte|default:'gym' }}">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;">
+              {% for val, lbl in form.deporte.field.choices %}
+              <div onclick="selectDeporte('{{ val }}')" id="chip-{{ val }}"
+                   style="padding:10px 4px;text-align:center;border-radius:12px;
+                          background:#0d1320;border:1.5px solid rgba(255,255,255,0.08);
+                          font-size:11px;font-weight:700;color:#9ca3af;cursor:pointer;">
+                <div style="font-size:20px;margin-bottom:3px;">
+                  {% if val == 'gym' %}🏋️{% elif val == 'tenis' %}🎾{% elif val == 'boxeo' %}🥊{% elif val == 'yoga' %}🧘{% elif val == 'running' %}🏃{% elif val == 'natacion' %}🏊{% elif val == 'hyrox' %}⚡{% else %}🏅{% endif %}
+                </div>
+                {{ lbl }}
+              </div>
+              {% endfor %}
+            </div>
         </div>
 
         <button class="btn-submit">Guardar Perfil</button>
 
     </form>
 </div>
+
+<script>
+function selectDeporte(val) {
+  document.getElementById('deporte-val').value = val;
+  document.querySelectorAll('[id^="chip-"]').forEach(c => {
+    c.style.borderColor = 'rgba(255,255,255,0.08)';
+    c.style.color = '#9ca3af';
+  });
+  const chip = document.getElementById('chip-' + val);
+  if (chip) { chip.style.borderColor = '#22c55e'; chip.style.color = '#22c55e'; }
+}
+selectDeporte(document.getElementById('deporte-val').value || 'gym');
+</script>
 
 {% endblock %}

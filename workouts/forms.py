@@ -2,52 +2,64 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from .models import Workout, WorkoutMedia
+from .models import Ejercicio, EjercicioMedia, Rutina
 
 
-class WorkoutForm(forms.ModelForm):
+class EjercicioForm(forms.ModelForm):
     class Meta:
-        model = Workout
-        fields = ["titulo", "descripcion", "deporte"]
+        model = Ejercicio
+        fields = ["nombre", "categoria", "descripcion"]
         widgets = {
-            "titulo": forms.TextInput(attrs={
+            "nombre": forms.TextInput(attrs={
                 "class": "input-text",
-                "placeholder": "Nombre de la rutina (ej. Full Body Power)",
+                "placeholder": "Ej. Press inclinado con mancuernas",
             }),
+            "categoria": forms.HiddenInput(),
             "descripcion": forms.Textarea(attrs={
                 "class": "textarea",
-                "rows": 4,
-                "placeholder": "Descripción general de la rutina...",
+                "rows": 3,
+                "placeholder": "Descripción opcional...",
             }),
-            "deporte": forms.HiddenInput(),
         }
 
 
-class WorkoutMediaForm(forms.ModelForm):
+class EjercicioMediaForm(forms.ModelForm):
     class Meta:
-        model = WorkoutMedia
-        fields = ["tipo", "url_video", "archivo_pdf", "texto", "imagen", "orden"]
+        model = EjercicioMedia
+        fields = ["tipo", "url_video", "imagen", "orden"]
         widgets = {
-            "tipo": forms.Select(attrs={"class": "input-select"}),
+            "tipo": forms.HiddenInput(),
             "url_video": forms.URLInput(attrs={
                 "class": "input-text",
-                "placeholder": "URL de YouTube (si aplica)",
-            }),
-            "archivo_pdf": forms.ClearableFileInput(attrs={"class": "input-file"}),
-            "texto": forms.Textarea(attrs={
-                "class": "textarea",
-                "rows": 3,
-                "placeholder": "Texto / instrucciones (si aplica)",
+                "placeholder": "URL de YouTube",
             }),
             "imagen": forms.ClearableFileInput(attrs={"class": "input-file"}),
-            "orden": forms.NumberInput(attrs={"class": "input-number", "min": 0}),
+            "orden": forms.HiddenInput(),
         }
 
 
-WorkoutMediaFormSet = inlineformset_factory(
-    Workout,
-    WorkoutMedia,
-    form=WorkoutMediaForm,
+EjercicioMediaFormSet = inlineformset_factory(
+    Ejercicio,
+    EjercicioMedia,
+    form=EjercicioMediaForm,
     extra=1,
     can_delete=True,
 )
+
+
+class RutinaForm(forms.ModelForm):
+    class Meta:
+        model = Rutina
+        fields = ["nombre", "descripcion", "deporte"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={
+                "class": "input-text",
+                "placeholder": "Ej. Full Body Fuerza — Semana 1",
+            }),
+            "descripcion": forms.Textarea(attrs={
+                "class": "textarea",
+                "rows": 3,
+                "placeholder": "Descripción opcional...",
+            }),
+            "deporte": forms.HiddenInput(),
+        }

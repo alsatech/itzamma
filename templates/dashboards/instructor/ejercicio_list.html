@@ -1,0 +1,141 @@
+{% extends "base_app.html" %}
+{% block title %}Biblioteca{% endblock %}
+{% block header_title %}Biblioteca{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --lime:   #C8E8A0;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 110px; }
+
+  .page-header {
+    display: flex; align-items: center;
+    justify-content: space-between; padding: 20px 0 18px;
+  }
+  .page-title { font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -0.5px; margin: 0; }
+  .btn-new {
+    background: var(--mint); color: #0d2a1a;
+    font-size: 13px; font-weight: 800;
+    padding: 10px 16px; border-radius: 12px;
+    text-decoration: none;
+  }
+
+  /* ── Filter chips ── */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+  .filter-chip {
+    white-space: nowrap; padding: 8px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+    border: 1px solid var(--border); color: #9CA3AF;
+    background: var(--bg-card);
+  }
+  .filter-chip.active { color: #111827; border-color: transparent; }
+  .filter-chip.f-todos.active    { background: #fff; }
+  .filter-chip.f-fuerza.active   { background: var(--peach); }
+  .filter-chip.f-funcional.active { background: var(--mint); }
+  .filter-chip.f-potencia.active { background: var(--lime); }
+
+  /* ── Exercise card ── */
+  .ej-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 16px;
+    margin-bottom: 12px; display: flex;
+    align-items: center; gap: 14px;
+  }
+  .ej-icon {
+    width: 50px; height: 50px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .ej-icon.fuerza    { background: var(--peach); }
+  .ej-icon.funcional { background: var(--mint); }
+  .ej-icon.potencia  { background: var(--lime); }
+
+  .ej-body { flex: 1; min-width: 0; }
+  .ej-name {
+    font-size: 15px; font-weight: 700; color: #f1f5f9;
+    margin: 0 0 4px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .ej-meta { font-size: 12px; color: #6B7280; margin: 0; }
+  .ej-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px;
+    border-radius: 999px; text-transform: uppercase; letter-spacing: .05em;
+  }
+  .badge-fuerza    { background: var(--peach); color: #3d1505; }
+  .badge-funcional { background: var(--mint);  color: #0d2a1a; }
+  .badge-potencia  { background: var(--lime);  color: #1a3a05; }
+
+  .ej-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .btn-delete {
+    background: none; border: none; color: #4B5563;
+    font-size: 13px; cursor: pointer; padding: 0;
+    font-weight: 600;
+  }
+  .btn-delete:hover { color: #EF4444; }
+
+  .empty-state { text-align: center; padding: 40px 0; color: #4b5563; font-size: 15px; }
+
+  .btn-create-big {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 18px; background: var(--mint); border-radius: 22px;
+    font-size: 16px; font-weight: 800; color: #0d2a1a; text-decoration: none;
+    margin-top: 8px;
+  }
+</style>
+
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">Biblioteca</h1>
+    <a href="{% url 'ejercicio_create' %}" class="btn-new">＋ Nuevo</a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filter-row">
+    <a href="{% url 'ejercicio_list' %}"
+       class="filter-chip f-todos {% if not cat_activa %}active{% endif %}">Todos</a>
+    <a href="{% url 'ejercicio_list' %}?cat=fuerza"
+       class="filter-chip f-fuerza {% if cat_activa == 'fuerza' %}active{% endif %}">🏋️ Fuerza</a>
+    <a href="{% url 'ejercicio_list' %}?cat=funcional"
+       class="filter-chip f-funcional {% if cat_activa == 'funcional' %}active{% endif %}">⚡ Funcional</a>
+    <a href="{% url 'ejercicio_list' %}?cat=potencia"
+       class="filter-chip f-potencia {% if cat_activa == 'potencia' %}active{% endif %}">💥 Potencia</a>
+  </div>
+
+  <!-- Lista -->
+  {% for e in ejercicios %}
+  <div class="ej-card">
+    <div class="ej-icon {{ e.categoria }}">
+      {% if e.categoria == 'fuerza' %}🏋️{% elif e.categoria == 'funcional' %}⚡{% else %}💥{% endif %}
+    </div>
+    <div class="ej-body">
+      <p class="ej-name">{{ e.nombre }}</p>
+      <p class="ej-meta">
+        <span class="ej-badge badge-{{ e.categoria }}">{{ e.get_categoria_display }}</span>
+        &nbsp;{{ e.media.count }} video{% if e.media.count != 1 %}s{% endif %}
+      </p>
+    </div>
+    <div class="ej-actions">
+      <form method="post" action="{% url 'ejercicio_delete' e.id %}"
+            onsubmit="return confirm('¿Eliminar {{ e.nombre }}?')">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete">Eliminar</button>
+      </form>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">
+    Sin ejercicios{% if cat_activa %} en esta categoría{% endif %} aún.
+  </div>
+  {% endfor %}
+
+  <a href="{% url 'ejercicio_create' %}" class="btn-create-big">
+    ＋ Crear ejercicio
+  </a>
+</div>
+{% endblock %}

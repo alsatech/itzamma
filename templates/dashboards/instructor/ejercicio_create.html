@@ -1,0 +1,202 @@
+{% extends "base_app.html" %}
+{% block title %}Nuevo Ejercicio{% endblock %}
+{% block header_title %}Nuevo Ejercicio{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --lime:   #C8E8A0;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 110px; }
+
+  .page-title {
+    font-size: 26px; font-weight: 900; color: #fff;
+    letter-spacing: -0.5px; margin: 20px 0 24px;
+  }
+
+  /* ── Categoría chips ── */
+  .cat-row { display: flex; gap: 10px; margin-bottom: 24px; }
+  .cat-chip {
+    flex: 1; padding: 14px 8px; border-radius: 16px;
+    border: 2px solid transparent;
+    font-size: 13px; font-weight: 700; text-align: center;
+    cursor: pointer; transition: border-color .15s;
+  }
+  .cat-chip[data-cat="fuerza"]    { background: var(--peach);  color: #3d1505; }
+  .cat-chip[data-cat="funcional"] { background: var(--mint);   color: #0d2a1a; }
+  .cat-chip[data-cat="potencia"]  { background: var(--lime);   color: #1a3a05; }
+  .cat-chip.active { border-color: #fff; }
+  .cat-chip .cat-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+  /* ── Form fields ── */
+  label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: #9CA3AF; margin-bottom: 7px;
+  }
+  .input-text, .textarea {
+    width: 100%; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 14px;
+    color: #f1f5f9; font-size: 15px; padding: 14px 16px;
+    font-family: inherit; outline: none; box-sizing: border-box;
+  }
+  .textarea { resize: none; }
+  .input-text:focus, .textarea:focus { border-color: var(--mint); }
+
+  .field { margin-bottom: 18px; }
+
+  /* ── Media items ── */
+  .media-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .media-item {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 14px 16px;
+  }
+  .media-item-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 10px;
+  }
+  .media-label { font-size: 13px; font-weight: 700; color: var(--mint); }
+  .btn-remove-media {
+    background: none; border: none; color: #6B7280;
+    font-size: 18px; cursor: pointer; padding: 0;
+  }
+  .delete-checkbox { display: none; }
+
+  /* ── Buttons ── */
+  .btn-add-media {
+    width: 100%; padding: 13px; border-radius: 14px;
+    background: transparent; border: 1px dashed rgba(168,213,194,0.4);
+    color: var(--mint); font-size: 14px; font-weight: 700;
+    cursor: pointer; margin-bottom: 24px;
+  }
+  .btn-submit {
+    width: 100%; padding: 18px; border-radius: 18px;
+    background: var(--mint); border: none;
+    font-size: 16px; font-weight: 800; color: #0d2a1a;
+    cursor: pointer;
+  }
+</style>
+
+<div class="page">
+  <h1 class="page-title">Nuevo ejercicio</h1>
+
+  <form method="post" enctype="multipart/form-data" id="ejercicio-form">
+    {% csrf_token %}
+    {{ form.categoria }}  {# hidden field #}
+
+    <!-- Categoría -->
+    <label>Categoría</label>
+    <div class="cat-row" id="cat-row">
+      <div class="cat-chip" data-cat="fuerza">
+        <span class="cat-icon">🏋️</span>Fuerza
+      </div>
+      <div class="cat-chip" data-cat="funcional">
+        <span class="cat-icon">⚡</span>Funcional
+      </div>
+      <div class="cat-chip" data-cat="potencia">
+        <span class="cat-icon">💥</span>Potencia
+      </div>
+    </div>
+
+    <!-- Nombre -->
+    <div class="field">
+      <label>Nombre del ejercicio</label>
+      {{ form.nombre }}
+    </div>
+
+    <!-- Descripción -->
+    <div class="field">
+      <label>Descripción (opcional)</label>
+      {{ form.descripcion }}
+    </div>
+
+    <!-- Media formset -->
+    {{ formset.management_form }}
+    <label>Videos / Fotos</label>
+    <div class="media-list" id="media-list">
+      {% for mform in formset %}
+        <div class="media-item" id="media-item-{{ forloop.counter0 }}">
+          {% for hidden in mform.hidden_fields %}{{ hidden }}{% endfor %}
+          <div class="media-item-header">
+            <span class="media-label">Video {{ forloop.counter }}</span>
+            <button type="button" class="btn-remove-media" onclick="removeMedia(this)">✕</button>
+          </div>
+          <div class="field">
+            {{ mform.url_video }}
+          </div>
+          {{ mform.tipo }}
+          {{ mform.orden }}
+          <div class="delete-checkbox" id="del-{{ forloop.counter0 }}">
+            {{ mform.DELETE }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <button type="button" class="btn-add-media" id="btn-add-media">
+      ＋ Agregar video
+    </button>
+
+    <button type="submit" class="btn-submit">Guardar ejercicio</button>
+  </form>
+</div>
+
+<script>
+  // ── Categoría ──
+  const catInput = document.querySelector('[name="{{ form.categoria.html_name }}"]');
+  document.querySelectorAll('.cat-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      catInput.value = chip.dataset.cat;
+    });
+  });
+  // Activar primera por defecto
+  const firstChip = document.querySelector('.cat-chip[data-cat="fuerza"]');
+  firstChip.classList.add('active');
+  catInput.value = 'fuerza';
+
+  // ── Agregar media dinamicamente ──
+  const totalFormsInput = document.querySelector('[name="media-TOTAL_FORMS"]');
+  const mediaList = document.getElementById('media-list');
+
+  document.getElementById('btn-add-media').addEventListener('click', () => {
+    const idx = parseInt(totalFormsInput.value);
+    const html = `
+      <div class="media-item" id="media-item-${idx}">
+        <div class="media-item-header">
+          <span class="media-label">Video ${idx + 1}</span>
+          <button type="button" class="btn-remove-media" onclick="removeMedia(this)">✕</button>
+        </div>
+        <div class="field">
+          <input type="url" name="media-${idx}-url_video"
+                 class="input-text" placeholder="URL de YouTube">
+        </div>
+        <input type="hidden" name="media-${idx}-tipo" value="video">
+        <input type="hidden" name="media-${idx}-orden" value="${idx}">
+        <input type="hidden" name="media-${idx}-id" value="">
+        <div class="delete-checkbox" id="del-${idx}">
+          <input type="checkbox" name="media-${idx}-DELETE" id="media-${idx}-DELETE">
+        </div>
+      </div>`;
+    mediaList.insertAdjacentHTML('beforeend', html);
+    totalFormsInput.value = idx + 1;
+  });
+
+  function removeMedia(btn) {
+    const item = btn.closest('.media-item');
+    const id = item.id.replace('media-item-', '');
+    const delBox = item.querySelector('[name$="-DELETE"]');
+    if (delBox) {
+      delBox.checked = true;
+      item.style.display = 'none';
+    } else {
+      item.remove();
+    }
+  }
+</script>
+{% endblock %}

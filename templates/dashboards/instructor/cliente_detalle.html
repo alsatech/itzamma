@@ -307,7 +307,7 @@
 
     <div class="flex-1">
         <p class="font-semibold">
-            {{ r.workout.titulo }}
+            {{ r.rutina.nombre }}
         </p>
         <p class="text-gray-400 text-xs">
             Asignada el {{ r.fecha_asignacion|date:"d M Y" }}
@@ -330,7 +330,7 @@
 
     <div class="flex-1">
         <p class="font-semibold">
-            {{ r.workout.titulo }}
+            {{ r.rutina.nombre }}
         </p>
         <p class="text-green-400 text-xs font-semibold">
             Completada el {{ r.completed_at|date:"d M Y" }}
@@ -342,7 +342,7 @@
 <div class="mt-10 space-y-4">
 
     <!-- CTA PRINCIPAL -->
-    <a href="{% url 'assign_workout' cliente.id %}"
+    <a href="{% url 'rutina_list' %}"
        class="btn-create-premium">
         ➕ Asignar nueva rutina
     </a>

@@ -72,15 +72,10 @@
           transition: background 0.2s ease;
         "
       >
-        <span
-          style="
-            color: white;
-            font-weight: 700;
-            font-size: 14px;
-          "
-        >
-          {{ a.workout.titulo }}
-        </span>
+        <a href="{% url 'detalle_rutina' a.assignment.id %}"
+           style="color:white;font-weight:700;font-size:14px;text-decoration:none;">
+          {{ a.rutina.nombre }}
+        </a>
 
         {% if a.completed %}
           <span style="color:#22c55e;font-weight:900;font-size:16px;">

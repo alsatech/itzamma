@@ -1,0 +1,209 @@
+{% extends "base_app.html" %}
+{% block title %}Mis Gráficas{% endblock %}
+{% block header_title %}Progreso{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --lime:   #C8E8A0;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 120px; }
+  .page-title { font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -0.5px; margin: 20px 0 22px; }
+
+  .chart-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 18px; margin-bottom: 16px;
+  }
+  .chart-title { font-size: 14px; font-weight: 700; color: #9CA3AF; margin: 0 0 14px; text-transform: uppercase; letter-spacing: .07em; }
+
+  /* Log form */
+  .log-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 18px; margin-bottom: 16px;
+  }
+  .log-title { font-size: 16px; font-weight: 800; color: #f1f5f9; margin: 0 0 14px; }
+  .log-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+  .log-field label { font-size: 11px; color: #6B7280; font-weight: 600; display: block; margin-bottom: 4px; }
+  .log-input {
+    width: 100%; background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: #f1f5f9; font-size: 14px; padding: 10px 10px;
+    font-family: inherit; outline: none; box-sizing: border-box;
+  }
+  .log-input:focus { border-color: var(--mint); }
+
+  .btn-log {
+    width: 100%; padding: 13px; border-radius: 13px;
+    background: var(--mint); border: none;
+    font-size: 14px; font-weight: 800; color: #0d2a1a; cursor: pointer;
+  }
+
+  /* Ejercicio selector */
+  .ej-select {
+    width: 100%; background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border); border-radius: 12px;
+    color: #f1f5f9; font-size: 14px; padding: 11px 14px;
+    font-family: inherit; outline: none; margin-bottom: 12px;
+  }
+  .log-grid-2 { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
+  .btn-log-sm {
+    padding: 10px 16px; border-radius: 12px;
+    background: var(--peach); border: none;
+    font-size: 13px; font-weight: 800; color: #3d1505; cursor: pointer; white-space: nowrap;
+  }
+
+  .empty-chart { text-align: center; padding: 28px 0; color: #4B5563; font-size: 13px; }
+</style>
+
+<div class="page">
+  <h1 class="page-title">Mi progreso</h1>
+
+  <!-- ── LOG MEDICIÓN FÍSICA ── -->
+  <div class="log-card">
+    <p class="log-title">Registrar medición de hoy</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="medicion">
+      <div class="log-grid">
+        <div class="log-field">
+          <label>Peso (kg)</label>
+          <input class="log-input" type="number" step="0.1" name="peso" placeholder="70.5">
+        </div>
+        <div class="log-field">
+          <label>% Músculo</label>
+          <input class="log-input" type="number" step="0.1" name="masa_muscular" placeholder="40.0">
+        </div>
+        <div class="log-field">
+          <label>% Grasa</label>
+          <input class="log-input" type="number" step="0.1" name="masa_grasa" placeholder="18.0">
+        </div>
+      </div>
+      <button type="submit" class="btn-log">+ Guardar medición</button>
+    </form>
+  </div>
+
+  <!-- ── GRÁFICA PESO ── -->
+  <div class="chart-card">
+    <p class="chart-title">📊 Peso corporal (kg)</p>
+    <canvas id="chartPeso" height="180"></canvas>
+    <div class="empty-chart" id="emptyPeso" style="display:none;">Sin registros aún.</div>
+  </div>
+
+  <!-- ── GRÁFICA MASA MUSCULAR / GRASA ── -->
+  <div class="chart-card">
+    <p class="chart-title">💪 Masa muscular vs % grasa</p>
+    <canvas id="chartMasa" height="180"></canvas>
+    <div class="empty-chart" id="emptyMasa" style="display:none;">Sin registros aún.</div>
+  </div>
+
+  <!-- ── LOG MÁXIMO EJERCICIO ── -->
+  <div class="log-card">
+    <p class="log-title">Registrar máximo en ejercicio</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="maximo">
+      <select class="ej-select" name="ejercicio_id">
+        <option value="">Selecciona ejercicio...</option>
+        {% for e in ejercicios %}
+        <option value="{{ e.id }}" {% if ej_seleccionado and ej_seleccionado.id == e.id %}selected{% endif %}>
+          {{ e.nombre }}
+        </option>
+        {% endfor %}
+      </select>
+      <div class="log-grid-2">
+        <div class="log-field">
+          <label>Peso máximo (kg)</label>
+          <input class="log-input" type="number" step="0.5" name="peso_kg" placeholder="100.0">
+        </div>
+        <button type="submit" class="btn-log-sm">+ Guardar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── GRÁFICA MÁXIMO EJERCICIO ── -->
+  {% if ejercicios %}
+  <div class="chart-card">
+    <p class="chart-title">🏆 Progresión de fuerza</p>
+    <form method="get" style="margin-bottom:12px;">
+      <select class="ej-select" name="ejercicio" onchange="this.form.submit()">
+        <option value="">Selecciona ejercicio...</option>
+        {% for e in ejercicios %}
+        <option value="{{ e.id }}" {% if ej_seleccionado and ej_seleccionado.id == e.id %}selected{% endif %}>
+          {{ e.nombre }}
+        </option>
+        {% endfor %}
+      </select>
+    </form>
+    <canvas id="chartMax" height="180"></canvas>
+    <div class="empty-chart" id="emptyMax" style="display:none;">
+      {% if ej_seleccionado %}Sin registros para este ejercicio.{% else %}Selecciona un ejercicio.{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const mediciones = {{ mediciones_json|safe }};
+const maximos    = {{ maximos_json|safe }};
+
+const MINT  = '#A8D5C2';
+const PEACH = '#F0C4A8';
+const LIME  = '#C8E8A0';
+
+function makeChart(canvasId, emptyId, labels, datasets) {
+  if (!labels.length) {
+    document.getElementById(canvasId).style.display = 'none';
+    document.getElementById(emptyId).style.display = 'block';
+    return;
+  }
+  new Chart(document.getElementById(canvasId), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#9CA3AF', font: { size: 12 } } } },
+      scales: {
+        x: { ticks: { color: '#6B7280', maxTicksLimit: 6 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { ticks: { color: '#6B7280' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      },
+    },
+  });
+}
+
+// ── Peso ──
+const pesoLabels = mediciones.filter(m => m.peso).map(m => m.fecha);
+const pesoData   = mediciones.filter(m => m.peso).map(m => parseFloat(m.peso));
+makeChart('chartPeso', 'emptyPeso', pesoLabels, [{
+  label: 'Peso (kg)', data: pesoData,
+  borderColor: MINT, backgroundColor: 'rgba(168,213,194,0.12)',
+  tension: 0.35, pointBackgroundColor: MINT, fill: true,
+}]);
+
+// ── Masa muscular / grasa ──
+const masaLabels = mediciones.filter(m => m.masa_muscular || m.masa_grasa).map(m => m.fecha);
+const muscData   = mediciones.filter(m => m.masa_muscular || m.masa_grasa).map(m => m.masa_muscular ? parseFloat(m.masa_muscular) : null);
+const grasaData  = mediciones.filter(m => m.masa_muscular || m.masa_grasa).map(m => m.masa_grasa ? parseFloat(m.masa_grasa) : null);
+makeChart('chartMasa', 'emptyMasa', masaLabels, [
+  { label: '% Músculo', data: muscData, borderColor: MINT, backgroundColor: 'rgba(168,213,194,0.1)', tension: 0.35, pointBackgroundColor: MINT, fill: false },
+  { label: '% Grasa',   data: grasaData, borderColor: PEACH, backgroundColor: 'rgba(240,196,168,0.1)', tension: 0.35, pointBackgroundColor: PEACH, fill: false },
+]);
+
+// ── Máximos ──
+if (document.getElementById('chartMax')) {
+  const maxLabels = maximos.map(m => m.fecha);
+  const maxData   = maximos.map(m => parseFloat(m.peso_kg));
+  makeChart('chartMax', 'emptyMax', maxLabels, [{
+    label: 'Peso máx (kg)', data: maxData,
+    borderColor: LIME, backgroundColor: 'rgba(200,232,160,0.12)',
+    tension: 0.35, pointBackgroundColor: LIME, fill: true,
+  }]);
+}
+</script>
+{% endblock %}

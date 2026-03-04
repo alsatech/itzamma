@@ -5,7 +5,6 @@
 {% block content %}
 
 <style>
-  /* ---- TOKENS ---- */
   :root {
     --mint:       #A8D5C2;
     --mint-light: #C2E8D8;
@@ -23,136 +22,60 @@
   }
 
   /* ---- GREETING ---- */
-  .greeting {
-    padding: 20px 0 22px;
-  }
-  .greeting-sub {
-    font-size: 13px;
-    color: #9CA3AF;
-    margin: 0 0 6px;
-    font-weight: 500;
-  }
+  .greeting { padding: 20px 0 22px; }
+  .greeting-sub { font-size: 13px; color: #9CA3AF; margin: 0 0 6px; font-weight: 500; }
   .greeting-title {
-    font-size: 32px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.08;
-    letter-spacing: -0.8px;
-    margin: 0;
+    font-size: 32px; font-weight: 900; color: #fff;
+    line-height: 1.08; letter-spacing: -0.8px; margin: 0;
   }
 
-  /* ---- HERO CARD (menta) ---- */
+  /* ---- HERO CARD ---- */
   .hero-card {
-    background: var(--mint);
-    border-radius: 28px;
-    padding: 22px 20px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    background: var(--mint); border-radius: 28px;
+    padding: 22px 20px; margin-bottom: 12px;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px;
   }
   .hero-left { flex: 1; }
   .hero-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: rgba(10,40,25,0.55);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    font-size: 11px; font-weight: 700; color: rgba(10,40,25,0.55);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 5px;
   }
   .hero-big {
-    font-size: 52px;
-    font-weight: 900;
-    color: #111827;
-    line-height: 1;
-    letter-spacing: -2px;
-    margin-bottom: 6px;
+    font-size: 52px; font-weight: 900; color: #111827;
+    line-height: 1; letter-spacing: -2px; margin-bottom: 6px;
   }
-  .hero-sub {
-    font-size: 13px;
-    color: rgba(10,40,25,0.55);
-    font-weight: 500;
-  }
-  /* Ring */
-  .ring-wrapper {
-    position: relative;
-    width: 96px;
-    height: 96px;
-    flex-shrink: 0;
-  }
+  .hero-sub { font-size: 13px; color: rgba(10,40,25,0.55); font-weight: 500; }
+
+  .ring-wrapper { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
   .ring-wrapper svg { transform: rotate(-90deg); }
   .ring-center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
   }
-  .ring-val {
-    font-size: 18px;
-    font-weight: 900;
-    color: #111827;
-    line-height: 1;
-  }
+  .ring-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
   .ring-lbl {
-    font-size: 9px;
-    font-weight: 700;
-    color: rgba(10,40,25,0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: 9px; font-weight: 700; color: rgba(10,40,25,0.5);
+    text-transform: uppercase; letter-spacing: 0.08em;
   }
 
-  /* ---- ACTIVITY BANNER (lima) ---- */
+  /* ---- ACTIVITY BANNER ---- */
   .activity-banner {
-    background: var(--lime);
-    border-radius: 20px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
+    background: var(--lime); border-radius: 20px;
+    padding: 14px 18px; display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 28px;
   }
-  .activity-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .activity-left { display: flex; align-items: center; gap: 10px; }
   .activity-icon { font-size: 22px; }
-  .activity-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1a3005;
-    margin: 0 0 2px;
-  }
-  .activity-sub {
-    font-size: 11px;
-    color: rgba(20,50,5,0.6);
-    margin: 0;
-    font-weight: 500;
-  }
-  .activity-count {
-    font-size: 26px;
-    font-weight: 900;
-    color: #1a3005;
-  }
+  .activity-title { font-size: 14px; font-weight: 700; color: #1a3005; margin: 0 0 2px; }
+  .activity-sub { font-size: 11px; color: rgba(20,50,5,0.6); margin: 0; font-weight: 500; }
+  .activity-count { font-size: 26px; font-weight: 900; color: #1a3005; }
 
-  /* ---- STATS ROW ---- */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    border-radius: 22px;
-    padding: 18px 16px;
-  }
+  /* ---- STATS ---- */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat-card { border-radius: 22px; padding: 18px 16px; }
   .s-mint  { background: var(--mint); }
   .s-peach { background: var(--peach); }
   .s-lime  { background: var(--lime); }
@@ -170,180 +93,90 @@
   .s-icon { font-size: 22px; display: block; margin-bottom: 10px; }
   .s-lbl  { font-size: 12px; font-weight: 500; margin: 0 0 4px; }
   .s-val  { font-size: 34px; font-weight: 900; line-height: 1; margin: 0; letter-spacing: -1px; }
-  .s-unit { font-size: 13px; font-weight: 500; margin-left: 2px; }
 
   /* ---- SECTION ---- */
   .section { margin-bottom: 28px; }
   .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 14px;
   }
-  .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #f1f5f9;
-    letter-spacing: -0.2px;
-    margin: 0;
-  }
+  .section-title { font-size: 18px; font-weight: 700; color: #f1f5f9; letter-spacing: -0.2px; margin: 0; }
   .see-all {
-    font-size: 12px;
-    color: #9CA3AF;
-    text-decoration: none;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 5px 12px;
-    border-radius: 999px;
-    font-weight: 500;
+    font-size: 12px; color: #9CA3AF; text-decoration: none;
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 5px 12px; border-radius: 999px; font-weight: 500;
   }
 
   /* ---- CLIENT ROW ---- */
   .client-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 13px 0;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none;
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 0; border-bottom: 1px solid var(--border); text-decoration: none;
   }
   .client-row:last-of-type { border-bottom: none; }
   .client-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--mint-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: 800;
-    color: #0d3322;
-    flex-shrink: 0;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--mint-light); display: flex; align-items: center;
+    justify-content: center; font-size: 18px; font-weight: 800;
+    color: #0d3322; flex-shrink: 0;
   }
-  .client-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+  .client-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
   .client-info { flex: 1; min-width: 0; }
   .client-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin: 0 0 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 15px; font-weight: 700; color: #f1f5f9; margin: 0 0 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .client-email {
-    font-size: 12px;
-    color: #6B7280;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 12px; color: #6B7280; margin: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .client-arrow {
-    color: #4B5563;
-    font-size: 20px;
-    flex-shrink: 0;
-  }
+  .client-arrow { color: #4B5563; font-size: 20px; flex-shrink: 0; }
 
-  /* ---- ADD CLIENT BUTTON ---- */
+  /* ---- ADD CLIENT ---- */
   .btn-add {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 14px;
-    margin-top: 12px;
-    border-radius: 16px;
-    background: var(--bg-card);
-    border: 1px dashed rgba(168,213,194,0.35);
-    font-size: 14px;
-    font-weight: 600;
-    color: #A8D5C2;
-    text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 14px; margin-top: 12px; border-radius: 16px;
+    background: var(--bg-card); border: 1px dashed rgba(168,213,194,0.35);
+    font-size: 14px; font-weight: 600; color: var(--mint); text-decoration: none;
   }
 
-  /* ---- WORKOUT ROW ---- */
-  .workout-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 13px 0;
-    border-bottom: 1px solid var(--border);
+  /* ---- RUTINA ROW ---- */
+  .rutina-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 0; border-bottom: 1px solid var(--border);
   }
-  .workout-row:last-of-type { border-bottom: none; }
-  .workout-thumb {
-    width: 54px;
-    height: 54px;
-    border-radius: 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
+  .rutina-row:last-of-type { border-bottom: none; }
+  .rutina-thumb {
+    width: 54px; height: 54px; border-radius: 16px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 24px;
   }
-  .workout-body { flex: 1; min-width: 0; }
-  .workout-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin: 0 0 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .rutina-body { flex: 1; min-width: 0; }
+  .rutina-name {
+    font-size: 15px; font-weight: 700; color: #f1f5f9; margin: 0 0 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .workout-desc {
-    font-size: 12px;
-    color: #6B7280;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .rutina-desc {
+    font-size: 12px; color: #6B7280; margin: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .btn-assign {
-    flex-shrink: 0;
-    background: var(--peach);
-    color: #5a2e10;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 9px 14px;
-    border-radius: 12px;
-    text-decoration: none;
-    white-space: nowrap;
+    flex-shrink: 0; background: var(--peach); color: #5a2e10;
+    font-size: 13px; font-weight: 700; padding: 9px 14px;
+    border-radius: 12px; text-decoration: none; white-space: nowrap;
   }
 
-  /* ---- CREATE WORKOUT BUTTON ---- */
-  .btn-create {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 18px;
-    background: var(--mint);
-    border-radius: 22px;
-    font-size: 16px;
-    font-weight: 800;
-    color: #0d2a1a;
-    text-decoration: none;
-    margin-top: 4px;
+  /* ---- CTA BUTTONS ---- */
+  .cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .btn-cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 16px 12px; border-radius: 18px;
+    font-size: 14px; font-weight: 800; text-decoration: none;
   }
+  .btn-cta-mint  { background: var(--mint);  color: #0d2a1a; }
+  .btn-cta-peach { background: var(--peach); color: #3d1505; }
 
-  /* ---- EMPTY ---- */
-  .empty-state {
-    text-align: center;
-    padding: 28px 0;
-    color: #4b5563;
-    font-size: 15px;
-  }
+  .empty-state { text-align: center; padding: 28px 0; color: #4b5563; font-size: 15px; }
 </style>
 
 
@@ -355,28 +188,18 @@
     <h1 class="greeting-title">Panel de<br>Instructor</h1>
   </div>
 
-
-  <!-- HERO CARD: clientes + ring de completadas -->
+  <!-- HERO CARD -->
   <div class="hero-card">
     <div class="hero-left">
       <div class="hero-label">◎ Resumen</div>
       <div class="hero-big">{{ total_clients }}</div>
       <div class="hero-sub">Clientes activos</div>
     </div>
-
     <div class="ring-wrapper">
       <svg width="96" height="96" viewBox="0 0 96 96">
-        <circle cx="48" cy="48" r="38"
-                fill="none"
-                stroke="rgba(0,0,0,0.12)"
-                stroke-width="9"/>
-        <circle cx="48" cy="48" r="38"
-                fill="none"
-                stroke="#fff"
-                stroke-width="9"
-                stroke-linecap="round"
-                stroke-dasharray="238.8"
-                stroke-dashoffset="238.8"
+        <circle cx="48" cy="48" r="38" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="9"/>
+        <circle cx="48" cy="48" r="38" fill="none" stroke="#fff" stroke-width="9"
+                stroke-linecap="round" stroke-dasharray="238.8" stroke-dashoffset="238.8"
                 id="instructor-ring"/>
       </svg>
       <div class="ring-center">
@@ -386,8 +209,7 @@
     </div>
   </div>
 
-
-  <!-- ACTIVITY BANNER: últimos 7 días -->
+  <!-- ACTIVITY BANNER -->
   <div class="activity-banner">
     <div class="activity-left">
       <span class="activity-icon">📅</span>
@@ -399,7 +221,6 @@
     <span class="activity-count">{{ completadas_7dias }}</span>
   </div>
 
-
   <!-- STATS -->
   <div class="stats-grid">
     <div class="stat-card s-mint">
@@ -407,20 +228,17 @@
       <p class="s-lbl">Clientes</p>
       <p class="s-val">{{ total_clients }}</p>
     </div>
-
     <div class="stat-card s-peach">
       <span class="s-icon">✅</span>
       <p class="s-lbl">Completadas</p>
       <p class="s-val">{{ total_completadas }}</p>
     </div>
-
     <div class="stat-card s-lime" style="grid-column: span 2;">
       <span class="s-icon">🏋️</span>
-      <p class="s-lbl">Rutinas creadas</p>
-      <p class="s-val">{{ workouts|length }}</p>
+      <p class="s-lbl">Ejercicios en biblioteca · Rutinas creadas</p>
+      <p class="s-val">{{ total_ejercicios }} <span style="font-size:20px;font-weight:500;opacity:.5">/</span> {{ rutinas|length }}</p>
     </div>
   </div>
-
 
   <!-- CLIENTES -->
   <section class="section">
@@ -453,44 +271,45 @@
     </a>
   </section>
 
-
   <!-- RUTINAS -->
   <section class="section" id="rutinas">
     <div class="section-header">
       <p class="section-title">Tus rutinas</p>
+      <a href="{% url 'rutina_list' %}" class="see-all">Ver todo ↗</a>
     </div>
 
-    {% for w in workouts %}
-    <div class="workout-row">
-      <div class="workout-thumb">{{ w.emoji }}</div>
-      <div class="workout-body">
-        <p class="workout-name">{{ w.titulo }}</p>
-        <p class="workout-desc">{{ w.descripcion|default:"Sin descripción"|truncatechars:38 }}</p>
+    {% for r in rutinas|slice:":4" %}
+    <div class="rutina-row">
+      <div class="rutina-thumb">{{ r.emoji }}</div>
+      <div class="rutina-body">
+        <p class="rutina-name">{{ r.nombre }}</p>
+        <p class="rutina-desc">{{ r.descripcion|default:"Sin descripción"|truncatechars:38 }}</p>
       </div>
-      <a href="{% url 'assign_workout' w.id %}" class="btn-assign">Asignar</a>
+      <a href="{% url 'rutina_assign' r.id %}" class="btn-assign">Asignar</a>
     </div>
     {% empty %}
     <div class="empty-state">Sin rutinas creadas aún</div>
     {% endfor %}
   </section>
 
-
-  <!-- CREAR RUTINA -->
-  <a href="{% url 'instructor_workout_create' %}" class="btn-create">
-    ＋ Crear nueva rutina
-  </a>
+  <!-- CTA BUTTONS -->
+  <div class="cta-grid">
+    <a href="{% url 'ejercicio_create' %}" class="btn-cta btn-cta-mint">
+      🏋️ Crear ejercicio
+    </a>
+    <a href="{% url 'rutina_create' %}" class="btn-cta btn-cta-peach">
+      📋 Crear rutina
+    </a>
+  </div>
 
 </div>
 
-
 <script>
-  // Animate ring: representa % de completadas respecto al total de clientes (o simplemente visual)
   (function() {
     const ring = document.getElementById('instructor-ring');
     if (!ring) return;
     const circumference = 238.8;
     const total = {{ total_completadas }};
-    // Animar al 75% visual si hay completadas, 0% si no hay
     const pct = total > 0 ? Math.min(75 + (total % 25), 95) : 0;
     const offset = circumference - (circumference * pct / 100);
     requestAnimationFrame(function() {

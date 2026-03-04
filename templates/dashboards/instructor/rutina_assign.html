@@ -1,0 +1,119 @@
+{% extends "base_app.html" %}
+{% block title %}Asignar Rutina{% endblock %}
+{% block header_title %}Asignar{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+    --mint-light: #C2E8D8;
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 110px; }
+
+  .rutina-pill {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 14px 18px;
+    margin: 20px 0 22px;
+  }
+  .rutina-pill-label { font-size: 11px; color: #6B7280; font-weight: 600; margin: 0 0 4px; }
+  .rutina-pill-name  { font-size: 18px; font-weight: 800; color: #f1f5f9; margin: 0; }
+
+  .section-title {
+    font-size: 18px; font-weight: 800; color: #f1f5f9;
+    margin-bottom: 14px;
+  }
+
+  /* ── Clientes checklist ── */
+  .cliente-check {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .cliente-check:last-of-type { border-bottom: none; }
+
+  .check-box {
+    width: 22px; height: 22px; border-radius: 7px;
+    border: 2px solid var(--border); background: var(--bg-card);
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; color: transparent;
+    transition: background .15s, border-color .15s;
+  }
+  .cliente-check input:checked ~ .check-box,
+  .cliente-check.checked .check-box {
+    background: var(--mint); border-color: var(--mint); color: #0d2a1a;
+  }
+  .cliente-check input { display: none; }
+
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--mint-light); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; color: #0d3322;
+  }
+  .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+  .cliente-info { flex: 1; min-width: 0; }
+  .cliente-name {
+    font-size: 15px; font-weight: 700; color: #f1f5f9;
+    margin: 0 0 2px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .cliente-email { font-size: 12px; color: #6B7280; margin: 0; }
+
+  .empty-state { text-align: center; padding: 28px 0; color: #4b5563; }
+
+  .btn-submit {
+    width: 100%; padding: 18px; border-radius: 18px;
+    background: var(--mint); border: none;
+    font-size: 16px; font-weight: 800; color: #0d2a1a;
+    cursor: pointer; margin-top: 24px;
+  }
+</style>
+
+<div class="page">
+  <div class="rutina-pill">
+    <p class="rutina-pill-label">Asignando rutina</p>
+    <p class="rutina-pill-name">{{ rutina.nombre }}</p>
+  </div>
+
+  <p class="section-title">Selecciona clientes</p>
+
+  <form method="post">
+    {% csrf_token %}
+    {% for c in clientes %}
+    <label class="cliente-check" id="label-{{ c.id }}">
+      <input type="checkbox" name="clientes" value="{{ c.id }}"
+             onchange="syncCheck({{ c.id }})">
+      <div class="avatar">
+        {% if c.profile.foto %}
+          <img src="{{ c.profile.foto.url }}" alt="">
+        {% else %}
+          {{ c.first_name|default:c.username|slice:":1"|upper }}
+        {% endif %}
+      </div>
+      <div class="cliente-info">
+        <p class="cliente-name">{{ c.get_full_name|default:c.username }}</p>
+        <p class="cliente-email">{{ c.email }}</p>
+      </div>
+      <div class="check-box" id="check-{{ c.id }}">✓</div>
+    </label>
+    {% empty %}
+    <div class="empty-state">Sin clientes asignados aún.</div>
+    {% endfor %}
+
+    <button type="submit" class="btn-submit">Asignar rutina</button>
+  </form>
+</div>
+
+<script>
+function syncCheck(id) {
+  const input = document.querySelector(`input[value="${id}"]`);
+  const label = document.getElementById(`label-${id}`);
+  label.classList.toggle('checked', input.checked);
+}
+</script>
+{% endblock %}

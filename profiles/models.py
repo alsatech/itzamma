@@ -46,3 +46,22 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"Perfil de {self.user.username}"
+
+
+class MedicionFisica(models.Model):
+    """Historial de mediciones físicas del cliente."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='mediciones'
+    )
+    fecha = models.DateField()
+    peso = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    masa_muscular = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    masa_grasa = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+
+    class Meta:
+        ordering = ['fecha']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.fecha}"

@@ -1,6 +1,6 @@
 {% extends "base_app.html" %}
 {% block title %}{{ rutina.nombre }}{% endblock %}
-{% block header_title %}{{ rutina.nombre }}{% endblock %}
+{% block header_title %}Rutina{% endblock %}
 
 {% block content %}
 <style>
@@ -12,33 +12,44 @@
     --border: rgba(255,255,255,0.07);
   }
 
-  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 130px; }
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 110px; }
 
-  /* Hero */
+  /* ── Hero ── */
   .rutina-hero {
     background: var(--mint); border-radius: 24px;
     padding: 22px 20px; margin: 20px 0 22px;
   }
   .rutina-sport { font-size: 40px; margin-bottom: 8px; }
-  .rutina-name  { font-size: 22px; font-weight: 900; color: #0d2a1a; margin: 0 0 6px; letter-spacing: -.5px; }
-  .rutina-desc  { font-size: 13px; color: rgba(10,40,25,0.6); margin: 0; }
+  .rutina-name {
+    font-size: 22px; font-weight: 900; color: #0d2a1a;
+    margin: 0 0 6px; letter-spacing: -0.5px;
+  }
+  .rutina-desc { font-size: 13px; color: rgba(10,40,25,0.6); margin: 0; }
 
-  /* Días accordion */
+  .btn-assign-top {
+    display: block; width: 100%; padding: 14px;
+    background: var(--peach); border-radius: 16px;
+    text-align: center; font-size: 15px; font-weight: 800;
+    color: #3d1505; text-decoration: none; margin-bottom: 24px;
+  }
+
+  /* ── Días accordion ── */
   .dia-card {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 18px; margin-bottom: 10px; overflow: hidden;
   }
   .dia-header {
     display: flex; align-items: center;
-    justify-content: space-between; padding: 15px 18px; cursor: pointer;
+    justify-content: space-between; padding: 15px 18px;
+    cursor: pointer;
   }
-  .dia-label  { font-size: 15px; font-weight: 800; color: var(--mint); }
+  .dia-label { font-size: 15px; font-weight: 800; color: var(--mint); }
   .dia-toggle { color: #6B7280; font-size: 18px; transition: transform .2s; }
   .dia-card.open .dia-toggle { transform: rotate(90deg); }
   .dia-body { display: none; padding: 0 18px 16px; }
   .dia-card.open .dia-body { display: block; }
 
-  /* Sección */
+  /* ── Sección ── */
   .sec-block { margin-bottom: 16px; }
   .sec-label {
     font-size: 10px; font-weight: 700; text-transform: uppercase;
@@ -49,30 +60,33 @@
   .sec-label.medular       { color: var(--mint); }
   .sec-label.cierre        { color: var(--lime); }
 
-  /* Ejercicio */
+  /* ── Ejercicio row ── */
   .ej-item {
     background: rgba(255,255,255,0.04); border-radius: 12px;
     padding: 12px 14px; margin-bottom: 8px;
   }
-  .ej-name { font-size: 14px; font-weight: 700; color: #f1f5f9; margin: 0 0 8px; }
+  .ej-item-name { font-size: 14px; font-weight: 700; color: #f1f5f9; margin: 0 0 8px; }
   .ej-metrics {
-    display: grid; grid-template-columns: repeat(4,1fr);
-    gap: 6px; margin-bottom: 8px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    margin-bottom: 8px;
   }
   .metric { text-align: center; }
   .metric-val { font-size: 16px; font-weight: 800; color: var(--mint); }
   .metric-lbl { font-size: 9px; color: #6B7280; text-transform: uppercase; letter-spacing: .06em; }
 
-  /* Video thumbnail */
+  /* ── Video thumbnail ── */
   .video-thumb {
     position: relative; margin-top: 8px; border-radius: 12px;
     overflow: hidden; display: block; text-decoration: none;
   }
-  .video-thumb img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+  .video-thumb img {
+    width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover;
+  }
   .video-play-btn {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.35); transition: background .2s;
+    background: rgba(0,0,0,0.35);
+    transition: background .2s;
   }
   .video-thumb:hover .video-play-btn { background: rgba(0,0,0,0.5); }
   .play-circle {
@@ -82,31 +96,9 @@
     box-shadow: 0 4px 18px rgba(255,0,0,0.5);
   }
   .play-circle svg { margin-left: 4px; }
-
-  /* Botón completar fijo */
-  .btn-complete-wrap {
-    position: fixed; bottom: 80px; left: 50%;
-    transform: translateX(-50%); width: calc(100% - 36px);
-    max-width: 444px; z-index: 50;
-  }
-  .btn-complete {
-    display: block; width: 100%; padding: 18px;
-    border-radius: 18px; text-align: center;
-    font-size: 17px; font-weight: 800; text-decoration: none;
-    border: none; cursor: pointer;
-  }
-  .btn-complete-pending {
-    background: var(--mint); color: #0d2a1a;
-    box-shadow: 0 4px 20px rgba(168,213,194,0.4);
-  }
-  .btn-complete-done {
-    background: var(--bg-card); color: var(--mint);
-    border: 2px solid var(--mint);
-  }
 </style>
 
 <div class="page">
-
   <!-- Hero -->
   <div class="rutina-hero">
     <div class="rutina-sport">{{ rutina.emoji }}</div>
@@ -116,8 +108,12 @@
     {% endif %}
   </div>
 
-  <!-- Días -->
-  {% for dia in rutina.dias.all %}
+  <a href="{% url 'rutina_assign' rutina.id %}" class="btn-assign-top">
+    Asignar a cliente →
+  </a>
+
+  <!-- Días accordion -->
+  {% for dia in dias %}
   <div class="dia-card" id="dia-{{ dia.id }}" onclick="toggleDia('dia-{{ dia.id }}')">
     <div class="dia-header">
       <span class="dia-label">{{ dia.get_dia_display }}</span>
@@ -127,9 +123,10 @@
       {% for sec in dia.secciones.all %}
       <div class="sec-block">
         <p class="sec-label {{ sec.tipo }}">{{ sec.get_tipo_display }}</p>
+
         {% for re in sec.ejercicios.all %}
         <div class="ej-item">
-          <p class="ej-name">{{ re.ejercicio.nombre }}</p>
+          <p class="ej-item-name">{{ re.ejercicio.nombre }}</p>
           <div class="ej-metrics">
             <div class="metric">
               <div class="metric-val">{{ re.series }}</div>
@@ -148,15 +145,16 @@
               <div class="metric-lbl">%</div>
             </div>
           </div>
+
           {% for media in re.ejercicio.media.all %}
             {% if media.tipo == 'video' %}
               {% with yt_id=media.get_youtube_id %}
               {% if yt_id %}
               <a class="video-thumb"
                  href="https://www.youtube.com/watch?v={{ yt_id }}"
-                 target="_blank" rel="noopener"
-                 onclick="event.stopPropagation()">
-                <img src="https://img.youtube.com/vi/{{ yt_id }}/hqdefault.jpg" alt="Ver video">
+                 target="_blank" rel="noopener">
+                <img src="https://img.youtube.com/vi/{{ yt_id }}/hqdefault.jpg"
+                     alt="Ver video">
                 <div class="video-play-btn">
                   <div class="play-circle">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
@@ -171,34 +169,24 @@
           {% endfor %}
         </div>
         {% empty %}
-        <p style="color:#4B5563;font-size:13px;">Sin ejercicios.</p>
+        <p style="color:#4B5563;font-size:13px;">Sin ejercicios en esta sección.</p>
         {% endfor %}
       </div>
       {% endfor %}
     </div>
   </div>
   {% empty %}
-  <p style="color:#4B5563;text-align:center;padding:30px 0;">Sin días configurados.</p>
+  <p style="color:#4B5563;text-align:center;padding:30px 0;">
+    Esta rutina no tiene días configurados.
+  </p>
   {% endfor %}
-
-</div>
-
-<!-- Botón completar -->
-<div class="btn-complete-wrap">
-  {% if rutina_completada %}
-  <div class="btn-complete btn-complete-done">✔ Rutina completada</div>
-  {% else %}
-  <a class="btn-complete btn-complete-pending"
-     href="{% url 'complete_rutina' assignment.id %}">
-    ✓ Marcar como completada
-  </a>
-  {% endif %}
 </div>
 
 <script>
 function toggleDia(id) {
   document.getElementById(id).classList.toggle('open');
 }
+// Abrir el primero por defecto
 const first = document.querySelector('.dia-card');
 if (first) first.classList.add('open');
 </script>

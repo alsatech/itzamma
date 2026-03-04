@@ -1,67 +1,61 @@
-from pyexpat.errors import messages
+import json
 from django.contrib import messages
-from .models import Workout, RoutineCompleted
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import WorkoutForm, WorkoutMediaFormSet
-from accounts.models import CustomUser, InstructorClient
-from workouts.models import Workout, WorkoutAssignment
 from django.utils import timezone
 from datetime import timedelta
+
+from accounts.models import CustomUser, InstructorClient
 from profiles.models import UserProfile
+from .forms import EjercicioForm, EjercicioMediaFormSet, RutinaForm
+from .models import (
+    Ejercicio, EjercicioMedia,
+    Rutina, RutinaDia, RutinaSeccion, RutinaEjercicio,
+    RutinaAsignacion, RutinaCompletada,
+)
+
 
 def is_instructor(user):
     return getattr(user, "rol", None) == "instructor"
 
+
 @login_required
-def complete_routine(request, workout_id):
-    workout = get_object_or_404(Workout, id=workout_id)
+def complete_rutina(request, assignment_id):
+    assignment = get_object_or_404(RutinaAsignacion, id=assignment_id, cliente=request.user)
+    RutinaCompletada.objects.get_or_create(user=request.user, rutina=assignment.rutina)
+    return redirect("detalle_rutina", assignment_id=assignment_id)
 
-    # Evita duplicados
-    already = RoutineCompleted.objects.filter(
-        user=request.user,
-        workout=workout
-    ).exists()
 
-    if not already:
-        RoutineCompleted.objects.create(
-            user=request.user,
-            workout=workout
-        )
-
-    return redirect("detalle_rutina", id=workout.id)
+# ── DASHBOARD ───────────────────────────────────────────────────────────────
 
 @login_required
 @user_passes_test(is_instructor)
 def instructor_dashboard(request):
-
-    # Rutinas del instructor
-    workouts = Workout.objects.filter(instructor=request.user)
-
-    # Clientes del instructor via InstructorClient
+    rutinas = Rutina.objects.filter(instructor=request.user)
     clientes_asignados = CustomUser.objects.filter(
         mi_instructor__instructor=request.user
     )
-
-    # Métricas
     total_clients = clientes_asignados.count()
+    total_ejercicios = Ejercicio.objects.filter(instructor=request.user).count()
 
-    total_completadas = RoutineCompleted.objects.filter(
-        workout__instructor=request.user
+    total_completadas = RutinaCompletada.objects.filter(
+        rutina__instructor=request.user
     ).count()
-
-    completadas_7dias = RoutineCompleted.objects.filter(
-        workout__instructor=request.user,
+    completadas_7dias = RutinaCompletada.objects.filter(
+        rutina__instructor=request.user,
         completed_at__gte=timezone.now() - timedelta(days=7)
     ).count()
 
     return render(request, "dashboards/instructor/dashboard_instructor.html", {
-        "workouts": workouts,
+        "rutinas": rutinas,
         "clientes_asignados": clientes_asignados,
         "total_clients": total_clients,
+        "total_ejercicios": total_ejercicios,
         "total_completadas": total_completadas,
         "completadas_7dias": completadas_7dias,
     })
+
 
 @login_required
 @user_passes_test(is_instructor)
@@ -69,38 +63,32 @@ def instructor_perfil(request):
     total_clients = CustomUser.objects.filter(
         mi_instructor__instructor=request.user
     ).count()
-
-    total_workouts = Workout.objects.filter(instructor=request.user).count()
-
-    total_completadas = RoutineCompleted.objects.filter(
-        workout__instructor=request.user
+    total_rutinas = Rutina.objects.filter(instructor=request.user).count()
+    total_completadas = RutinaCompletada.objects.filter(
+        rutina__instructor=request.user
     ).count()
-
-    completadas_7dias = RoutineCompleted.objects.filter(
-        workout__instructor=request.user,
+    completadas_7dias = RutinaCompletada.objects.filter(
+        rutina__instructor=request.user,
         completed_at__gte=timezone.now() - timedelta(days=7)
     ).count()
 
     return render(request, "dashboards/instructor/perfil_instructor.html", {
         "total_clients": total_clients,
-        "total_workouts": total_workouts,
+        "total_workouts": total_rutinas,
         "total_completadas": total_completadas,
         "completadas_7dias": completadas_7dias,
     })
 
+
 @login_required
 @user_passes_test(is_instructor)
 def instructor_clientes(request):
-
-    # Clientes del instructor via InstructorClient
     clientes = CustomUser.objects.filter(
         mi_instructor__instructor=request.user
     )
-
     return render(request, "dashboards/instructor/clientes_lista.html", {
         "clientes": clientes,
     })
-
 
 
 @login_required
@@ -108,125 +96,218 @@ def instructor_clientes(request):
 def instructor_cliente_detalle(request, cliente_id):
     cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
 
-    # Verificar que el cliente pertenece a este instructor
     if not InstructorClient.objects.filter(instructor=request.user, cliente=cliente).exists():
         messages.error(request, "No tienes acceso a este cliente.")
         return redirect("instructor_dashboard")
 
     perfil = get_object_or_404(UserProfile, user=cliente)
 
-    # Rutinas asignadas
-    rutinas_asignadas = WorkoutAssignment.objects.filter(
+    rutinas_asignadas = RutinaAsignacion.objects.filter(
         cliente=cliente,
-        workout__instructor=request.user
-    ).select_related("workout")
+        rutina__instructor=request.user
+    ).select_related("rutina")
 
-    # Rutinas completadas
-    rutinas_completadas = RoutineCompleted.objects.filter(
+    rutinas_completadas = RutinaCompletada.objects.filter(
         user=cliente,
-        workout__instructor=request.user
-    ).select_related("workout")
+        rutina__instructor=request.user
+    ).select_related("rutina")
 
-    # Métricas
     total_completadas = rutinas_completadas.count()
-
     ultimos_7_dias = rutinas_completadas.filter(
         completed_at__gte=timezone.now() - timedelta(days=7)
     ).count()
 
-    contexto = {
+    return render(request, "dashboards/instructor/cliente_detalle.html", {
         "cliente": cliente,
         "perfil": perfil,
         "rutinas_asignadas": rutinas_asignadas,
         "rutinas_completadas": rutinas_completadas,
         "total_completadas": total_completadas,
         "ultimos_7_dias": ultimos_7_dias,
-    }
+    })
 
-    return render(
-        request,
-        "dashboards/instructor/cliente_detalle.html",
-        contexto
-    )
 
+# ── EJERCICIOS ───────────────────────────────────────────────────────────────
+
+@login_required
+@user_passes_test(is_instructor)
+def ejercicio_list(request):
+    cat = request.GET.get("cat", "")
+    qs = Ejercicio.objects.filter(instructor=request.user)
+    if cat:
+        qs = qs.filter(categoria=cat)
+    return render(request, "dashboards/instructor/ejercicio_list.html", {
+        "ejercicios": qs,
+        "cat_activa": cat,
+    })
 
 
 @login_required
 @user_passes_test(is_instructor)
-def instructor_workout_create(request):
-    """
-    Pantalla PREMIUM para que el instructor cree una nueva rutina.
-    """
+def ejercicio_create(request):
     if request.method == "POST":
-        form = WorkoutForm(request.POST)
-        formset = WorkoutMediaFormSet(request.POST, request.FILES, prefix="media")
+        form = EjercicioForm(request.POST)
+        formset = EjercicioMediaFormSet(request.POST, request.FILES, prefix="media")
 
         if form.is_valid() and formset.is_valid():
-            workout = form.save(commit=False)
-            workout.instructor = request.user
-            workout.save()
+            ejercicio = form.save(commit=False)
+            ejercicio.instructor = request.user
+            ejercicio.save()
 
             medias = formset.save(commit=False)
-            for media in medias:
-                media.workout = workout
+            for i, media in enumerate(medias):
+                media.ejercicio = ejercicio
+                media.orden = i
                 media.save()
-
-            # Objetos marcados para eliminar
             for obj in formset.deleted_objects:
                 obj.delete()
 
-            # Redirigir al DASHBOARD del instructor, NO al detalle de rutina
-            return redirect("instructor_dashboard")
-
+            messages.success(request, f"Ejercicio '{ejercicio.nombre}' creado.")
+            return redirect("ejercicio_list")
     else:
-        form = WorkoutForm()
-        formset = WorkoutMediaFormSet(prefix="media")
+        form = EjercicioForm()
+        formset = EjercicioMediaFormSet(prefix="media")
 
-    return render(
-        request,
-        "dashboards/instructor/workout_create.html",  # <-- tu template correcto
-        {"form": form, "formset": formset},
-    )
+    return render(request, "dashboards/instructor/ejercicio_create.html", {
+        "form": form,
+        "formset": formset,
+    })
 
 
 @login_required
 @user_passes_test(is_instructor)
-def assign_workout(request, workout_id):
-    workout = get_object_or_404(Workout, id=workout_id)
-
-    # Solo clientes de este instructor
-    clientes = CustomUser.objects.filter(
-        mi_instructor__instructor=request.user
-    )
-
+def ejercicio_delete(request, id):
+    ejercicio = get_object_or_404(Ejercicio, id=id, instructor=request.user)
     if request.method == "POST":
-        cliente_id = request.POST.get("cliente")
+        ejercicio.delete()
+        messages.success(request, "Ejercicio eliminado.")
+    return redirect("ejercicio_list")
 
+
+@login_required
+@user_passes_test(is_instructor)
+def ejercicios_json(request):
+    """API endpoint: devuelve ejercicios del instructor filtrados por categoría."""
+    cat = request.GET.get("cat", "")
+    qs = Ejercicio.objects.filter(instructor=request.user)
+    if cat:
+        qs = qs.filter(categoria=cat)
+    data = [
+        {
+            "id": e.id,
+            "nombre": e.nombre,
+            "categoria": e.categoria,
+            "categoria_display": e.get_categoria_display(),
+        }
+        for e in qs
+    ]
+    return JsonResponse(data, safe=False)
+
+
+# ── RUTINAS ──────────────────────────────────────────────────────────────────
+
+@login_required
+@user_passes_test(is_instructor)
+def rutina_list(request):
+    rutinas = Rutina.objects.filter(instructor=request.user).prefetch_related("dias")
+    return render(request, "dashboards/instructor/rutina_list.html", {
+        "rutinas": rutinas,
+    })
+
+
+@login_required
+@user_passes_test(is_instructor)
+def rutina_create(request):
+    if request.method == "POST":
         try:
-            cliente = CustomUser.objects.get(id=cliente_id, rol="cliente")
-        except CustomUser.DoesNotExist:
-            messages.error(request, "Cliente no válido.")
-            return redirect("instructor_dashboard")
+            payload = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "JSON inválido"}, status=400)
 
-        # Verificar que el cliente pertenece a este instructor
-        if not InstructorClient.objects.filter(instructor=request.user, cliente=cliente).exists():
-            messages.error(request, "No tienes permiso para asignar rutinas a este cliente.")
-            return redirect("instructor_dashboard")
+        nombre = payload.get("nombre", "").strip()
+        descripcion = payload.get("descripcion", "").strip()
+        deporte = payload.get("deporte", "gym")
+        dias_data = payload.get("dias", [])
 
-        # Crear asignación
-        WorkoutAssignment.objects.create(
-            workout=workout,
-            cliente=cliente
+        if not nombre:
+            return JsonResponse({"error": "El nombre es requerido"}, status=400)
+
+        rutina = Rutina.objects.create(
+            instructor=request.user,
+            nombre=nombre,
+            descripcion=descripcion,
+            deporte=deporte,
         )
 
-        messages.success(request, f"Rutina asignada a {cliente.username}.")
-        return redirect("instructor_dashboard")
+        for dia_ord, dia_info in enumerate(dias_data):
+            dia_obj = RutinaDia.objects.create(
+                rutina=rutina,
+                dia=dia_info["dia"],
+                orden=dia_ord,
+            )
+            for sec_ord, sec_info in enumerate(dia_info.get("secciones", [])):
+                sec_obj = RutinaSeccion.objects.create(
+                    dia=dia_obj,
+                    tipo=sec_info["tipo"],
+                    orden=sec_ord,
+                )
+                for ej_ord, ej_info in enumerate(sec_info.get("ejercicios", [])):
+                    ejercicio = get_object_or_404(
+                        Ejercicio, id=ej_info["ejercicio_id"], instructor=request.user
+                    )
+                    RutinaEjercicio.objects.create(
+                        seccion=sec_obj,
+                        ejercicio=ejercicio,
+                        series=ej_info.get("series", 3),
+                        repeticiones=str(ej_info.get("repeticiones", "12")),
+                        descanso=ej_info.get("descanso", 60),
+                        porcentaje=ej_info.get("porcentaje") or None,
+                        orden=ej_ord,
+                    )
 
-    return render(
-        request,
-        "dashboards/instructor/assign_workout.html",
-        {
-            "workout": workout,
-            "clientes": clientes,
-        }
+        return JsonResponse({"ok": True, "rutina_id": rutina.id})
+
+    # GET
+    form = RutinaForm()
+    return render(request, "dashboards/instructor/rutina_create.html", {"form": form})
+
+
+@login_required
+@user_passes_test(is_instructor)
+def rutina_detail(request, id):
+    rutina = get_object_or_404(Rutina, id=id, instructor=request.user)
+    dias = rutina.dias.prefetch_related(
+        "secciones__ejercicios__ejercicio__media"
     )
+    return render(request, "dashboards/instructor/rutina_detail.html", {
+        "rutina": rutina,
+        "dias": dias,
+    })
+
+
+@login_required
+@user_passes_test(is_instructor)
+def rutina_assign(request, id):
+    rutina = get_object_or_404(Rutina, id=id, instructor=request.user)
+    clientes = CustomUser.objects.filter(mi_instructor__instructor=request.user)
+
+    if request.method == "POST":
+        cliente_ids = request.POST.getlist("clientes")
+        for cid in cliente_ids:
+            try:
+                cliente = CustomUser.objects.get(id=cid, rol="cliente")
+                if InstructorClient.objects.filter(
+                    instructor=request.user, cliente=cliente
+                ).exists():
+                    RutinaAsignacion.objects.get_or_create(
+                        rutina=rutina, cliente=cliente
+                    )
+            except CustomUser.DoesNotExist:
+                pass
+        messages.success(request, "Rutina asignada correctamente.")
+        return redirect("rutina_detail", id=rutina.id)
+
+    return render(request, "dashboards/instructor/rutina_assign.html", {
+        "rutina": rutina,
+        "clientes": clientes,
+    })
