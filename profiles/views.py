@@ -355,3 +355,11 @@ def graficas(request):
         "ejercicios":      ejercicios,
         "ej_seleccionado": ej_seleccionado,
     })
+
+
+@login_required
+def masa_corporal(request):
+    perfil = UserProfile.objects.filter(user=request.user).first()
+    return render(request, "dashboards/cliente/masa_corporal.html", {
+        "perfil": perfil,
+    })

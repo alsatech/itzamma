@@ -1,0 +1,364 @@
+{% extends "base_app.html" %}
+{% block title %}Calcular IMC{% endblock %}
+{% block header_title %}IMC{% endblock %}
+
+{% block content %}
+
+<style>
+  :root {
+    --mint:    #A8D5C2;
+    --peach:   #F0C4A8;
+    --lime:    #C8E8A0;
+    --bg-card: #1C1F2A;
+    --border:  rgba(255,255,255,0.07);
+  }
+
+  .imc-page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 18px 110px;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* HEADER */
+  .imc-header {
+    padding: 20px 0 24px;
+  }
+  .imc-header-sub {
+    font-size: 13px;
+    color: #9CA3AF;
+    margin: 0 0 6px;
+    font-weight: 500;
+  }
+  .imc-header-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.08;
+    letter-spacing: -0.8px;
+    margin: 0;
+  }
+
+  /* FORM CARD */
+  .imc-form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+  }
+  .imc-field {
+    margin-bottom: 18px;
+  }
+  .imc-field:last-child { margin-bottom: 0; }
+  .imc-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .imc-input-wrap {
+    position: relative;
+  }
+  .imc-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 50px 14px 16px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #f1f5f9;
+    outline: none;
+    box-sizing: border-box;
+    -moz-appearance: textfield;
+  }
+  .imc-input::-webkit-outer-spin-button,
+  .imc-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .imc-input:focus {
+    border-color: var(--mint);
+  }
+  .imc-unit {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    font-weight: 600;
+    color: #6B7280;
+    pointer-events: none;
+  }
+
+  /* CALC BUTTON */
+  .imc-btn {
+    width: 100%;
+    background: var(--mint);
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #0d2a1a;
+    cursor: pointer;
+    margin-bottom: 18px;
+    letter-spacing: -0.2px;
+  }
+  .imc-btn:active { opacity: 0.85; }
+
+  /* RESULT */
+  .imc-result {
+    border-radius: 24px;
+    padding: 22px 20px;
+    display: none;
+    margin-bottom: 18px;
+  }
+  .imc-result.visible { display: block; }
+
+  .imc-result-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 6px;
+    opacity: 0.65;
+  }
+  .imc-result-value {
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin: 0 0 6px;
+  }
+  .imc-result-cat {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 14px;
+  }
+  .imc-result-desc {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  /* SCALE BAR */
+  .imc-scale {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px 16px;
+    margin-bottom: 18px;
+  }
+  .imc-scale-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0 0 14px;
+  }
+  .imc-scale-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .imc-scale-row:last-child { margin-bottom: 0; }
+  .imc-scale-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .imc-scale-range {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+    min-width: 80px;
+  }
+  .imc-scale-cat {
+    font-size: 12px;
+    color: #9CA3AF;
+    font-weight: 500;
+  }
+  .dot-bajo    { background: #60A5FA; }
+  .dot-normal  { background: #A8D5C2; }
+  .dot-sobre   { background: #FCD34D; }
+  .dot-obesidad{ background: #F0C4A8; }
+  .dot-ob2     { background: #F87171; }
+
+  /* INFO */
+  .imc-info {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .imc-info-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #9CA3AF;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .imc-info-text {
+    font-size: 13px;
+    color: #6B7280;
+    line-height: 1.55;
+    margin: 0;
+  }
+</style>
+
+
+<div class="imc-page">
+
+  <!-- HEADER -->
+  <div class="imc-header">
+    <p class="imc-header-sub">Herramienta de salud</p>
+    <h1 class="imc-header-title">Indice de<br>Masa Corporal</h1>
+  </div>
+
+  <!-- FORM -->
+  <div class="imc-form-card">
+    <div class="imc-field">
+      <label class="imc-label" for="imc-peso">Peso</label>
+      <div class="imc-input-wrap">
+        <input id="imc-peso" class="imc-input" type="number" min="20" max="300"
+               placeholder="70"
+               value="{{ perfil.peso|default:'' }}">
+        <span class="imc-unit">kg</span>
+      </div>
+    </div>
+    <div class="imc-field">
+      <label class="imc-label" for="imc-altura">Altura</label>
+      <div class="imc-input-wrap">
+        <input id="imc-altura" class="imc-input" type="number" min="100" max="250"
+               placeholder="170">
+        <span class="imc-unit">cm</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="imc-btn" onclick="calcularIMC()">Calcular IMC</button>
+
+  <!-- RESULT -->
+  <div class="imc-result" id="imc-result">
+    <p class="imc-result-label" id="res-label">Tu IMC</p>
+    <p class="imc-result-value" id="res-value">—</p>
+    <p class="imc-result-cat" id="res-cat">—</p>
+    <p class="imc-result-desc" id="res-desc"></p>
+  </div>
+
+  <!-- SCALE -->
+  <div class="imc-scale">
+    <p class="imc-scale-title">Escala de referencia</p>
+    <div class="imc-scale-row">
+      <div class="imc-scale-dot dot-bajo"></div>
+      <span class="imc-scale-range">Menos de 18.5</span>
+      <span class="imc-scale-cat">Bajo peso</span>
+    </div>
+    <div class="imc-scale-row">
+      <div class="imc-scale-dot dot-normal"></div>
+      <span class="imc-scale-range">18.5 — 24.9</span>
+      <span class="imc-scale-cat">Peso normal</span>
+    </div>
+    <div class="imc-scale-row">
+      <div class="imc-scale-dot dot-sobre"></div>
+      <span class="imc-scale-range">25.0 — 29.9</span>
+      <span class="imc-scale-cat">Sobrepeso</span>
+    </div>
+    <div class="imc-scale-row">
+      <div class="imc-scale-dot dot-obesidad"></div>
+      <span class="imc-scale-range">30.0 — 34.9</span>
+      <span class="imc-scale-cat">Obesidad I</span>
+    </div>
+    <div class="imc-scale-row">
+      <div class="imc-scale-dot dot-ob2"></div>
+      <span class="imc-scale-range">35.0 o mas</span>
+      <span class="imc-scale-cat">Obesidad II+</span>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="imc-info">
+    <p class="imc-info-title">Sobre el IMC</p>
+    <p class="imc-info-text">
+      El IMC es una medida de referencia basada en peso y altura.
+      No distingue entre masa muscular y grasa, por lo que debe
+      interpretarse junto con otros indicadores de salud como
+      grasa corporal y circunferencia abdominal.
+    </p>
+  </div>
+
+</div>
+
+
+<script>
+  function calcularIMC() {
+    const peso   = parseFloat(document.getElementById('imc-peso').value);
+    const altura = parseFloat(document.getElementById('imc-altura').value);
+
+    if (!peso || !altura || peso < 20 || peso > 300 || altura < 100 || altura > 250) {
+      alert('Ingresa valores válidos de peso (20-300 kg) y altura (100-250 cm).');
+      return;
+    }
+
+    const imc = peso / Math.pow(altura / 100, 2);
+    const imcStr = imc.toFixed(1);
+
+    let categoria, descripcion, bg, textColor, labelColor;
+
+    if (imc < 18.5) {
+      categoria   = 'Bajo peso';
+      descripcion = 'Tu IMC indica bajo peso. Considera aumentar tu ingesta calórica con alimentos nutritivos y consulta con un profesional de salud.';
+      bg          = '#1a2a3a';
+      textColor   = '#93C5FD';
+      labelColor  = 'rgba(147,197,253,0.6)';
+    } else if (imc < 25) {
+      categoria   = 'Peso normal';
+      descripcion = '¡Excelente! Tu IMC se encuentra en el rango saludable. Mantén tus hábitos de alimentación y ejercicio.';
+      bg          = '#0d2a1a';
+      textColor   = '#A8D5C2';
+      labelColor  = 'rgba(168,213,194,0.6)';
+    } else if (imc < 30) {
+      categoria   = 'Sobrepeso';
+      descripcion = 'Tu IMC indica sobrepeso. Considera ajustar tu dieta y aumentar la actividad física con apoyo de tu instructor.';
+      bg          = '#2a2200';
+      textColor   = '#FCD34D';
+      labelColor  = 'rgba(252,211,77,0.6)';
+    } else if (imc < 35) {
+      categoria   = 'Obesidad I';
+      descripcion = 'Tu IMC indica obesidad grado I. Se recomienda consultar con un médico y trabajar un plan de ejercicio y nutrición.';
+      bg          = '#2a1500';
+      textColor   = '#F0C4A8';
+      labelColor  = 'rgba(240,196,168,0.6)';
+    } else {
+      categoria   = 'Obesidad II o mas';
+      descripcion = 'Tu IMC indica obesidad avanzada. Es importante consultar con un médico para un plan de salud personalizado.';
+      bg          = '#2a0f0f';
+      textColor   = '#F87171';
+      labelColor  = 'rgba(248,113,113,0.6)';
+    }
+
+    const result = document.getElementById('imc-result');
+    result.style.background = bg;
+    result.style.border = '1px solid rgba(255,255,255,0.07)';
+
+    document.getElementById('res-label').style.color = labelColor;
+    document.getElementById('res-value').style.color = textColor;
+    document.getElementById('res-cat').style.color   = textColor;
+    document.getElementById('res-desc').style.color  = labelColor;
+
+    document.getElementById('res-value').textContent = imcStr;
+    document.getElementById('res-cat').textContent   = categoria;
+    document.getElementById('res-desc').textContent  = descripcion;
+
+    result.classList.add('visible');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+
+{% endblock %}

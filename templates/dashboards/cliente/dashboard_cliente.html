@@ -292,6 +292,41 @@
     color: #4b5563;
     font-size: 15px;
   }
+
+  /* ---- IMC BANNER ---- */
+  .imc-banner {
+    background: var(--peach);
+    border-radius: 20px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    text-decoration: none;
+  }
+  .imc-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .imc-banner-icon { font-size: 30px; line-height: 1; }
+  .imc-banner-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #3d1505;
+    margin: 0 0 3px;
+  }
+  .imc-banner-sub {
+    font-size: 12px;
+    color: rgba(80,30,10,0.65);
+    margin: 0;
+    font-weight: 500;
+  }
+  .imc-banner-arrow {
+    font-size: 20px;
+    color: rgba(80,30,10,0.45);
+    flex-shrink: 0;
+  }
 </style>
 
 
@@ -417,6 +452,18 @@
       </div>
     </div>
   </section>
+
+  <!-- IMC BANNER -->
+  <a href="{% url 'masa_corporal' %}" class="imc-banner">
+    <div class="imc-banner-left">
+      <span class="imc-banner-icon">📏</span>
+      <div>
+        <p class="imc-banner-title">Calcular IMC</p>
+        <p class="imc-banner-sub">Conoce tu índice de masa corporal</p>
+      </div>
+    </div>
+    <span class="imc-banner-arrow">→</span>
+  </a>
 
 </div>
 
