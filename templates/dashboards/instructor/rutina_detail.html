@@ -114,12 +114,15 @@
 
   <!-- Días accordion -->
   {% for dia in dias %}
-  <div class="dia-card" id="dia-{{ dia.id }}" onclick="toggleDia('dia-{{ dia.id }}')">
+  <div class="dia-card{% if dias|length == 1 and dia.dia == 'general' %} open{% endif %}" id="dia-{{ dia.id }}"
+       {% if not dia.dia == 'general' or dias|length > 1 %}onclick="toggleDia('dia-{{ dia.id }}')"{% endif %}>
+    {% if not dia.dia == 'general' or dias|length > 1 %}
     <div class="dia-header">
       <span class="dia-label">{{ dia.get_dia_display }}</span>
       <span class="dia-toggle">›</span>
     </div>
-    <div class="dia-body">
+    {% endif %}
+    <div class="dia-body" {% if dia.dia == 'general' and dias|length == 1 %}style="display:block;padding:16px 18px;"{% endif %}>
       {% for sec in dia.secciones.all %}
       <div class="sec-block">
         <p class="sec-label {{ sec.tipo }}">{{ sec.get_tipo_display }}</p>

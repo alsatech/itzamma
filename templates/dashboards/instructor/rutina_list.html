@@ -1,0 +1,122 @@
+{% extends "base_app.html" %}
+{% block title %}Rutinas{% endblock %}
+{% block header_title %}Rutinas{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --lime:   #C8E8A0;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 120px; }
+
+  .page-header {
+    display: flex; align-items: center;
+    justify-content: space-between; padding: 20px 0 22px;
+  }
+  .page-title { font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -0.5px; margin: 0; }
+
+  /* ── Action buttons ── */
+  .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .btn-action {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 14px 10px; border-radius: 16px;
+    font-size: 13px; font-weight: 800; text-decoration: none;
+  }
+  .btn-mint  { background: var(--mint);  color: #0d2a1a; }
+  .btn-peach { background: var(--peach); color: #3d1505; }
+
+  /* ── Rutina card ── */
+  .rutina-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 16px 18px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+    text-decoration: none;
+  }
+  .rutina-card:active { border-color: var(--mint); }
+
+  .rutina-thumb {
+    width: 52px; height: 52px; border-radius: 16px;
+    background: rgba(168,213,194,0.1); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .rutina-body { flex: 1; min-width: 0; }
+  .rutina-name {
+    font-size: 15px; font-weight: 700; color: #f1f5f9; margin: 0 0 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rutina-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .rutina-sport {
+    font-size: 11px; font-weight: 600; color: #9CA3AF;
+  }
+  .rutina-dias-count {
+    font-size: 11px; font-weight: 600;
+    background: rgba(168,213,194,0.12); color: var(--mint);
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .rutina-arrow { color: #4B5563; font-size: 20px; flex-shrink: 0; }
+
+  /* ── Empty ── */
+  .empty-state {
+    text-align: center; padding: 60px 0;
+    color: #4B5563; font-size: 15px; line-height: 1.6;
+  }
+  .empty-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+</style>
+
+<div class="page">
+
+  <div class="page-header">
+    <h1 class="page-title">Mis rutinas</h1>
+  </div>
+
+  <!-- Acciones rápidas -->
+  <div class="action-row">
+    <a href="{% url 'rutina_create' %}" class="btn-action btn-mint">
+      ＋ Nueva rutina
+    </a>
+    <a href="{% url 'rutina_calendario' %}" class="btn-action btn-peach">
+      📅 Calendario
+    </a>
+  </div>
+
+  <!-- Lista de rutinas -->
+  {% for r in rutinas %}
+  <a href="{% url 'rutina_detail' r.id %}" class="rutina-card">
+    <div class="rutina-thumb">{{ r.emoji }}</div>
+    <div class="rutina-body">
+      <p class="rutina-name">{{ r.nombre }}</p>
+      <div class="rutina-meta">
+        <span class="rutina-sport">{{ r.get_deporte_display }}</span>
+        {% with dias=r.dias.all %}
+        {% if dias %}
+        <span class="rutina-dias-count">
+          {% with total=dias|length %}
+          {% if total == 1 and dias.0.dia == 'general' %}
+            Sesión única
+          {% else %}
+            {{ total }} día{% if total != 1 %}s{% endif %}
+          {% endif %}
+          {% endwith %}
+        </span>
+        {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+    <span class="rutina-arrow">›</span>
+  </a>
+  {% empty %}
+  <div class="empty-state">
+    <span class="empty-icon">📋</span>
+    Aún no tienes rutinas creadas.<br>
+    <a href="{% url 'rutina_create' %}" style="color: var(--mint); font-weight: 700;">Crea la primera →</a>
+  </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

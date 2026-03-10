@@ -1,0 +1,454 @@
+{% extends "base_app.html" %}
+{% block title %}Calendario{% endblock %}
+{% block header_title %}Calendario{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --lime:   #C8E8A0;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 14px 120px; }
+
+  /* ── Week nav ── */
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 0 16px;
+  }
+  .week-nav-btn {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; color: #f1f5f9; font-size: 22px;
+    width: 46px; height: 46px; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; flex-shrink: 0;
+  }
+  .week-label {
+    font-size: 15px; font-weight: 800; color: #f1f5f9;
+    text-align: center; flex: 1; letter-spacing: -0.2px;
+  }
+
+  /* ── Days list ── */
+  .days-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .day-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 16px 18px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+    display: flex; align-items: center; gap: 16px; min-height: 76px;
+  }
+  .day-card:active { border-color: var(--mint); background: rgba(168,213,194,0.05); }
+  .day-card.is-today { border-color: rgba(168,213,194,0.45); }
+
+  /* left: date badge */
+  .day-date {
+    display: flex; flex-direction: column; align-items: center;
+    flex-shrink: 0; width: 48px;
+  }
+  .day-abbr {
+    font-size: 11px; font-weight: 700; color: #6B7280;
+    text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;
+  }
+  .day-num {
+    font-size: 24px; font-weight: 900; color: #f1f5f9;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .day-num.today { background: var(--mint); color: #0d2a1a; }
+
+  /* divider */
+  .day-divider {
+    width: 1px; height: 44px; background: var(--border); flex-shrink: 0;
+  }
+
+  /* right: content */
+  .day-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+  .rutina-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(168,213,194,0.12); border-radius: 10px;
+    padding: 8px 12px;
+  }
+  .pill-emoji { font-size: 18px; flex-shrink: 0; }
+  .pill-name {
+    font-size: 14px; font-weight: 700; color: var(--mint);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pill-clients {
+    font-size: 11px; color: #6B7280; margin-left: auto;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .pill-more {
+    font-size: 12px; color: #6B7280; font-weight: 600; padding: 2px 0;
+  }
+
+  /* empty day hint */
+  .day-empty {
+    display: flex; align-items: center; gap: 10px;
+    color: #4B5563;
+  }
+  .day-empty-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px dashed rgba(168,213,194,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: rgba(168,213,194,0.4); flex-shrink: 0;
+  }
+  .day-empty-text { font-size: 14px; font-weight: 500; }
+
+  /* ── Modal — centrado en pantalla ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .modal-sheet {
+    background: #16191f; border-radius: 26px;
+    width: 100%; max-width: 420px;
+    padding: 24px 22px 28px;
+    max-height: 82vh; overflow-y: auto;
+    transform: scale(0.95) translateY(12px);
+    transition: transform .25s ease;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+  .modal-overlay.open .modal-sheet {
+    transform: scale(1) translateY(0);
+  }
+
+  .modal-handle {
+    width: 44px; height: 4px; background: #2d3340;
+    border-radius: 99px; margin: 0 auto 20px;
+  }
+  .modal-date {
+    font-size: 20px; font-weight: 900; color: #fff;
+    margin-bottom: 18px; letter-spacing: -0.4px;
+  }
+
+  /* existing entries */
+  .entry-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 8px;
+  }
+  .entry-info { flex: 1; min-width: 0; }
+  .entry-name { font-size: 15px; font-weight: 700; color: #f1f5f9; }
+  .entry-clients { font-size: 12px; color: #6B7280; margin-top: 3px; }
+  .btn-entry-del {
+    background: none; border: none; color: #4B5563;
+    font-size: 20px; cursor: pointer; padding: 6px; flex-shrink: 0;
+    line-height: 1;
+  }
+  .btn-entry-del:active { color: #F87171; }
+
+  /* add form */
+  .add-section { margin-top: 20px; }
+  .add-title {
+    font-size: 16px; font-weight: 800; color: #f1f5f9;
+    margin-bottom: 14px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .select-rutina {
+    width: 100%; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 14px;
+    color: #f1f5f9; font-size: 15px; padding: 15px 16px;
+    font-family: inherit; outline: none; margin-bottom: 14px;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239CA3AF' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+  .select-rutina:focus { border-color: var(--mint); }
+
+  .clientes-label {
+    font-size: 12px; font-weight: 700; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px;
+  }
+  .cliente-check-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .cliente-check-item:last-child { border-bottom: none; }
+  .cliente-check-item input[type=checkbox] {
+    accent-color: var(--mint); width: 22px; height: 22px; flex-shrink: 0;
+  }
+  .cliente-check-name { font-size: 15px; font-weight: 600; color: #f1f5f9; }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .btn-save {
+    flex: 1; padding: 17px; border-radius: 16px;
+    background: var(--mint); border: none;
+    font-size: 16px; font-weight: 800; color: #0d2a1a; cursor: pointer;
+  }
+  .btn-cancel {
+    padding: 17px 22px; border-radius: 16px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    font-size: 16px; font-weight: 700; color: #9CA3AF; cursor: pointer;
+  }
+
+  .empty-day {
+    color: #4B5563; font-size: 13px; text-align: center;
+    padding: 10px 0 4px; font-style: italic;
+  }
+  .saving { opacity: .5; pointer-events: none; }
+</style>
+
+<script>
+const RUTINAS = [
+  {% for r in rutinas %}
+  { id: {{ r.id }}, nombre: "{{ r.nombre|escapejs }}", emoji: "{{ r.emoji }}" },
+  {% endfor %}
+];
+const CLIENTES = [
+  {% for c in clientes %}
+  { id: {{ c.id }}, nombre: "{{ c.get_full_name|default:c.username|escapejs }}" },
+  {% endfor %}
+];
+const API_URL    = "{% url 'rutina_calendario_api' %}";
+const DELETE_URL = "{% url 'rutina_calendario_delete' 0 %}".replace('/0/', '/');
+const CSRF       = "{{ csrf_token }}";
+</script>
+
+<div class="page">
+  <div class="week-nav">
+    <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
+    <span class="week-label" id="week-label"></span>
+    <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
+  </div>
+
+  <div class="days-list" id="days-grid"></div>
+</div>
+
+<!-- Modal centrado -->
+<div class="modal-overlay" id="modal" onclick="closeModalOnOverlay(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+    <p class="modal-date" id="modal-date-label"></p>
+
+    <div id="modal-entries"></div>
+
+    <div class="add-section">
+      <p class="add-title">Agregar rutina</p>
+      <select class="select-rutina" id="select-rutina">
+        <option value="">Selecciona una rutina...</option>
+      </select>
+      <p class="clientes-label">Asignar clientes</p>
+      <div id="clientes-list"></div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="saveEntry()">Guardar</button>
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DIAS_ES  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MESES_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESES_LARGO = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+let currentMonday = getMonday(new Date());
+let calData = {};
+let modalFecha = null;
+
+function getMonday(d) {
+  const date = new Date(d);
+  const day = date.getDay();
+  date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day));
+  date.setHours(0,0,0,0);
+  return date;
+}
+function dateKey(d) { return d.toISOString().slice(0,10); }
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function formatDate(d) {
+  return `${DIAS_ES[d.getDay()]} ${d.getDate()} ${MESES_LARGO[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+async function loadWeek() {
+  const desde  = dateKey(currentMonday);
+  const sunday = addDays(currentMonday, 6);
+  const hasta  = dateKey(sunday);
+
+  const d1 = currentMonday.getDate(), d2 = sunday.getDate();
+  const m1 = MESES_ES[currentMonday.getMonth()], m2 = MESES_ES[sunday.getMonth()];
+  document.getElementById('week-label').textContent =
+    m1 === m2 ? `${d1} – ${d2} ${m1}` : `${d1} ${m1} – ${d2} ${m2}`;
+
+  const resp = await fetch(`${API_URL}?desde=${desde}&hasta=${hasta}`);
+  const entries = await resp.json();
+  calData = {};
+  entries.forEach(e => { (calData[e.fecha] = calData[e.fecha] || []).push(e); });
+  renderWeek();
+}
+
+function renderWeek() {
+  const today = dateKey(new Date());
+  const grid  = document.getElementById('days-grid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 7; i++) {
+    const d          = addDays(currentMonday, i);
+    const key        = dateKey(d);
+    const dayEntries = calData[key] || [];
+    const isToday    = key === today;
+
+    const card = document.createElement('div');
+    card.className = 'day-card' + (isToday ? ' is-today' : '');
+    card.onclick = () => openModal(key);
+
+    // Date badge
+    const dateEl = document.createElement('div');
+    dateEl.className = 'day-date';
+    dateEl.innerHTML = `
+      <span class="day-abbr">${DIAS_ES[d.getDay()]}</span>
+      <span class="day-num${isToday ? ' today' : ''}">${d.getDate()}</span>`;
+
+    // Divider
+    const divEl = document.createElement('div');
+    divEl.className = 'day-divider';
+
+    // Content
+    const contentEl = document.createElement('div');
+    contentEl.className = 'day-content';
+
+    if (dayEntries.length === 0) {
+      contentEl.innerHTML = `
+        <div class="day-empty">
+          <div class="day-empty-icon">+</div>
+          <span class="day-empty-text">Agregar rutina</span>
+        </div>`;
+    } else {
+      dayEntries.slice(0, 3).forEach(e => {
+        const clientCount = e.clientes.length;
+        const pill = document.createElement('div');
+        pill.className = 'rutina-pill';
+        pill.innerHTML = `
+          <span class="pill-emoji">${e.rutina_emoji}</span>
+          <span class="pill-name">${e.rutina_nombre}</span>
+          ${clientCount ? `<span class="pill-clients">👤${clientCount}</span>` : ''}`;
+        contentEl.appendChild(pill);
+      });
+      if (dayEntries.length > 3) {
+        const more = document.createElement('div');
+        more.className = 'pill-more';
+        more.textContent = `+${dayEntries.length - 3} más`;
+        contentEl.appendChild(more);
+      }
+    }
+
+    card.appendChild(dateEl);
+    card.appendChild(divEl);
+    card.appendChild(contentEl);
+    grid.appendChild(card);
+  }
+}
+
+function changeWeek(dir) {
+  currentMonday = addDays(currentMonday, dir * 7);
+  loadWeek();
+}
+
+// ── Modal ──
+function openModal(fecha) {
+  modalFecha = fecha;
+  document.getElementById('modal-date-label').textContent =
+    formatDate(new Date(fecha + 'T00:00:00'));
+
+  renderModalEntries(fecha);
+
+  document.getElementById('select-rutina').innerHTML =
+    '<option value="">Selecciona una rutina...</option>' +
+    RUTINAS.map(r => `<option value="${r.id}">${r.emoji} ${r.nombre}</option>`).join('');
+
+  document.getElementById('clientes-list').innerHTML =
+    CLIENTES.length
+      ? CLIENTES.map(c => `
+          <label class="cliente-check-item">
+            <input type="checkbox" value="${c.id}">
+            <span class="cliente-check-name">${c.nombre}</span>
+          </label>`).join('')
+      : '<p style="color:#6B7280;font-size:14px;padding:10px 0;">Sin clientes asignados.</p>';
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function renderModalEntries(fecha) {
+  const entries   = calData[fecha] || [];
+  const container = document.getElementById('modal-entries');
+  container.innerHTML = entries.length
+    ? entries.map(e => `
+        <div class="entry-item" id="entry-${e.id}">
+          <div class="entry-info">
+            <div class="entry-name">${e.rutina_emoji} ${e.rutina_nombre}</div>
+            <div class="entry-clients">${e.clientes.map(c=>c.nombre).join(', ') || 'Sin clientes'}</div>
+          </div>
+          <button class="btn-entry-del" onclick="deleteEntry(${e.id},'${fecha}')">✕</button>
+        </div>`).join('')
+    : '<p class="empty-day">Sin rutinas asignadas este día.</p>';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  modalFecha = null;
+}
+function closeModalOnOverlay(e) { if (e.target.id === 'modal') closeModal(); }
+
+async function saveEntry() {
+  const rutinaId = document.getElementById('select-rutina').value;
+  if (!rutinaId) { alert('Selecciona una rutina.'); return; }
+  const clienteIds = [...document.querySelectorAll('#clientes-list input:checked')].map(i => +i.value);
+  const btn = document.querySelector('.btn-save');
+  btn.classList.add('saving');
+
+  const resp = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    body: JSON.stringify({ fecha: modalFecha, rutina_id: +rutinaId, cliente_ids: clienteIds }),
+  });
+  const data = await resp.json();
+  btn.classList.remove('saving');
+
+  if (data.ok) {
+    const rutina = RUTINAS.find(r => r.id == rutinaId);
+    const arr = calData[modalFecha] = calData[modalFecha] || [];
+    const idx = arr.findIndex(e => e.id === data.id);
+    const entry = { id: data.id, fecha: modalFecha, rutina_id: +rutinaId,
+                    rutina_nombre: rutina.nombre, rutina_emoji: rutina.emoji, clientes: data.clientes };
+    if (idx >= 0) arr[idx] = entry; else arr.push(entry);
+    renderModalEntries(modalFecha);
+    renderWeek();
+    document.getElementById('select-rutina').value = '';
+    document.querySelectorAll('#clientes-list input').forEach(i => i.checked = false);
+  } else {
+    alert(data.error || 'Error al guardar.');
+  }
+}
+
+async function deleteEntry(entryId, fecha) {
+  if (!confirm('¿Quitar esta rutina del día?')) return;
+  const resp = await fetch(`${DELETE_URL}${entryId}/eliminar/`, {
+    method: 'POST', headers: { 'X-CSRFToken': CSRF },
+  });
+  const data = await resp.json();
+  if (data.ok) {
+    calData[fecha] = (calData[fecha] || []).filter(e => e.id !== entryId);
+    if (!calData[fecha].length) delete calData[fecha];
+    renderModalEntries(fecha);
+    renderWeek();
+  }
+}
+
+loadWeek();
+</script>
+{% endblock %}

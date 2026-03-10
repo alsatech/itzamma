@@ -42,31 +42,17 @@
   .dep-chip small { display: block; font-size: 9px; color: #9CA3AF; margin-top: 2px; font-weight: 600; }
   .dep-chip.active { border-color: var(--mint); }
 
-  /* ── Días ── */
-  .dias-section { margin-bottom: 20px; }
-  .dias-title { font-size: 18px; font-weight: 800; color: #f1f5f9; margin-bottom: 14px; }
-
-  .dia-block {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 18px; margin-bottom: 12px; overflow: hidden;
-  }
-  .dia-header {
-    display: flex; align-items: center;
-    justify-content: space-between; padding: 14px 16px;
-    cursor: pointer;
-  }
-  .dia-name { font-size: 15px; font-weight: 700; color: var(--mint); }
-  .dia-toggle { color: #6B7280; font-size: 18px; transition: transform .2s; }
-  .dia-block.open .dia-toggle { transform: rotate(90deg); }
-  .dia-body { padding: 0 16px 16px; display: none; }
-  .dia-block.open .dia-body { display: block; }
-  .btn-remove-dia { background: none; border: none; color: #4B5563; font-size: 13px; cursor: pointer; }
-
   /* ── Secciones ── */
-  .seccion-block { margin-bottom: 12px; }
+  .secciones-section { margin-bottom: 20px; }
+  .secciones-title { font-size: 18px; font-weight: 800; color: #f1f5f9; margin-bottom: 16px; }
+
+  .seccion-block {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 16px; margin-bottom: 12px;
+  }
   .seccion-label {
     font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .08em; color: #6B7280; margin-bottom: 8px;
+    letter-spacing: .08em; margin-bottom: 10px;
   }
   .seccion-label.cardio        { color: #F87171; }
   .seccion-label.calentamiento { color: var(--peach); }
@@ -121,28 +107,6 @@
     border-radius: 999px; margin-left: 6px;
   }
 
-  /* ── Add día button ── */
-  .btn-add-dia {
-    width: 100%; padding: 14px; border-radius: 14px;
-    background: transparent; border: 1px dashed rgba(168,213,194,0.4);
-    color: var(--mint); font-size: 14px; font-weight: 700;
-    cursor: pointer; margin-bottom: 24px; display: flex;
-    align-items: center; justify-content: center; gap: 8px;
-  }
-  .dia-selector {
-    display: none; background: var(--bg-card);
-    border: 1px solid var(--border); border-radius: 14px;
-    padding: 12px; margin-bottom: 12px;
-  }
-  .dia-selector.visible { display: block; }
-  .dia-option-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .dia-option {
-    padding: 10px 4px; text-align: center; border-radius: 10px;
-    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-    font-size: 12px; font-weight: 700; color: #9CA3AF; cursor: pointer;
-  }
-  .dia-option:hover { border-color: var(--mint); color: var(--mint); }
-
   /* ── Submit ── */
   .btn-submit {
     width: 100%; padding: 18px; border-radius: 18px;
@@ -187,30 +151,45 @@
     </div>
   </div>
 
-  <!-- Días builder -->
-  <div class="dias-section">
-    <p class="dias-title">Días de entrenamiento</p>
+  <!-- Secciones de la sesión -->
+  <div class="secciones-section">
+    <p class="secciones-title">Ejercicios de la sesión</p>
 
-    <div id="dias-container"></div>
-
-    <!-- Selector de día -->
-    <div class="dia-selector" id="dia-selector">
-      <label style="margin-bottom: 10px;">¿Qué día?</label>
-      <div class="dia-option-grid">
-        {% for val, label in form.fields|dictsort:"0" %}{% endfor %}
-        <div class="dia-option" data-dia="lunes"     onclick="addDia(this)">Lun</div>
-        <div class="dia-option" data-dia="martes"    onclick="addDia(this)">Mar</div>
-        <div class="dia-option" data-dia="miercoles" onclick="addDia(this)">Mié</div>
-        <div class="dia-option" data-dia="jueves"    onclick="addDia(this)">Jue</div>
-        <div class="dia-option" data-dia="viernes"   onclick="addDia(this)">Vie</div>
-        <div class="dia-option" data-dia="sabado"    onclick="addDia(this)">Sáb</div>
-        <div class="dia-option" data-dia="domingo"   onclick="addDia(this)">Dom</div>
-      </div>
+    <div class="seccion-block" id="sec-cardio" data-tipo="cardio">
+      <p class="seccion-label cardio">Subida de Freq. Cardiaca</p>
+      <div class="ej-list" id="sec-cardio-ejs"></div>
+      <input class="search-ej" placeholder="Buscar ejercicio..."
+             oninput="searchEj(this, 'sec-cardio')"
+             onfocus="showSuggestions('sec-cardio', this.value)">
+      <div class="ej-suggestions" id="sec-cardio-suggestions"></div>
     </div>
 
-    <button type="button" class="btn-add-dia" id="btn-add-dia" onclick="toggleDiaSelector()">
-      ＋ Agregar día
-    </button>
+    <div class="seccion-block" id="sec-calentamiento" data-tipo="calentamiento">
+      <p class="seccion-label calentamiento">Calentamiento</p>
+      <div class="ej-list" id="sec-calentamiento-ejs"></div>
+      <input class="search-ej" placeholder="Buscar ejercicio..."
+             oninput="searchEj(this, 'sec-calentamiento')"
+             onfocus="showSuggestions('sec-calentamiento', this.value)">
+      <div class="ej-suggestions" id="sec-calentamiento-suggestions"></div>
+    </div>
+
+    <div class="seccion-block" id="sec-medular" data-tipo="medular">
+      <p class="seccion-label medular">Medular</p>
+      <div class="ej-list" id="sec-medular-ejs"></div>
+      <input class="search-ej" placeholder="Buscar ejercicio..."
+             oninput="searchEj(this, 'sec-medular')"
+             onfocus="showSuggestions('sec-medular', this.value)">
+      <div class="ej-suggestions" id="sec-medular-suggestions"></div>
+    </div>
+
+    <div class="seccion-block" id="sec-cierre" data-tipo="cierre">
+      <p class="seccion-label cierre">Cierre</p>
+      <div class="ej-list" id="sec-cierre-ejs"></div>
+      <input class="search-ej" placeholder="Buscar ejercicio..."
+             oninput="searchEj(this, 'sec-cierre')"
+             onfocus="showSuggestions('sec-cierre', this.value)">
+      <div class="ej-suggestions" id="sec-cierre-suggestions"></div>
+    </div>
   </div>
 
   <p class="msg-error" id="form-error"></p>
@@ -220,76 +199,13 @@
 </div>
 
 <script>
-const SECCIONES = [
-  { tipo: 'cardio',        label: 'Subida de Freq. Cardiaca' },
-  { tipo: 'calentamiento', label: 'Calentamiento' },
-  { tipo: 'medular',       label: 'Medular' },
-  { tipo: 'cierre',        label: 'Cierre' },
-];
-
-const DIA_LABELS = {
-  lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
-  jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo',
-};
-
 let ejCache = null;
-const diasContainer = document.getElementById('dias-container');
 
 // ── Deporte ──
 function selectDeporte(chip) {
   document.querySelectorAll('.dep-chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');
   document.getElementById('rutina-deporte').value = chip.dataset.deporte;
-}
-
-// ── Día selector toggle ──
-function toggleDiaSelector() {
-  document.getElementById('dia-selector').classList.toggle('visible');
-}
-
-// ── Agregar día ──
-function addDia(option) {
-  const dia = option.dataset.dia;
-  const label = DIA_LABELS[dia];
-  document.getElementById('dia-selector').classList.remove('visible');
-
-  const diaId = 'dia-' + Date.now();
-  const html = `
-    <div class="dia-block open" id="${diaId}" data-dia="${dia}">
-      <div class="dia-header" onclick="toggleDia('${diaId}')">
-        <span class="dia-name">${label}</span>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <button type="button" class="btn-remove-dia"
-                  onclick="event.stopPropagation();removeDia('${diaId}')">Quitar</button>
-          <span class="dia-toggle">›</span>
-        </div>
-      </div>
-      <div class="dia-body">
-        ${SECCIONES.map(s => buildSeccionHTML(diaId, s)).join('')}
-      </div>
-    </div>`;
-  diasContainer.insertAdjacentHTML('beforeend', html);
-}
-
-function buildSeccionHTML(diaId, sec) {
-  const secId = `${diaId}-${sec.tipo}`;
-  return `
-    <div class="seccion-block" id="${secId}" data-tipo="${sec.tipo}">
-      <p class="seccion-label ${sec.tipo}">${sec.label}</p>
-      <div class="ej-list" id="${secId}-ejs"></div>
-      <input class="search-ej" placeholder="Buscar ejercicio..."
-             oninput="searchEj(this, '${secId}')"
-             onfocus="showSuggestions('${secId}', this.value)">
-      <div class="ej-suggestions" id="${secId}-suggestions"></div>
-    </div>`;
-}
-
-function toggleDia(id) {
-  document.getElementById(id).classList.toggle('open');
-}
-
-function removeDia(id) {
-  document.getElementById(id).remove();
 }
 
 // ── Ejercicio search ──
@@ -382,32 +298,27 @@ async function submitRutina() {
   const nombre = document.getElementById('rutina-nombre').value.trim();
   if (!nombre) { showError('El nombre de la rutina es requerido.'); return; }
 
-  const dias = [];
-  document.querySelectorAll('#dias-container .dia-block').forEach(diaEl => {
-    const dia = diaEl.dataset.dia;
-    const secciones = [];
-    diaEl.querySelectorAll('.seccion-block').forEach(secEl => {
-      const tipo = secEl.dataset.tipo;
-      const ejercicios = [];
-      secEl.querySelectorAll('.ej-row').forEach(ejEl => {
-        ejercicios.push({
-          ejercicio_id: parseInt(ejEl.dataset.ejId),
-          series:       parseInt(ejEl.querySelector('[name=series]').value) || 3,
-          repeticiones: ejEl.querySelector('[name=repeticiones]').value || '12',
-          descanso:     parseInt(ejEl.querySelector('[name=descanso]').value) || 60,
-          porcentaje:   parseInt(ejEl.querySelector('[name=porcentaje]').value) || null,
-        });
+  const secciones = [];
+  document.querySelectorAll('.seccion-block').forEach(secEl => {
+    const tipo = secEl.dataset.tipo;
+    const ejercicios = [];
+    secEl.querySelectorAll('.ej-row').forEach(ejEl => {
+      ejercicios.push({
+        ejercicio_id: parseInt(ejEl.dataset.ejId),
+        series:       parseInt(ejEl.querySelector('[name=series]').value) || 3,
+        repeticiones: ejEl.querySelector('[name=repeticiones]').value || '12',
+        descanso:     parseInt(ejEl.querySelector('[name=descanso]').value) || 60,
+        porcentaje:   parseInt(ejEl.querySelector('[name=porcentaje]').value) || null,
       });
-      if (ejercicios.length) secciones.push({ tipo, ejercicios });
     });
-    if (secciones.length) dias.push({ dia, secciones });
+    if (ejercicios.length) secciones.push({ tipo, ejercicios });
   });
 
   const payload = {
     nombre,
     descripcion: document.getElementById('rutina-desc').value.trim(),
     deporte:     document.getElementById('rutina-deporte').value,
-    dias,
+    dias: secciones.length ? [{ dia: 'general', secciones }] : [],
   };
 
   const resp = await fetch('{% url "rutina_create" %}', {

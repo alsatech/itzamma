@@ -12,7 +12,7 @@ from .forms import EjercicioForm, EjercicioMediaFormSet, RutinaForm
 from .models import (
     Ejercicio, EjercicioMedia,
     Rutina, RutinaDia, RutinaSeccion, RutinaEjercicio,
-    RutinaAsignacion, RutinaCompletada,
+    RutinaAsignacion, RutinaCompletada, RutinaCalendario,
 )
 
 
@@ -311,3 +311,92 @@ def rutina_assign(request, id):
         "rutina": rutina,
         "clientes": clientes,
     })
+
+
+# ── CALENDARIO ────────────────────────────────────────────────────────────────
+
+@login_required
+@user_passes_test(is_instructor)
+def rutina_calendario(request):
+    rutinas = Rutina.objects.filter(instructor=request.user).order_by('nombre')
+    clientes = CustomUser.objects.filter(mi_instructor__instructor=request.user)
+    return render(request, "dashboards/instructor/rutina_calendario.html", {
+        "rutinas": rutinas,
+        "clientes": clientes,
+    })
+
+
+@login_required
+@user_passes_test(is_instructor)
+def rutina_calendario_api(request):
+    if request.method == "GET":
+        desde = request.GET.get("desde", "")
+        hasta = request.GET.get("hasta", "")
+        qs = RutinaCalendario.objects.filter(
+            instructor=request.user,
+            fecha__gte=desde,
+            fecha__lte=hasta,
+        ).prefetch_related("clientes").select_related("rutina")
+        data = [
+            {
+                "id": e.id,
+                "fecha": e.fecha.isoformat(),
+                "rutina_id": e.rutina.id,
+                "rutina_nombre": e.rutina.nombre,
+                "rutina_emoji": e.rutina.emoji,
+                "clientes": [
+                    {"id": c.id, "nombre": c.get_full_name() or c.username}
+                    for c in e.clientes.all()
+                ],
+            }
+            for e in qs
+        ]
+        return JsonResponse(data, safe=False)
+
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "JSON inválido"}, status=400)
+
+        fecha = payload.get("fecha")
+        rutina_id = payload.get("rutina_id")
+        cliente_ids = payload.get("cliente_ids", [])
+
+        if not fecha or not rutina_id:
+            return JsonResponse({"error": "Faltan datos"}, status=400)
+
+        rutina = get_object_or_404(Rutina, id=rutina_id, instructor=request.user)
+        entrada, _ = RutinaCalendario.objects.get_or_create(
+            instructor=request.user,
+            rutina=rutina,
+            fecha=fecha,
+        )
+        clientes_qs = CustomUser.objects.filter(
+            id__in=cliente_ids,
+            mi_instructor__instructor=request.user,
+        )
+        entrada.clientes.set(clientes_qs)
+        for cliente in clientes_qs:
+            RutinaAsignacion.objects.get_or_create(rutina=rutina, cliente=cliente)
+
+        return JsonResponse({
+            "ok": True,
+            "id": entrada.id,
+            "clientes": [
+                {"id": c.id, "nombre": c.get_full_name() or c.username}
+                for c in entrada.clientes.all()
+            ],
+        })
+
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+@login_required
+@user_passes_test(is_instructor)
+def rutina_calendario_delete(request, id):
+    if request.method == "POST":
+        entrada = get_object_or_404(RutinaCalendario, id=id, instructor=request.user)
+        entrada.delete()
+        return JsonResponse({"ok": True})
+    return JsonResponse({"error": "Método no permitido"}, status=405)

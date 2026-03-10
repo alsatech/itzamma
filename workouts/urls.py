@@ -4,6 +4,7 @@ from .views import (
     instructor_clientes, instructor_cliente_detalle,
     ejercicio_list, ejercicio_create, ejercicio_delete, ejercicios_json,
     rutina_list, rutina_create, rutina_detail, rutina_assign,
+    rutina_calendario, rutina_calendario_api, rutina_calendario_delete,
     complete_rutina,
 )
 
@@ -28,4 +29,9 @@ urlpatterns = [
     path("instructor/rutinas/nueva/", rutina_create, name="rutina_create"),
     path("instructor/rutinas/<int:id>/", rutina_detail, name="rutina_detail"),
     path("instructor/rutinas/<int:id>/asignar/", rutina_assign, name="rutina_assign"),
+
+    # Calendario
+    path("instructor/calendario/", rutina_calendario, name="rutina_calendario"),
+    path("instructor/calendario/api/", rutina_calendario_api, name="rutina_calendario_api"),
+    path("instructor/calendario/api/<int:id>/eliminar/", rutina_calendario_delete, name="rutina_calendario_delete"),
 ]

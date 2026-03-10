@@ -119,6 +119,7 @@ class RutinaDia(models.Model):
         ('viernes',   'Viernes'),
         ('sabado',    'Sábado'),
         ('domingo',   'Domingo'),
+        ('general',   'Sesión'),
     ]
 
     rutina = models.ForeignKey(Rutina, on_delete=models.CASCADE, related_name='dias')
@@ -202,6 +203,30 @@ class MaximoEjercicio(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.ejercicio.nombre} - {self.peso_kg}kg"
+
+
+class RutinaCalendario(models.Model):
+    instructor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'rol': 'instructor'},
+        related_name='calendario'
+    )
+    rutina = models.ForeignKey(Rutina, on_delete=models.CASCADE, related_name='en_calendario')
+    fecha = models.DateField()
+    clientes = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name='calendario_entries',
+        limit_choices_to={'rol': 'cliente'},
+    )
+
+    class Meta:
+        ordering = ['fecha']
+        unique_together = [('instructor', 'rutina', 'fecha')]
+
+    def __str__(self):
+        return f"{self.rutina.nombre} - {self.fecha}"
 
 
 class ProgressReport(models.Model):
