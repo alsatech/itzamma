@@ -1,0 +1,829 @@
+{% extends "base_app.html" %}
+{% block title %}Asignar rutina{% endblock %}
+{% block header_title %}Asignar rutina{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --lime:   #C8E8A0;
+    --bg:     #111318;
+    --card:   #1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .quiz-wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px 16px 120px;
+    min-height: 100vh;
+  }
+
+  /* Progress bar */
+  .progress-track {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--mint);
+    border-radius: 99px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 10px rgba(168,213,194,0.5);
+  }
+
+  /* Step header */
+  .step-number {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mint);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .step-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .step-subtitle {
+    font-size: 13px;
+    color: #9CA3AF;
+    margin-bottom: 24px;
+  }
+
+  /* Client pill */
+  .client-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(168,213,194,0.12);
+    border: 1px solid rgba(168,213,194,0.25);
+    border-radius: 99px;
+    padding: 6px 14px 6px 8px;
+    margin-bottom: 24px;
+  }
+  .client-pill-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e, #0f4d2a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #eafff6;
+  }
+  .client-pill span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mint);
+  }
+
+  /* Step panel */
+  .step-panel {
+    display: none;
+  }
+  .step-panel.active {
+    display: block;
+    animation: fadeUp .3s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SPORT GRID ── */
+  .sport-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .sport-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s ease;
+    user-select: none;
+  }
+  .sport-card:active { transform: scale(.95); }
+  .sport-card.selected {
+    border-color: var(--mint);
+    background: rgba(168,213,194,0.12);
+    box-shadow: 0 0 18px rgba(168,213,194,0.25);
+  }
+  .sport-emoji { font-size: 26px; margin-bottom: 4px; }
+  .sport-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .sport-card.selected .sport-label { color: var(--mint); }
+
+  /* ── ROUTINE CARDS ── */
+  .routine-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all .2s ease;
+    user-select: none;
+  }
+  .routine-card:active { transform: scale(.98); }
+  .routine-card.selected {
+    border-color: var(--mint);
+    background: rgba(168,213,194,0.10);
+    box-shadow: 0 0 20px rgba(168,213,194,0.2);
+  }
+  .routine-emoji-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .routine-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+  .routine-sport-badge {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .routine-check {
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: all .2s;
+  }
+  .routine-card.selected .routine-check {
+    background: var(--mint);
+    border-color: var(--mint);
+    color: #0a1f18;
+    font-weight: 900;
+  }
+  .no-routines {
+    text-align: center;
+    color: #9CA3AF;
+    padding: 30px 0;
+    font-size: 14px;
+  }
+
+  /* ── SEARCH INPUT ── */
+  .search-box {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .search-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px 14px 44px;
+    color: #f1f5f9;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-input::placeholder { color: #4b5563; }
+  .search-input:focus { border-color: var(--mint); }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    pointer-events: none;
+    opacity: .5;
+  }
+
+  /* ── DAYS COUNT ── */
+  .days-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .day-count-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: #9CA3AF;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .day-count-btn.selected {
+    border-color: var(--peach);
+    background: rgba(240,196,168,0.15);
+    color: var(--peach);
+    box-shadow: 0 0 16px rgba(240,196,168,0.3);
+  }
+
+  /* ── SPECIFIC DAYS ── */
+  .days-week {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .day-chip {
+    padding: 14px 8px;
+    border-radius: 14px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    user-select: none;
+  }
+  .day-chip:active { transform: scale(.94); }
+  .day-chip.selected {
+    border-color: var(--lime);
+    background: rgba(200,232,160,0.12);
+    box-shadow: 0 0 14px rgba(200,232,160,0.2);
+  }
+  .day-chip-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .day-chip.selected .day-chip-label { color: var(--lime); }
+  .day-counter {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #9CA3AF;
+  }
+  .day-counter span {
+    color: var(--lime);
+    font-weight: 700;
+  }
+
+  /* ── SUMMARY ── */
+  .summary-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .summary-label {
+    font-size: 11px;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 3px;
+  }
+  .summary-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    margin-top: 16px;
+  }
+
+  /* ── BOTTOM NAV BUTTONS ── */
+  .btn-row {
+    position: fixed;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    padding: 0 16px;
+    display: flex;
+    gap: 10px;
+    z-index: 50;
+  }
+  .btn-back {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #9CA3AF;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: .2s;
+    flex-shrink: 0;
+  }
+  .btn-back:active { transform: scale(.92); }
+  .btn-next {
+    flex: 1;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--mint), #6bbfa3);
+    color: #0a1f18;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: .2s;
+    box-shadow: 0 0 24px rgba(168,213,194,0.35);
+    border: none;
+  }
+  .btn-next:active { transform: scale(.97); }
+  .btn-next:disabled {
+    background: rgba(255,255,255,0.08);
+    color: #4b5563;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .btn-submit {
+    flex: 1;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #16ff8f, #00c96d);
+    color: #031b12;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: .2s;
+    box-shadow: 0 0 30px rgba(0,255,140,0.4);
+    border: none;
+  }
+  .btn-submit:active { transform: scale(.97); }
+</style>
+
+<div class="quiz-wrap">
+
+  <!-- Client pill -->
+  <div class="client-pill">
+    <div class="client-pill-avatar">
+      {{ cliente.username|slice:":1"|upper }}
+    </div>
+    <span>{{ cliente.get_full_name|default:cliente.username }}</span>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+  </div>
+
+  <!-- ═══ STEP 1: DISCIPLINA ═══ -->
+  <div class="step-panel active" id="step1">
+    <p class="step-number">Paso 1 de 5</p>
+    <h2 class="step-title">¿Cuál es su disciplina?</h2>
+    <p class="step-subtitle">Selecciona el deporte o actividad del cliente</p>
+
+    <div class="sport-grid">
+      <div class="sport-card" data-sport="gym" onclick="selectSport(this)">
+        <div class="sport-emoji">🏋️</div>
+        <div class="sport-label">Gym</div>
+      </div>
+      <div class="sport-card" data-sport="futbol" onclick="selectSport(this)">
+        <div class="sport-emoji">⚽</div>
+        <div class="sport-label">Fútbol</div>
+      </div>
+      <div class="sport-card" data-sport="tenis" onclick="selectSport(this)">
+        <div class="sport-emoji">🎾</div>
+        <div class="sport-label">Tenis</div>
+      </div>
+      <div class="sport-card" data-sport="basketball" onclick="selectSport(this)">
+        <div class="sport-emoji">🏀</div>
+        <div class="sport-label">Basketball</div>
+      </div>
+      <div class="sport-card" data-sport="natacion" onclick="selectSport(this)">
+        <div class="sport-emoji">🏊</div>
+        <div class="sport-label">Natación</div>
+      </div>
+      <div class="sport-card" data-sport="ciclismo" onclick="selectSport(this)">
+        <div class="sport-emoji">🚴</div>
+        <div class="sport-label">Ciclismo</div>
+      </div>
+      <div class="sport-card" data-sport="boxeo" onclick="selectSport(this)">
+        <div class="sport-emoji">🥊</div>
+        <div class="sport-label">Boxeo</div>
+      </div>
+      <div class="sport-card" data-sport="yoga" onclick="selectSport(this)">
+        <div class="sport-emoji">🧘</div>
+        <div class="sport-label">Yoga</div>
+      </div>
+      <div class="sport-card" data-sport="running" onclick="selectSport(this)">
+        <div class="sport-emoji">🏃</div>
+        <div class="sport-label">Running</div>
+      </div>
+      <div class="sport-card" data-sport="voleibol" onclick="selectSport(this)">
+        <div class="sport-emoji">🏐</div>
+        <div class="sport-label">Voleibol</div>
+      </div>
+      <div class="sport-card" data-sport="atletismo" onclick="selectSport(this)">
+        <div class="sport-emoji">🎽</div>
+        <div class="sport-label">Atletismo</div>
+      </div>
+      <div class="sport-card" data-sport="otro" onclick="selectSport(this)">
+        <div class="sport-emoji">🏅</div>
+        <div class="sport-label">Otro</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: RUTINA ═══ -->
+  <div class="step-panel" id="step2">
+    <p class="step-number">Paso 2 de 5</p>
+    <h2 class="step-title">¿Qué rutina va a trabajar?</h2>
+    <p class="step-subtitle" id="routineSubtitle">Busca por nombre</p>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        id="routineSearch"
+        class="search-input"
+        type="text"
+        placeholder="Ej: fuerza, pierna, cardio..."
+        oninput="buildRouteList()"
+        autocomplete="off"
+      >
+    </div>
+    <div id="routineList"></div>
+  </div>
+
+  <!-- ═══ STEP 3: CUÁNTOS DÍAS ═══ -->
+  <div class="step-panel" id="step3">
+    <p class="step-number">Paso 3 de 5</p>
+    <h2 class="step-title">¿Cuántos días a la semana?</h2>
+    <p class="step-subtitle">Frecuencia semanal de entrenamiento</p>
+    <div class="days-selector">
+      <div class="day-count-btn" data-count="1" onclick="selectDayCount(this)">1</div>
+      <div class="day-count-btn" data-count="2" onclick="selectDayCount(this)">2</div>
+      <div class="day-count-btn" data-count="3" onclick="selectDayCount(this)">3</div>
+      <div class="day-count-btn" data-count="4" onclick="selectDayCount(this)">4</div>
+      <div class="day-count-btn" data-count="5" onclick="selectDayCount(this)">5</div>
+      <div class="day-count-btn" data-count="6" onclick="selectDayCount(this)">6</div>
+      <div class="day-count-btn" data-count="7" onclick="selectDayCount(this)">7</div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: QUÉ DÍAS ═══ -->
+  <div class="step-panel" id="step4">
+    <p class="step-number">Paso 4 de 5</p>
+    <h2 class="step-title">¿Qué días entrena?</h2>
+    <p class="step-subtitle" id="dayPickSubtitle">Selecciona los días</p>
+    <div class="days-week">
+      <div class="day-chip" data-day="lunes" onclick="toggleDay(this)">
+        <div class="day-chip-label">Lun</div>
+      </div>
+      <div class="day-chip" data-day="martes" onclick="toggleDay(this)">
+        <div class="day-chip-label">Mar</div>
+      </div>
+      <div class="day-chip" data-day="miercoles" onclick="toggleDay(this)">
+        <div class="day-chip-label">Mié</div>
+      </div>
+      <div class="day-chip" data-day="jueves" onclick="toggleDay(this)">
+        <div class="day-chip-label">Jue</div>
+      </div>
+      <div class="day-chip" data-day="viernes" onclick="toggleDay(this)">
+        <div class="day-chip-label">Vie</div>
+      </div>
+      <div class="day-chip" data-day="sabado" onclick="toggleDay(this)">
+        <div class="day-chip-label">Sáb</div>
+      </div>
+      <div class="day-chip" data-day="domingo" onclick="toggleDay(this)">
+        <div class="day-chip-label">Dom</div>
+      </div>
+    </div>
+    <p class="day-counter">
+      Seleccionados: <span id="dayCountDisplay">0</span> / <span id="dayCountTarget">0</span>
+    </p>
+  </div>
+
+  <!-- ═══ STEP 5: CONFIRMACIÓN ═══ -->
+  <div class="step-panel" id="step5">
+    <p class="step-number">Paso 5 de 5</p>
+    <h2 class="step-title">¡Todo listo!</h2>
+    <p class="step-subtitle">Revisa el resumen antes de confirmar</p>
+
+    <div class="summary-card">
+      <div class="summary-row">
+        <div class="summary-icon">👤</div>
+        <div>
+          <div class="summary-label">Cliente</div>
+          <div class="summary-value">{{ cliente.get_full_name|default:cliente.username }}</div>
+        </div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-icon" id="sumSportIcon">🏅</div>
+        <div>
+          <div class="summary-label">Disciplina</div>
+          <div class="summary-value" id="sumSport">—</div>
+        </div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-icon" id="sumRoutineIcon">📋</div>
+        <div>
+          <div class="summary-label">Rutina</div>
+          <div class="summary-value" id="sumRoutine">—</div>
+        </div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-icon">📅</div>
+        <div>
+          <div class="summary-label">Días de entrenamiento</div>
+          <div class="summary-value" id="sumDays">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom action buttons -->
+<div class="btn-row" id="btnRow">
+  <div class="btn-back" id="btnBack" onclick="goBack()" style="display:none">‹</div>
+  <button class="btn-next" id="btnNext" onclick="goNext()" disabled>Siguiente →</button>
+</div>
+
+<!-- Hidden form for final submit -->
+<form id="assignForm" method="POST" action="{% url 'asignar_rutina_cuestionario' cliente.id %}" style="display:none">
+  {% csrf_token %}
+  <input type="hidden" name="rutina_id" id="formRutinaId">
+  <div id="formDiasContainer"></div>
+</form>
+
+<script>
+const RUTINAS = {{ rutinas_json|safe }};
+
+const SPORT_LABELS = {
+  gym: 'Gym', futbol: 'Fútbol', tenis: 'Tenis',
+  basketball: 'Basketball', natacion: 'Natación', ciclismo: 'Ciclismo',
+  boxeo: 'Boxeo', yoga: 'Yoga', running: 'Running',
+  voleibol: 'Voleibol', atletismo: 'Atletismo', otro: 'Otro'
+};
+
+const DAY_LABELS = {
+  lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
+  jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo'
+};
+
+let currentStep = 1;
+const TOTAL_STEPS = 5;
+
+let selectedSport    = null;
+let selectedRutinaId = null;
+let selectedRutinaName = null;
+let selectedRutinaEmoji = null;
+let selectedDayCount = null;
+let selectedDays     = [];
+
+// ── navigation ──────────────────────────────────────────────────
+function updateProgress() {
+  const pct = (currentStep / TOTAL_STEPS) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step-panel').forEach(el => el.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  document.getElementById('btnBack').style.display = n > 1 ? 'flex' : 'none';
+
+  const btnNext = document.getElementById('btnNext');
+  btnNext.style.display = n < TOTAL_STEPS ? '' : 'none';
+
+  let submitRow = document.getElementById('submitBtn');
+  if (!submitRow && n === TOTAL_STEPS) {
+    const btn = document.createElement('button');
+    btn.id = 'submitBtn';
+    btn.className = 'btn-submit';
+    btn.textContent = '✅ Confirmar asignación';
+    btn.onclick = submitAssignment;
+    document.getElementById('btnRow').appendChild(btn);
+  }
+  if (submitRow) {
+    submitRow.style.display = n === TOTAL_STEPS ? '' : 'none';
+  }
+
+  validateStep();
+  updateProgress();
+}
+
+function goNext() {
+  if (!validateStep()) return;
+  if (currentStep === 2) buildDayPickSubtitle();
+  if (currentStep === 4) buildSummary();
+  currentStep++;
+  showStep(currentStep);
+}
+
+function goBack() {
+  if (currentStep > 1) {
+    currentStep--;
+    showStep(currentStep);
+  }
+}
+
+function validateStep() {
+  const btn = document.getElementById('btnNext');
+  let valid = false;
+  if (currentStep === 1) valid = selectedSport !== null;
+  if (currentStep === 2) valid = selectedRutinaId !== null;
+  if (currentStep === 3) valid = selectedDayCount !== null;
+  if (currentStep === 4) valid = selectedDays.length === selectedDayCount;
+  if (btn) btn.disabled = !valid;
+  return valid;
+}
+
+// ── step 1: sport ────────────────────────────────────────────────
+function selectSport(el) {
+  document.querySelectorAll('.sport-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSport = el.dataset.sport;
+  selectedRutinaId = null;
+  selectedRutinaName = null;
+  validateStep();
+}
+
+// ── step 2: routine ──────────────────────────────────────────────
+function buildRouteList() {
+  const list = document.getElementById('routineList');
+  list.innerHTML = '';
+
+  const query = (document.getElementById('routineSearch')?.value || '').trim().toLowerCase();
+
+  let pool = RUTINAS;
+  // prefer routines matching selected sport, but don't hard-filter
+  if (query) {
+    pool = RUTINAS.filter(r =>
+      r.nombre.toLowerCase().includes(query) ||
+      (SPORT_LABELS[r.deporte] || '').toLowerCase().includes(query)
+    );
+  } else {
+    // no query: show sport matches first, rest after
+    const match = RUTINAS.filter(r => r.deporte === selectedSport);
+    const rest   = RUTINAS.filter(r => r.deporte !== selectedSport);
+    pool = [...match, ...rest];
+  }
+
+  const subtitle = document.getElementById('routineSubtitle');
+  subtitle.textContent = pool.length > 0
+    ? `${pool.length} rutina${pool.length > 1 ? 's' : ''} encontrada${pool.length > 1 ? 's' : ''}`
+    : 'Sin coincidencias';
+
+  if (pool.length === 0) {
+    list.innerHTML = '<div class="no-routines">No se encontraron rutinas.<br>Prueba con otro término.</div>';
+    return;
+  }
+
+  pool.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'routine-card' + (selectedRutinaId === r.id ? ' selected' : '');
+    card.innerHTML = `
+      <div class="routine-emoji-box">${r.emoji}</div>
+      <div style="flex:1">
+        <div class="routine-name">${r.nombre}</div>
+        <div class="routine-sport-badge">${SPORT_LABELS[r.deporte] || r.deporte}</div>
+      </div>
+      <div class="routine-check">${selectedRutinaId === r.id ? '✓' : ''}</div>
+    `;
+    card.onclick = () => selectRoutine(r);
+    list.appendChild(card);
+  });
+}
+
+function selectRoutine(r) {
+  selectedRutinaId   = r.id;
+  selectedRutinaName = r.nombre;
+  selectedRutinaEmoji = r.emoji;
+  buildRouteList();
+  validateStep();
+}
+
+// ── step 3: day count ────────────────────────────────────────────
+function selectDayCount(el) {
+  document.querySelectorAll('.day-count-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDayCount = parseInt(el.dataset.count);
+  selectedDays = [];
+  document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('selected'));
+  validateStep();
+}
+
+function buildDayPickSubtitle() {
+  document.getElementById('dayPickSubtitle').textContent =
+    `Elige ${selectedDayCount} día${selectedDayCount > 1 ? 's' : ''}`;
+  document.getElementById('dayCountTarget').textContent = selectedDayCount;
+  document.getElementById('dayCountDisplay').textContent = 0;
+}
+
+// ── step 4: specific days ────────────────────────────────────────
+function toggleDay(el) {
+  const day = el.dataset.day;
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    selectedDays = selectedDays.filter(d => d !== day);
+  } else {
+    if (selectedDays.length >= selectedDayCount) return;
+    el.classList.add('selected');
+    selectedDays.push(day);
+  }
+  document.getElementById('dayCountDisplay').textContent = selectedDays.length;
+  validateStep();
+}
+
+// ── step 5: summary ──────────────────────────────────────────────
+function buildSummary() {
+  document.getElementById('sumSportIcon').textContent =
+    document.querySelector(`.sport-card[data-sport="${selectedSport}"] .sport-emoji`)?.textContent || '🏅';
+  document.getElementById('sumSport').textContent = SPORT_LABELS[selectedSport] || selectedSport;
+  document.getElementById('sumRoutineIcon').textContent = selectedRutinaEmoji || '📋';
+  document.getElementById('sumRoutine').textContent = selectedRutinaName;
+
+  const dayNames = selectedDays.map(d => DAY_LABELS[d]).join(', ');
+  document.getElementById('sumDays').textContent = dayNames;
+}
+
+// ── submit ───────────────────────────────────────────────────────
+function submitAssignment() {
+  document.getElementById('formRutinaId').value = selectedRutinaId;
+
+  const container = document.getElementById('formDiasContainer');
+  container.innerHTML = '';
+  selectedDays.forEach(day => {
+    const inp = document.createElement('input');
+    inp.type  = 'hidden';
+    inp.name  = 'dias[]';
+    inp.value = day;
+    container.appendChild(inp);
+  });
+
+  document.getElementById('assignForm').submit();
+}
+
+// ── init ─────────────────────────────────────────────────────────
+// Hook step 2 panel to build route list when shown
+const origGoNext = goNext;
+document.getElementById('btnNext').addEventListener('click', function() {}, false);
+
+// Override showStep to rebuild route list on step2 entry
+const _showStep = showStep;
+window.showStep = function(n) {
+  _showStep(n);
+  if (n === 2) buildRouteList();
+};
+
+updateProgress();
+</script>
+{% endblock %}

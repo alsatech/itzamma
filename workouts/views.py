@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, date
 
 from accounts.models import CustomUser, InstructorClient
 from profiles.models import UserProfile
@@ -390,6 +390,63 @@ def rutina_calendario_api(request):
         })
 
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+@login_required
+@user_passes_test(is_instructor)
+def asignar_rutina_cuestionario(request, cliente_id):
+    cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
+
+    if not InstructorClient.objects.filter(instructor=request.user, cliente=cliente).exists():
+        messages.error(request, "No tienes acceso a este cliente.")
+        return redirect("instructor_dashboard")
+
+    rutinas = Rutina.objects.filter(instructor=request.user)
+
+    if request.method == "POST":
+        rutina_id = request.POST.get("rutina_id")
+        dias_seleccionados = request.POST.getlist("dias[]")
+
+        if not rutina_id or not dias_seleccionados:
+            messages.error(request, "Debes seleccionar una rutina y al menos un día.")
+            return redirect("asignar_rutina_cuestionario", cliente_id=cliente.id)
+
+        rutina = get_object_or_404(Rutina, id=rutina_id, instructor=request.user)
+        RutinaAsignacion.objects.get_or_create(rutina=rutina, cliente=cliente)
+
+        today = date.today()
+        day_map = {
+            'lunes': 0, 'martes': 1, 'miercoles': 2,
+            'jueves': 3, 'viernes': 4, 'sabado': 5, 'domingo': 6,
+        }
+        for dia_nombre in dias_seleccionados:
+            target_weekday = day_map.get(dia_nombre)
+            if target_weekday is None:
+                continue
+            days_ahead = target_weekday - today.weekday()
+            if days_ahead < 0:
+                days_ahead += 7
+            fecha = today + timedelta(days=days_ahead)
+            entrada, _ = RutinaCalendario.objects.get_or_create(
+                instructor=request.user,
+                rutina=rutina,
+                fecha=fecha,
+            )
+            entrada.clientes.add(cliente)
+
+        messages.success(request, f"Rutina asignada a {cliente.username} correctamente.")
+        return redirect("instructor_cliente_detalle", cliente_id=cliente.id)
+
+    rutinas_data = json.dumps([
+        {"id": r.id, "nombre": r.nombre, "deporte": r.deporte, "emoji": r.emoji}
+        for r in rutinas
+    ])
+
+    return render(request, "dashboards/instructor/asignar_cuestionario.html", {
+        "cliente": cliente,
+        "rutinas": rutinas,
+        "rutinas_json": rutinas_data,
+    })
 
 
 @login_required

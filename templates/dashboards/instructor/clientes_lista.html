@@ -91,7 +91,7 @@
 
     {% if clientes %}
         {% for c in clientes %}
-            <div class="client-card">
+            <a href="{% url 'instructor_cliente_detalle' c.id %}" class="client-card" style="text-decoration:none">
 
                 <!-- Avatar -->
                 <div class="client-avatar">
@@ -99,12 +99,14 @@
                 </div>
 
                 <!-- Info del cliente -->
-                <div>
+                <div style="flex:1">
                     <div class="info-name">{{ c.username }}</div>
                     <div class="info-email">{{ c.email }}</div>
                 </div>
 
-            </div>
+                <div style="font-size:18px; color:#A8D5C2; opacity:.6">›</div>
+
+            </a>
         {% endfor %}
     {% else %}
         <p class="text-center text-gray-400 mt-6">

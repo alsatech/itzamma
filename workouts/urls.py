@@ -5,7 +5,7 @@ from .views import (
     ejercicio_list, ejercicio_create, ejercicio_delete, ejercicios_json,
     rutina_list, rutina_create, rutina_detail, rutina_assign,
     rutina_calendario, rutina_calendario_api, rutina_calendario_delete,
-    complete_rutina,
+    complete_rutina, asignar_rutina_cuestionario,
 )
 
 urlpatterns = [
@@ -14,6 +14,7 @@ urlpatterns = [
     path("instructor/perfil/", instructor_perfil, name="instructor_perfil"),
     path("instructor/clientes/", instructor_clientes, name="instructor_clientes"),
     path("instructor/clientes/<int:cliente_id>/", instructor_cliente_detalle, name="instructor_cliente_detalle"),
+    path("instructor/clientes/<int:cliente_id>/asignar/", asignar_rutina_cuestionario, name="asignar_rutina_cuestionario"),
 
     # Ejercicios
     path("instructor/ejercicios/", ejercicio_list, name="ejercicio_list"),
