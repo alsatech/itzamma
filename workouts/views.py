@@ -102,28 +102,62 @@ def instructor_cliente_detalle(request, cliente_id):
 
     perfil = get_object_or_404(UserProfile, user=cliente)
 
-    rutinas_asignadas = RutinaAsignacion.objects.filter(
-        cliente=cliente,
-        rutina__instructor=request.user
-    ).select_related("rutina")
-
     rutinas_completadas = RutinaCompletada.objects.filter(
         user=cliente,
         rutina__instructor=request.user
-    ).select_related("rutina")
+    ).select_related("rutina").order_by("-completed_at")
 
     total_completadas = rutinas_completadas.count()
     ultimos_7_dias = rutinas_completadas.filter(
         completed_at__gte=timezone.now() - timedelta(days=7)
     ).count()
 
+    # ── Semana actual (lunes → domingo) ──────────────────────────
+    today = date.today()
+    week_start = today - timedelta(days=today.weekday())
+    week_end   = week_start + timedelta(days=6)
+
+    calendario_qs = RutinaCalendario.objects.filter(
+        instructor=request.user,
+        clientes=cliente,
+        fecha__range=[week_start, week_end],
+    ).select_related("rutina")
+    cal_por_fecha = {c.fecha: c for c in calendario_qs}
+
+    completadas_set = set(
+        RutinaCompletada.objects.filter(
+            user=cliente,
+            rutina__instructor=request.user,
+            completed_at__date__range=[week_start, week_end],
+        ).values_list("rutina_id", "completed_at__date")
+    )
+
+    dia_nombres  = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+    dia_abrevs   = ["Lun",   "Mar",    "Mié",        "Jue",    "Vie",     "Sáb",    "Dom"]
+
+    semana = []
+    for i in range(7):
+        fecha = week_start + timedelta(days=i)
+        cal   = cal_por_fecha.get(fecha)
+        semana.append({
+            "fecha":      fecha,
+            "dia":        dia_nombres[i],
+            "dia_abbr":   dia_abrevs[i],
+            "calendario": cal,
+            "completada": (cal.rutina_id, fecha) in completadas_set if cal else False,
+            "es_hoy":     fecha == today,
+            "pasado":     fecha < today,
+        })
+
     return render(request, "dashboards/instructor/cliente_detalle.html", {
-        "cliente": cliente,
-        "perfil": perfil,
-        "rutinas_asignadas": rutinas_asignadas,
+        "cliente":             cliente,
+        "perfil":              perfil,
         "rutinas_completadas": rutinas_completadas,
-        "total_completadas": total_completadas,
-        "ultimos_7_dias": ultimos_7_dias,
+        "total_completadas":   total_completadas,
+        "ultimos_7_dias":      ultimos_7_dias,
+        "semana":              semana,
+        "week_start":          week_start,
+        "week_end":            week_end,
     })
 
 
@@ -404,26 +438,22 @@ def asignar_rutina_cuestionario(request, cliente_id):
     rutinas = Rutina.objects.filter(instructor=request.user)
 
     if request.method == "POST":
-        rutina_id = request.POST.get("rutina_id")
-        dias_seleccionados = request.POST.getlist("dias[]")
-
-        if not rutina_id or not dias_seleccionados:
-            messages.error(request, "Debes seleccionar una rutina y al menos un día.")
-            return redirect("asignar_rutina_cuestionario", cliente_id=cliente.id)
-
-        rutina = get_object_or_404(Rutina, id=rutina_id, instructor=request.user)
-        RutinaAsignacion.objects.get_or_create(rutina=rutina, cliente=cliente)
-
-        today = date.today()
         day_map = {
             'lunes': 0, 'martes': 1, 'miercoles': 2,
             'jueves': 3, 'viernes': 4, 'sabado': 5, 'domingo': 6,
         }
-        for dia_nombre in dias_seleccionados:
-            target_weekday = day_map.get(dia_nombre)
-            if target_weekday is None:
+
+        dias_asignados = []
+        today = date.today()
+
+        for dia_nombre, weekday_num in day_map.items():
+            rutina_id = request.POST.get(f"rutina_{dia_nombre}")
+            if not rutina_id:
                 continue
-            days_ahead = target_weekday - today.weekday()
+            rutina = get_object_or_404(Rutina, id=rutina_id, instructor=request.user)
+            RutinaAsignacion.objects.get_or_create(rutina=rutina, cliente=cliente)
+
+            days_ahead = weekday_num - today.weekday()
             if days_ahead < 0:
                 days_ahead += 7
             fecha = today + timedelta(days=days_ahead)
@@ -433,8 +463,13 @@ def asignar_rutina_cuestionario(request, cliente_id):
                 fecha=fecha,
             )
             entrada.clientes.add(cliente)
+            dias_asignados.append(dia_nombre)
 
-        messages.success(request, f"Rutina asignada a {cliente.username} correctamente.")
+        if not dias_asignados:
+            messages.error(request, "Debes asignar rutina a al menos un día.")
+            return redirect("asignar_rutina_cuestionario", cliente_id=cliente.id)
+
+        messages.success(request, f"Semana programada para {cliente.username} ({len(dias_asignados)} días).")
         return redirect("instructor_cliente_detalle", cliente_id=cliente.id)
 
     rutinas_data = json.dumps([

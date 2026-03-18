@@ -241,6 +241,185 @@
         max-width: 100%;
     }
 
+    /* =========================
+    WEEKLY CALENDAR
+    ========================= */
+    .week-calendar { display: flex; flex-direction: column; gap: 8px; }
+
+    .cal-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: 16px;
+        padding: 12px 14px;
+        border: 2px solid transparent;
+        transition: all .2s ease;
+    }
+
+    /* pastel per day – same palette as assignment screen */
+    .cal-row[data-day="0"] { background: rgba(147,197,253,0.07); border-color: rgba(147,197,253,0.15); }
+    .cal-row[data-day="1"] { background: rgba(196,181,253,0.07); border-color: rgba(196,181,253,0.15); }
+    .cal-row[data-day="2"] { background: rgba(167,243,208,0.07); border-color: rgba(167,243,208,0.15); }
+    .cal-row[data-day="3"] { background: rgba(253,186,116,0.07); border-color: rgba(253,186,116,0.15); }
+    .cal-row[data-day="4"] { background: rgba(249,168,212,0.07); border-color: rgba(249,168,212,0.15); }
+    .cal-row[data-day="5"] { background: rgba(253,224,71,0.06);  border-color: rgba(253,224,71,0.13);  }
+    .cal-row[data-day="6"] { background: rgba(94,234,212,0.07);  border-color: rgba(94,234,212,0.15);  }
+
+    /* today highlight */
+    .cal-row.is-today[data-day="0"] { border-color: rgba(147,197,253,0.55); background: rgba(147,197,253,0.13); }
+    .cal-row.is-today[data-day="1"] { border-color: rgba(196,181,253,0.55); background: rgba(196,181,253,0.13); }
+    .cal-row.is-today[data-day="2"] { border-color: rgba(167,243,208,0.55); background: rgba(167,243,208,0.13); }
+    .cal-row.is-today[data-day="3"] { border-color: rgba(253,186,116,0.55); background: rgba(253,186,116,0.13); }
+    .cal-row.is-today[data-day="4"] { border-color: rgba(249,168,212,0.55); background: rgba(249,168,212,0.13); }
+    .cal-row.is-today[data-day="5"] { border-color: rgba(253,224,71,0.50);  background: rgba(253,224,71,0.11);  }
+    .cal-row.is-today[data-day="6"] { border-color: rgba(94,234,212,0.55);  background: rgba(94,234,212,0.13);  }
+
+    /* past days with no routine: dim */
+    .cal-row.is-past { opacity: .65; }
+    .cal-row.is-past.has-routine { opacity: 1; }
+
+    .cal-badge {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        flex-shrink: 0; gap: 1px;
+    }
+
+    /* badge background per day */
+    .cal-row[data-day="0"] .cal-badge { background: rgba(147,197,253,0.18); }
+    .cal-row[data-day="1"] .cal-badge { background: rgba(196,181,253,0.18); }
+    .cal-row[data-day="2"] .cal-badge { background: rgba(167,243,208,0.18); }
+    .cal-row[data-day="3"] .cal-badge { background: rgba(253,186,116,0.18); }
+    .cal-row[data-day="4"] .cal-badge { background: rgba(249,168,212,0.18); }
+    .cal-row[data-day="5"] .cal-badge { background: rgba(253,224,71,0.15);  }
+    .cal-row[data-day="6"] .cal-badge { background: rgba(94,234,212,0.16);  }
+
+    .cal-abbr {
+        font-size: 10px; font-weight: 800;
+        text-transform: uppercase; letter-spacing: .05em;
+    }
+    .cal-date { font-size: 13px; font-weight: 800; color: #e5e7eb; }
+
+    /* cal-date base color per day (no routine) */
+    .cal-row[data-day="0"] .cal-date { color: #93c5fd; }
+    .cal-row[data-day="1"] .cal-date { color: #c4b5fd; }
+    .cal-row[data-day="2"] .cal-date { color: #6ee7b7; }
+    .cal-row[data-day="3"] .cal-date { color: #fdba74; }
+    .cal-row[data-day="4"] .cal-date { color: #f9a8d4; }
+    .cal-row[data-day="5"] .cal-date { color: #fde047; }
+    .cal-row[data-day="6"] .cal-date { color: #5eead4; }
+
+    /* cal-date brighter when routine assigned */
+    .cal-row[data-day="0"].has-routine .cal-date { color: #bfdbfe; }
+    .cal-row[data-day="1"].has-routine .cal-date { color: #ddd6fe; }
+    .cal-row[data-day="2"].has-routine .cal-date { color: #a7f3d0; }
+    .cal-row[data-day="3"].has-routine .cal-date { color: #fed7aa; }
+    .cal-row[data-day="4"].has-routine .cal-date { color: #fbcfe8; }
+    .cal-row[data-day="5"].has-routine .cal-date { color: #fef08a; }
+    .cal-row[data-day="6"].has-routine .cal-date { color: #99f6e4; }
+
+    /* abbr color per day — no routine (muted) */
+    .cal-row[data-day="0"]:not(.has-routine) .cal-abbr { color: #60a0d8; }
+    .cal-row[data-day="1"]:not(.has-routine) .cal-abbr { color: #a090d8; }
+    .cal-row[data-day="2"]:not(.has-routine) .cal-abbr { color: #50b890; }
+    .cal-row[data-day="3"]:not(.has-routine) .cal-abbr { color: #d8904a; }
+    .cal-row[data-day="4"]:not(.has-routine) .cal-abbr { color: #d880a8; }
+    .cal-row[data-day="5"]:not(.has-routine) .cal-abbr { color: #c8b030; }
+    .cal-row[data-day="6"]:not(.has-routine) .cal-abbr { color: #40b898; }
+
+    /* abbr brighter when routine assigned */
+    .cal-row[data-day="0"].has-routine .cal-abbr { color: #bfdbfe; }
+    .cal-row[data-day="1"].has-routine .cal-abbr { color: #ddd6fe; }
+    .cal-row[data-day="2"].has-routine .cal-abbr { color: #a7f3d0; }
+    .cal-row[data-day="3"].has-routine .cal-abbr { color: #fed7aa; }
+    .cal-row[data-day="4"].has-routine .cal-abbr { color: #fbcfe8; }
+    .cal-row[data-day="5"].has-routine .cal-abbr { color: #fef08a; }
+    .cal-row[data-day="6"].has-routine .cal-abbr { color: #99f6e4; }
+
+    .cal-content { flex: 1; min-width: 0; }
+    .cal-routine-name {
+        font-size: 14px; font-weight: 700; color: #f1f5f9;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* routine name color per day when assigned */
+    .cal-row[data-day="0"].has-routine .cal-routine-name { color: #bfdbfe; }
+    .cal-row[data-day="1"].has-routine .cal-routine-name { color: #ddd6fe; }
+    .cal-row[data-day="2"].has-routine .cal-routine-name { color: #a7f3d0; }
+    .cal-row[data-day="3"].has-routine .cal-routine-name { color: #fed7aa; }
+    .cal-row[data-day="4"].has-routine .cal-routine-name { color: #fbcfe8; }
+    .cal-row[data-day="5"].has-routine .cal-routine-name { color: #fef08a; }
+    .cal-row[data-day="6"].has-routine .cal-routine-name { color: #99f6e4; }
+    .cal-routine-sport {
+        font-size: 11px; color: #9ca3af;
+        text-transform: uppercase; letter-spacing: .04em; margin-top: 2px;
+    }
+
+    /* sport label color per day when routine assigned */
+    .cal-row[data-day="0"].has-routine .cal-routine-sport { color: #93c5fd; }
+    .cal-row[data-day="1"].has-routine .cal-routine-sport { color: #c4b5fd; }
+    .cal-row[data-day="2"].has-routine .cal-routine-sport { color: #6ee7b7; }
+    .cal-row[data-day="3"].has-routine .cal-routine-sport { color: #fdba74; }
+    .cal-row[data-day="4"].has-routine .cal-routine-sport { color: #f9a8d4; }
+    .cal-row[data-day="5"].has-routine .cal-routine-sport { color: #fde047; }
+    .cal-row[data-day="6"].has-routine .cal-routine-sport { color: #5eead4; }
+    .cal-rest { font-size: 13px; color: #4b5563; font-style: italic; }
+
+    /* today pill label */
+    .cal-today-pill {
+        font-size: 9px; font-weight: 800;
+        text-transform: uppercase; letter-spacing: .06em;
+        padding: 2px 6px; border-radius: 99px;
+        background: rgba(255,255,255,0.12); color: #e5e7eb;
+        margin-top: 2px;
+    }
+
+    /* today pill color per day when routine assigned */
+    .cal-row[data-day="0"].has-routine .cal-today-pill { background: rgba(147,197,253,0.25); color: #bfdbfe; }
+    .cal-row[data-day="1"].has-routine .cal-today-pill { background: rgba(196,181,253,0.25); color: #ddd6fe; }
+    .cal-row[data-day="2"].has-routine .cal-today-pill { background: rgba(167,243,208,0.25); color: #a7f3d0; }
+    .cal-row[data-day="3"].has-routine .cal-today-pill { background: rgba(253,186,116,0.25); color: #fed7aa; }
+    .cal-row[data-day="4"].has-routine .cal-today-pill { background: rgba(249,168,212,0.25); color: #fbcfe8; }
+    .cal-row[data-day="5"].has-routine .cal-today-pill { background: rgba(253,224,71,0.22);  color: #fef08a; }
+    .cal-row[data-day="6"].has-routine .cal-today-pill { background: rgba(94,234,212,0.25);  color: #99f6e4; }
+
+    /* status badges */
+    .cal-status { flex-shrink: 0; }
+    .status-done {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(34,197,94,0.2);
+        border: 2px solid #22c55e;
+        color: #22ff9a; font-size: 13px; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .status-missed {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(239,68,68,0.12);
+        border: 2px solid rgba(239,68,68,0.35);
+        color: #f87171; font-size: 13px; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .status-today {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(250,204,21,0.15);
+        border: 2px solid rgba(250,204,21,0.45);
+        color: #fbbf24; font-size: 10px;
+        display: flex; align-items: center; justify-content: center;
+        animation: pulse-today 2s ease-in-out infinite;
+    }
+    @keyframes pulse-today {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(250,204,21,0.3); }
+        50%       { box-shadow: 0 0 0 5px rgba(250,204,21,0); }
+    }
+    .status-upcoming {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+        border: 2px solid rgba(255,255,255,0.1);
+        color: #6b7280; font-size: 10px;
+        display: flex; align-items: center; justify-content: center;
+    }
+
 </style>
 
 <div class="max-w-md mx-auto pb-28 text-white">
@@ -292,30 +471,47 @@
 </div>
 
 
-    <!-- RUTINAS ASIGNADAS -->
-<h3 class="section-title mt-10">
-    Rutinas asignadas
-</h3>
+    <!-- SEMANA ACTUAL -->
+<h3 class="section-title mt-10">Semana actual</h3>
+<p class="section-subtitle">{{ week_start|date:"d M" }} – {{ week_end|date:"d M Y" }}</p>
 
+<div class="week-calendar">
+{% for dia in semana %}
+<div class="cal-row {% if dia.es_hoy %}is-today{% endif %} {% if dia.pasado %}is-past{% endif %} {% if dia.calendario %}has-routine{% endif %}"
+     data-day="{{ forloop.counter0 }}">
 
-{% for r in rutinas_asignadas %}
-<div class="card flex items-center gap-4 mb-3">
-
-    <div class="w-12 h-12 rounded-xl bg-gray-900 flex items-center justify-center text-green-400 text-xl">
-        🏋️
+    <div class="cal-badge">
+        <div class="cal-abbr">{{ dia.dia_abbr }}</div>
+        <div class="cal-date">{{ dia.fecha|date:"d" }}</div>
+        {% if dia.es_hoy %}<div class="cal-today-pill">Hoy</div>{% endif %}
     </div>
 
-    <div class="flex-1">
-        <p class="font-semibold">
-            {{ r.rutina.nombre }}
-        </p>
-        <p class="text-gray-400 text-xs">
-            Asignada el {{ r.fecha_asignacion|date:"d M Y" }}
-        </p>
+    <div class="cal-content">
+        {% if dia.calendario %}
+            <div class="cal-routine-name">{{ dia.calendario.rutina.emoji }} {{ dia.calendario.rutina.nombre }}</div>
+            <div class="cal-routine-sport">{{ dia.calendario.rutina.deporte }}</div>
+        {% else %}
+            <div class="cal-rest">Descanso</div>
+        {% endif %}
+    </div>
+
+    <div class="cal-status">
+        {% if dia.calendario %}
+            {% if dia.completada %}
+                <div class="status-done">✓</div>
+            {% elif dia.pasado %}
+                <div class="status-missed">✗</div>
+            {% elif dia.es_hoy %}
+                <div class="status-today">●</div>
+            {% else %}
+                <div class="status-upcoming">○</div>
+            {% endif %}
+        {% endif %}
     </div>
 
 </div>
 {% endfor %}
+</div>
 
 
 <!-- RUTINAS COMPLETADAS -->
