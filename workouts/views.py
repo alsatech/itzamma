@@ -238,6 +238,183 @@ def ejercicios_json(request):
     return JsonResponse(data, safe=False)
 
 
+# ── PLANIFICAR SEMANA (flujo unificado: construir + asignar) ──────────────────
+
+_DIA_NOMBRES = {
+    'lunes': 'Lunes', 'martes': 'Martes', 'miercoles': 'Miércoles',
+    'jueves': 'Jueves', 'viernes': 'Viernes', 'sabado': 'Sábado', 'domingo': 'Domingo',
+}
+
+_DAY_ORDER = {'lunes': 0, 'martes': 1, 'miercoles': 2, 'jueves': 3,
+              'viernes': 4, 'sabado': 5, 'domingo': 6}
+
+
+@login_required
+@user_passes_test(is_instructor)
+def planificar_semana(request):
+    """Flujo unificado: construye los días con ejercicios Y asigna a clientes."""
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "JSON inválido"}, status=400)
+
+        cliente_ids = payload.get("cliente_ids", [])
+        dias_data   = payload.get("dias", {})   # {dia_key: [secciones]}
+
+        if not cliente_ids:
+            return JsonResponse({"error": "Selecciona al menos un cliente"}, status=400)
+
+        clientes_sel = CustomUser.objects.filter(
+            id__in=cliente_ids,
+            mi_instructor__instructor=request.user,
+        )
+
+        today      = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        dias_creados = 0
+
+        for dia_key, secciones_data in dias_data.items():
+            if dia_key not in _DIA_NOMBRES or not secciones_data:
+                continue
+
+            # Secciones sin ejercicios → ignorar ese día
+            total_ej = sum(len(s.get("ejercicios", [])) for s in secciones_data)
+            if total_ej == 0:
+                continue
+
+            rutina = Rutina.objects.create(
+                instructor=request.user,
+                nombre=f"Rutina {_DIA_NOMBRES[dia_key]}",
+                deporte="gym",
+            )
+            dia_obj = RutinaDia.objects.create(
+                rutina=rutina, dia=dia_key, orden=0
+            )
+
+            for sec_ord, sec_info in enumerate(secciones_data):
+                sec_obj = RutinaSeccion.objects.create(
+                    dia=dia_obj, tipo=sec_info["tipo"], orden=sec_ord
+                )
+                for ej_ord, ej_info in enumerate(sec_info.get("ejercicios", [])):
+                    ejercicio = get_object_or_404(
+                        Ejercicio, id=ej_info["ejercicio_id"], instructor=request.user
+                    )
+                    RutinaEjercicio.objects.create(
+                        seccion=sec_obj,
+                        ejercicio=ejercicio,
+                        series=ej_info.get("series", 3),
+                        repeticiones=str(ej_info.get("repeticiones", "12")),
+                        descanso=60,
+                        orden=ej_ord,
+                    )
+
+            fecha = week_start + timedelta(days=_DAY_ORDER[dia_key])
+            for cliente in clientes_sel:
+                RutinaAsignacion.objects.get_or_create(rutina=rutina, cliente=cliente)
+                entrada, _ = RutinaCalendario.objects.get_or_create(
+                    instructor=request.user, rutina=rutina, fecha=fecha
+                )
+                entrada.clientes.add(cliente)
+
+            dias_creados += 1
+
+        if dias_creados == 0:
+            return JsonResponse({"error": "Agrega ejercicios a al menos un día"}, status=400)
+
+        n = clientes_sel.count()
+        return JsonResponse({
+            "ok": True,
+            "message": f"Semana creada y asignada a {n} cliente{'s' if n != 1 else ''} · {dias_creados} días",
+        })
+
+    # GET
+    ejercicios = Ejercicio.objects.filter(instructor=request.user)
+    clientes   = CustomUser.objects.filter(mi_instructor__instructor=request.user)
+
+    day_rows = [
+        ("lunes",     "Lunes",     "Lun"),
+        ("martes",    "Martes",    "Mar"),
+        ("miercoles", "Miércoles", "Mié"),
+        ("jueves",    "Jueves",    "Jue"),
+        ("viernes",   "Viernes",   "Vie"),
+        ("sabado",    "Sábado",    "Sáb"),
+        ("domingo",   "Domingo",   "Dom"),
+    ]
+
+    return render(request, "dashboards/instructor/planificar_semana.html", {
+        "ejercicios_json": json.dumps([
+            {"id": e.id, "nombre": e.nombre,
+             "categoria": e.categoria, "categoria_display": e.get_categoria_display()}
+            for e in ejercicios
+        ]),
+        "clientes":  clientes,
+        "day_rows":  day_rows,
+    })
+
+@login_required
+@user_passes_test(is_instructor)
+def crear_semana(request):
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "JSON inválido"}, status=400)
+
+        dia = payload.get("dia", "").strip()
+        secciones_data = payload.get("secciones", [])
+
+        if dia not in _DIA_NOMBRES:
+            return JsonResponse({"error": "Día inválido"}, status=400)
+
+        nombre = f"Rutina {_DIA_NOMBRES[dia]}"
+
+        rutina = Rutina.objects.create(
+            instructor=request.user,
+            nombre=nombre,
+            deporte="gym",
+        )
+
+        dia_obj = RutinaDia.objects.create(rutina=rutina, dia=dia, orden=0)
+
+        for sec_ord, sec_info in enumerate(secciones_data):
+            sec_obj = RutinaSeccion.objects.create(
+                dia=dia_obj,
+                tipo=sec_info["tipo"],
+                orden=sec_ord,
+            )
+            for ej_ord, ej_info in enumerate(sec_info.get("ejercicios", [])):
+                ejercicio = get_object_or_404(
+                    Ejercicio, id=ej_info["ejercicio_id"], instructor=request.user
+                )
+                RutinaEjercicio.objects.create(
+                    seccion=sec_obj,
+                    ejercicio=ejercicio,
+                    series=ej_info.get("series", 3),
+                    repeticiones=str(ej_info.get("repeticiones", "12")),
+                    descanso=ej_info.get("descanso", 60),
+                    orden=ej_ord,
+                )
+
+        return JsonResponse({"ok": True, "rutina_id": rutina.id, "nombre": nombre})
+
+    # GET
+    ejercicios = Ejercicio.objects.filter(instructor=request.user)
+    ejercicios_data = json.dumps([
+        {
+            "id": e.id,
+            "nombre": e.nombre,
+            "categoria": e.categoria,
+            "categoria_display": e.get_categoria_display(),
+        }
+        for e in ejercicios
+    ])
+
+    return render(request, "dashboards/instructor/crear_semana.html", {
+        "ejercicios_json": ejercicios_data,
+    })
+
+
 # ── RUTINAS ──────────────────────────────────────────────────────────────────
 
 @login_required
@@ -428,14 +605,10 @@ def rutina_calendario_api(request):
 
 @login_required
 @user_passes_test(is_instructor)
-def asignar_rutina_cuestionario(request, cliente_id):
-    cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
-
-    if not InstructorClient.objects.filter(instructor=request.user, cliente=cliente).exists():
-        messages.error(request, "No tienes acceso a este cliente.")
-        return redirect("instructor_dashboard")
-
-    rutinas = Rutina.objects.filter(instructor=request.user)
+def asignar_semana_multi(request):
+    """Asignar la misma semana de rutinas a varios clientes a la vez."""
+    rutinas  = Rutina.objects.filter(instructor=request.user)
+    clientes = CustomUser.objects.filter(mi_instructor__instructor=request.user)
 
     if request.method == "POST":
         day_map = {
@@ -443,45 +616,55 @@ def asignar_rutina_cuestionario(request, cliente_id):
             'jueves': 3, 'viernes': 4, 'sabado': 5, 'domingo': 6,
         }
 
-        dias_asignados = []
-        today = date.today()
+        cliente_ids = request.POST.getlist("clientes")
+        if not cliente_ids:
+            messages.error(request, "Selecciona al menos un cliente.")
+            return redirect("asignar_semana_multi")
+
+        clientes_sel = CustomUser.objects.filter(
+            id__in=cliente_ids,
+            mi_instructor__instructor=request.user,
+        )
+
+        today      = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        dias_count = 0
 
         for dia_nombre, weekday_num in day_map.items():
             rutina_id = request.POST.get(f"rutina_{dia_nombre}")
             if not rutina_id:
                 continue
             rutina = get_object_or_404(Rutina, id=rutina_id, instructor=request.user)
-            RutinaAsignacion.objects.get_or_create(rutina=rutina, cliente=cliente)
+            fecha  = week_start + timedelta(days=weekday_num)
 
-            days_ahead = weekday_num - today.weekday()
-            if days_ahead < 0:
-                days_ahead += 7
-            fecha = today + timedelta(days=days_ahead)
-            entrada, _ = RutinaCalendario.objects.get_or_create(
-                instructor=request.user,
-                rutina=rutina,
-                fecha=fecha,
-            )
-            entrada.clientes.add(cliente)
-            dias_asignados.append(dia_nombre)
+            for cliente in clientes_sel:
+                RutinaAsignacion.objects.get_or_create(rutina=rutina, cliente=cliente)
+                entrada, _ = RutinaCalendario.objects.get_or_create(
+                    instructor=request.user,
+                    rutina=rutina,
+                    fecha=fecha,
+                )
+                entrada.clientes.add(cliente)
+            dias_count += 1
 
-        if not dias_asignados:
-            messages.error(request, "Debes asignar rutina a al menos un día.")
-            return redirect("asignar_rutina_cuestionario", cliente_id=cliente.id)
+        if dias_count == 0:
+            messages.error(request, "Asigna rutina a al menos un día.")
+            return redirect("asignar_semana_multi")
 
-        messages.success(request, f"Semana programada para {cliente.username} ({len(dias_asignados)} días).")
-        return redirect("instructor_cliente_detalle", cliente_id=cliente.id)
+        n = clientes_sel.count()
+        messages.success(request, f"Semana asignada a {n} cliente{'s' if n != 1 else ''} ({dias_count} días).")
+        return redirect("instructor_dashboard")
 
     rutinas_data = json.dumps([
         {"id": r.id, "nombre": r.nombre, "deporte": r.deporte, "emoji": r.emoji}
         for r in rutinas
     ])
 
-    return render(request, "dashboards/instructor/asignar_cuestionario.html", {
-        "cliente": cliente,
-        "rutinas": rutinas,
+    return render(request, "dashboards/instructor/asignar_semana_multi.html", {
+        "clientes":    clientes,
         "rutinas_json": rutinas_data,
     })
+
 
 
 @login_required

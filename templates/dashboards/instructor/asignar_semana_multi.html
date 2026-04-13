@@ -1,73 +1,101 @@
 {% extends "base_app.html" %}
-{% block title %}Planificar semana{% endblock %}
-{% block header_title %}Planificar semana{% endblock %}
+{% block title %}Asignar semana{% endblock %}
+{% block header_title %}Asignar semana{% endblock %}
 
 {% block content %}
 <style>
   :root {
     --mint:   #A8D5C2;
     --peach:  #F0C4A8;
-    --lime:   #C8E8A0;
     --bg:     #111318;
     --card:   #1C1F2A;
     --border: rgba(255,255,255,0.07);
   }
 
-  .planner-wrap {
+  .wrap {
     max-width: 480px;
     margin: 0 auto;
-    padding: 16px 16px 120px;
-    min-height: 100vh;
+    padding: 16px 16px 130px;
   }
 
-  /* Client pill */
-  .client-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(168,213,194,0.12);
-    border: 1px solid rgba(168,213,194,0.25);
-    border-radius: 99px;
-    padding: 6px 14px 6px 8px;
+  .plan-title    { font-size: 24px; font-weight: 900; color: #fff; line-height: 1.2; margin-bottom: 4px; }
+  .plan-subtitle { font-size: 13px; color: #9CA3AF; margin-bottom: 20px; }
+
+  /* ── CLIENT CHIPS ── */
+  .section-label {
+    font-size: 11px; font-weight: 700; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: .07em;
+    margin-bottom: 10px;
+  }
+
+  .clients-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
     margin-bottom: 20px;
   }
-  .client-pill-avatar {
-    width: 28px; height: 28px;
-    border-radius: 50%;
+
+  .client-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 99px; padding: 7px 14px 7px 8px;
+    cursor: pointer; transition: all .2s; user-select: none;
+  }
+  .client-chip:active { transform: scale(.97); }
+  .client-chip.selected {
+    background: rgba(168,213,194,0.12);
+    border-color: var(--mint);
+  }
+  .client-avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
     background: linear-gradient(135deg, #22c55e, #0f4d2a);
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 800; color: #eafff6;
   }
-  .client-pill span {
-    font-size: 13px; font-weight: 600; color: var(--mint);
+  .client-chip-name {
+    font-size: 13px; font-weight: 600; color: #d1d5db; white-space: nowrap;
+  }
+  .client-chip.selected .client-chip-name { color: var(--mint); }
+  .client-check {
+    width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; transition: all .2s;
+  }
+  .client-chip.selected .client-check {
+    background: var(--mint); border-color: var(--mint); color: #0a1f18; font-weight: 900;
   }
 
-  /* Header */
-  .plan-title {
-    font-size: 24px; font-weight: 900; color: #fff;
-    line-height: 1.2; margin-bottom: 4px;
-  }
-  .plan-subtitle {
-    font-size: 13px; color: #9CA3AF; margin-bottom: 24px;
+  /* Selected count pill */
+  .sel-count {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(168,213,194,0.1);
+    border: 1px solid rgba(168,213,194,0.2);
+    border-radius: 99px; padding: 5px 12px;
+    font-size: 12px; font-weight: 700; color: var(--mint);
+    margin-bottom: 20px;
+    transition: opacity .2s;
   }
 
-  /* Day rows */
+  /* ── WEEK SUMMARY ── */
+  .week-summary {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(168,213,194,0.07);
+    border: 1px solid rgba(168,213,194,0.15);
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 16px;
+  }
+  .week-summary-label { font-size: 13px; color: #9CA3AF; }
+  .week-summary-count { font-size: 22px; font-weight: 900; color: var(--mint); }
+  .week-summary-count span { font-size: 13px; font-weight: 500; color: #9CA3AF; }
+
+  /* ── DAY ROWS ── */
   .days-list { display: flex; flex-direction: column; gap: 10px; }
-
   .day-row {
-    border: 2px solid transparent;
-    border-radius: 18px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: all .2s ease;
-    user-select: none;
+    border: 2px solid transparent; border-radius: 18px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer; transition: all .2s; user-select: none;
   }
   .day-row:active { transform: scale(.98); }
 
-  /* ── Pastel day colors (very subtle) ── */
   .day-row[data-day="lunes"]     { background: rgba(147,197,253,0.07);  border-color: rgba(147,197,253,0.15); }
   .day-row[data-day="martes"]    { background: rgba(196,181,253,0.07);  border-color: rgba(196,181,253,0.15); }
   .day-row[data-day="miercoles"] { background: rgba(167,243,208,0.07);  border-color: rgba(167,243,208,0.15); }
@@ -76,7 +104,6 @@
   .day-row[data-day="sabado"]    { background: rgba(253,224,71,0.06);   border-color: rgba(253,224,71,0.13);  }
   .day-row[data-day="domingo"]   { background: rgba(94,234,212,0.07);   border-color: rgba(94,234,212,0.15);  }
 
-  /* Badge colors per day */
   .day-row[data-day="lunes"]     .day-badge { background: rgba(147,197,253,0.18); }
   .day-row[data-day="martes"]    .day-badge { background: rgba(196,181,253,0.18); }
   .day-row[data-day="miercoles"] .day-badge { background: rgba(167,243,208,0.18); }
@@ -85,7 +112,6 @@
   .day-row[data-day="sabado"]    .day-badge { background: rgba(253,224,71,0.15);  }
   .day-row[data-day="domingo"]   .day-badge { background: rgba(94,234,212,0.16);  }
 
-  /* Abbr label colors per day */
   .day-row[data-day="lunes"]     .day-badge-abbr { color: #93c5fd; }
   .day-row[data-day="martes"]    .day-badge-abbr { color: #c4b5fd; }
   .day-row[data-day="miercoles"] .day-badge-abbr { color: #6ee7b7; }
@@ -94,7 +120,6 @@
   .day-row[data-day="sabado"]    .day-badge-abbr { color: #fde047; }
   .day-row[data-day="domingo"]   .day-badge-abbr { color: #5eead4; }
 
-  /* has-routine: stronger border + slightly more background */
   .day-row[data-day="lunes"].has-routine     { background: rgba(147,197,253,0.13); border-color: rgba(147,197,253,0.45); }
   .day-row[data-day="martes"].has-routine    { background: rgba(196,181,253,0.13); border-color: rgba(196,181,253,0.45); }
   .day-row[data-day="miercoles"].has-routine { background: rgba(167,243,208,0.13); border-color: rgba(167,243,208,0.45); }
@@ -103,7 +128,6 @@
   .day-row[data-day="sabado"].has-routine    { background: rgba(253,224,71,0.11);  border-color: rgba(253,224,71,0.40);  }
   .day-row[data-day="domingo"].has-routine   { background: rgba(94,234,212,0.13);  border-color: rgba(94,234,212,0.45);  }
 
-  /* routine label color per day when assigned */
   .day-row[data-day="lunes"].has-routine     .day-routine-label { color: #93c5fd; }
   .day-row[data-day="martes"].has-routine    .day-routine-label { color: #c4b5fd; }
   .day-row[data-day="miercoles"].has-routine .day-routine-label { color: #6ee7b7; }
@@ -112,7 +136,6 @@
   .day-row[data-day="sabado"].has-routine    .day-routine-label { color: #fde047; }
   .day-row[data-day="domingo"].has-routine   .day-routine-label { color: #5eead4; }
 
-  /* action chevron color per day when assigned */
   .day-row[data-day="lunes"].has-routine     .day-action { color: #93c5fd; }
   .day-row[data-day="martes"].has-routine    .day-action { color: #c4b5fd; }
   .day-row[data-day="miercoles"].has-routine .day-action { color: #6ee7b7; }
@@ -121,182 +144,91 @@
   .day-row[data-day="sabado"].has-routine    .day-action { color: #fde047; }
   .day-row[data-day="domingo"].has-routine   .day-action { color: #5eead4; }
 
-  /* badge abbr color per day when assigned (brighter tone) */
-  .day-row[data-day="lunes"].has-routine     .day-badge-abbr { color: #bfdbfe; }
-  .day-row[data-day="martes"].has-routine    .day-badge-abbr { color: #ddd6fe; }
-  .day-row[data-day="miercoles"].has-routine .day-badge-abbr { color: #a7f3d0; }
-  .day-row[data-day="jueves"].has-routine    .day-badge-abbr { color: #fed7aa; }
-  .day-row[data-day="viernes"].has-routine   .day-badge-abbr { color: #fbcfe8; }
-  .day-row[data-day="sabado"].has-routine    .day-badge-abbr { color: #fef08a; }
-  .day-row[data-day="domingo"].has-routine   .day-badge-abbr { color: #99f6e4; }
-
   .day-badge {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    flex-shrink: 0;
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
-  .day-badge-abbr {
-    font-size: 11px; font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-  }
-
+  .day-badge-abbr { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
   .day-info { flex: 1; min-width: 0; }
-  .day-name {
-    font-size: 15px; font-weight: 700; color: #f1f5f9; margin-bottom: 2px;
-  }
-  .day-routine-label {
-    font-size: 12px; color: #9CA3AF;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
+  .day-name { font-size: 15px; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; }
+  .day-routine-label { font-size: 12px; color: #9CA3AF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .day-action { font-size: 20px; color: rgba(255,255,255,0.2); flex-shrink: 0; transition: color .2s; }
 
-  .day-action {
-    font-size: 20px; color: rgba(255,255,255,0.2); flex-shrink: 0;
-    transition: color .2s;
-  }
-
-  /* Progress summary */
-  .week-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(168,213,194,0.07);
-    border: 1px solid rgba(168,213,194,0.15);
-    border-radius: 14px;
-    padding: 12px 16px;
-    margin-bottom: 20px;
-  }
-  .week-summary-label { font-size: 13px; color: #9CA3AF; }
-  .week-summary-count {
-    font-size: 22px; font-weight: 900;
-    color: var(--mint);
-  }
-  .week-summary-count span { font-size: 13px; font-weight: 500; color: #9CA3AF; }
-
-  /* Bottom confirm button */
+  /* ── BOTTOM CONFIRM ── */
   .btn-confirm-wrap {
-    position: fixed;
-    bottom: 72px; left: 50%;
+    position: fixed; bottom: 72px; left: 50%;
     transform: translateX(-50%);
-    width: 100%; max-width: 480px;
-    padding: 0 16px;
-    z-index: 50;
+    width: 100%; max-width: 480px; padding: 0 16px; z-index: 50;
   }
   .btn-confirm {
-    width: 100%; height: 56px;
-    border-radius: 18px;
+    width: 100%; height: 56px; border-radius: 18px;
     background: linear-gradient(135deg, #16ff8f, #00c96d);
-    color: #031b12;
-    font-size: 16px; font-weight: 800;
-    letter-spacing: .02em;
-    border: none; cursor: pointer;
-    transition: .2s;
+    color: #031b12; font-size: 16px; font-weight: 800;
+    border: none; cursor: pointer; transition: .2s;
     box-shadow: 0 0 30px rgba(0,255,140,0.35);
   }
-  .btn-confirm:active { transform: scale(.97); }
+  .btn-confirm:active  { transform: scale(.97); }
   .btn-confirm:disabled {
-    background: rgba(255,255,255,0.07);
-    color: #4b5563; box-shadow: none; cursor: not-allowed;
+    background: rgba(255,255,255,0.07); color: #4b5563;
+    box-shadow: none; cursor: not-allowed;
   }
 
   /* ── PICKER BOTTOM SHEET ── */
   .picker-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.65);
-    z-index: 100;
-    display: none;
-    align-items: flex-end;
-    justify-content: center;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 100;
+    display: none; align-items: flex-end; justify-content: center;
   }
   .picker-overlay.open { display: flex; }
-
   .picker-sheet {
-    width: 100%;
-    max-height: 82vh;
-    background: #181c27;
-    border-radius: 24px 24px 0 0;
-    padding: 12px 16px 32px;
+    width: 100%; max-height: 82vh; background: #181c27;
+    border-radius: 24px 24px 0 0; padding: 12px 16px 32px;
     display: flex; flex-direction: column;
-    animation: slideUp .3s cubic-bezier(.4,0,.2,1);
-    overflow: hidden;
+    animation: slideUp .3s cubic-bezier(.4,0,.2,1); overflow: hidden;
   }
   @keyframes slideUp {
     from { transform: translateY(100%); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
   }
-
-  /* Tablet/desktop: centered floating modal */
   @media (min-width: 640px) {
-    .picker-overlay {
-      align-items: center;
-      padding: 24px;
-    }
+    .picker-overlay { align-items: center; padding: 24px; }
     .picker-sheet {
-      width: 100%;
-      max-width: 520px;
-      max-height: 85vh;
-      border-radius: 24px;
+      width: 100%; max-width: 520px; max-height: 85vh; border-radius: 24px;
       animation: fadeScale .25s cubic-bezier(.4,0,.2,1);
     }
     @keyframes fadeScale {
       from { opacity: 0; transform: scale(.95); }
-      to   { opacity: 1; transform: scale(1);   }
+      to   { opacity: 1; transform: scale(1); }
     }
   }
-
   .picker-handle {
-    width: 36px; height: 4px;
-    border-radius: 99px;
-    background: rgba(255,255,255,0.15);
-    margin: 0 auto 16px;
+    width: 36px; height: 4px; border-radius: 99px;
+    background: rgba(255,255,255,0.15); margin: 0 auto 16px;
   }
-  @media (min-width: 640px) {
-    .picker-handle { display: none; }
-  }
+  @media (min-width: 640px) { .picker-handle { display: none; } }
 
   .picker-header {
-    display: flex; align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
   }
-  .picker-title {
-    font-size: 17px; font-weight: 800; color: #f1f5f9;
-  }
+  .picker-title { font-size: 17px; font-weight: 800; color: #f1f5f9; }
   .picker-day-tag {
-    font-size: 12px; font-weight: 700;
-    color: var(--mint);
-    background: rgba(168,213,194,0.12);
-    border: 1px solid rgba(168,213,194,0.2);
-    border-radius: 99px;
-    padding: 4px 10px;
+    font-size: 12px; font-weight: 700; color: var(--mint);
+    background: rgba(168,213,194,0.12); border: 1px solid rgba(168,213,194,0.2);
+    border-radius: 99px; padding: 4px 10px;
   }
-  /* Close button visible on desktop */
   .picker-close {
-    display: none;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: none; color: #9CA3AF;
+    display: none; width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: none; color: #9CA3AF;
     font-size: 18px; cursor: pointer;
-    align-items: center; justify-content: center;
-    transition: background .2s;
-    flex-shrink: 0;
+    align-items: center; justify-content: center; transition: background .2s;
   }
   .picker-close:hover { background: rgba(255,255,255,0.14); }
-  @media (min-width: 640px) {
-    .picker-close { display: flex; }
-  }
+  @media (min-width: 640px) { .picker-close { display: flex; } }
 
-  /* Search */
   .search-box { position: relative; margin-bottom: 12px; flex-shrink: 0; }
   .search-input {
     width: 100%; box-sizing: border-box;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 14px 12px 42px;
+    background: rgba(255,255,255,0.05); border: 2px solid var(--border);
+    border-radius: 14px; padding: 12px 14px 12px 42px;
     color: #f1f5f9; font-size: 14px; font-weight: 500;
     outline: none; transition: border-color .2s;
   }
@@ -304,37 +236,27 @@
   .search-input:focus { border-color: var(--mint); }
   .search-icon {
     position: absolute; left: 13px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px; pointer-events: none; opacity: .4;
+    transform: translateY(-50%); font-size: 16px; pointer-events: none; opacity: .4;
   }
-
-  /* Routine list inside picker */
   .picker-list { overflow-y: auto; flex: 1; padding-bottom: 4px; }
   .picker-list::-webkit-scrollbar { width: 4px; }
-  .picker-list::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1); border-radius: 99px;
-  }
+  .picker-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
 
   .routine-card {
     display: flex; align-items: center; gap: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 2px solid transparent;
-    border-radius: 14px; padding: 12px 14px;
-    margin-bottom: 8px; cursor: pointer;
-    transition: all .2s; user-select: none;
+    background: rgba(255,255,255,0.04); border: 2px solid transparent;
+    border-radius: 14px; padding: 12px 14px; margin-bottom: 8px;
+    cursor: pointer; transition: all .2s; user-select: none;
   }
   .routine-card:active { transform: scale(.98); }
-  .routine-card.selected {
-    border-color: var(--mint);
-    background: rgba(168,213,194,0.10);
-  }
+  .routine-card.selected { border-color: var(--mint); background: rgba(168,213,194,0.10); }
   .routine-emoji-box {
     width: 42px; height: 42px; border-radius: 12px;
     background: rgba(255,255,255,0.06);
     display: flex; align-items: center; justify-content: center;
     font-size: 22px; flex-shrink: 0;
   }
-  .routine-name { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+  .routine-name  { font-size: 14px; font-weight: 700; color: #f1f5f9; }
   .routine-sport { font-size: 11px; color: #9CA3AF; margin-top: 2px; text-transform: uppercase; letter-spacing: .04em; }
   .routine-check {
     margin-left: auto; width: 20px; height: 20px; border-radius: 50%;
@@ -345,16 +267,11 @@
   .routine-card.selected .routine-check {
     background: var(--mint); border-color: var(--mint); color: #0a1f18; font-weight: 900;
   }
-  .no-routines {
-    text-align: center; color: #9CA3AF;
-    padding: 24px 0; font-size: 13px;
-  }
+  .no-routines { text-align: center; color: #9CA3AF; padding: 24px 0; font-size: 13px; }
 
-  /* Rest day button */
   .btn-rest {
     width: 100%; height: 44px; margin-top: 10px; flex-shrink: 0;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.05);
+    border-radius: 12px; background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
     color: #9CA3AF; font-size: 14px; font-weight: 600;
     cursor: pointer; transition: .2s;
@@ -362,26 +279,40 @@
   .btn-rest:active { transform: scale(.97); }
 </style>
 
-<div class="planner-wrap">
+<div class="wrap">
 
-  <!-- Client pill -->
-  <div class="client-pill">
-    <div class="client-pill-avatar">
-      {{ cliente.username|slice:":1"|upper }}
+  <h2 class="plan-title">Asignar semana</h2>
+  <p class="plan-subtitle">Elige clientes y programa cada día</p>
+
+  <!-- ── CLIENTES ── -->
+  <div class="section-label">Clientes</div>
+
+  {% if clientes %}
+  <div class="clients-grid" id="clientsGrid">
+    {% for c in clientes %}
+    <div class="client-chip" id="chip-{{ c.id }}" onclick="toggleCliente({{ c.id }})">
+      <div class="client-avatar">{{ c.username|slice:":1"|upper }}</div>
+      <span class="client-chip-name">{{ c.get_full_name|default:c.username }}</span>
+      <div class="client-check" id="chk-{{ c.id }}"></div>
     </div>
-    <span>{{ cliente.get_full_name|default:cliente.username }}</span>
+    {% endfor %}
   </div>
 
-  <h2 class="plan-title">Semana de entrenamiento</h2>
-  <p class="plan-subtitle">Asigna una rutina a cada día que entrene</p>
+  <div class="sel-count" id="selCount" style="opacity:.4">
+    <span id="selCountText">0 clientes seleccionados</span>
+  </div>
+  {% else %}
+  <p style="color:#9CA3AF;font-size:13px;margin-bottom:20px">No tienes clientes aún.</p>
+  {% endif %}
 
-  <!-- Progress summary -->
+  <!-- ── DÍAS ── -->
+  <div class="section-label">Semana</div>
+
   <div class="week-summary">
     <div class="week-summary-label">Días programados</div>
     <div class="week-summary-count" id="summaryCount">0 <span>/ 7</span></div>
   </div>
 
-  <!-- Day rows -->
   <div class="days-list">
     <div class="day-row" id="row-lunes" data-day="lunes" onclick="openPicker('lunes')">
       <div class="day-badge"><div class="day-badge-abbr">Lun</div></div>
@@ -449,14 +380,14 @@
 
 </div>
 
-<!-- Confirm button -->
+<!-- ── CONFIRM BUTTON ── -->
 <div class="btn-confirm-wrap">
   <button class="btn-confirm" id="btnConfirm" onclick="submitPlan()" disabled>
-    Confirmar semana →
+    Confirmar asignación →
   </button>
 </div>
 
-<!-- Routine picker bottom sheet -->
+<!-- ── PICKER BOTTOM SHEET ── -->
 <div class="picker-overlay" id="pickerOverlay" onclick="closePicker()">
   <div class="picker-sheet" onclick="event.stopPropagation()">
     <div class="picker-handle"></div>
@@ -469,14 +400,9 @@
     </div>
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input
-        id="pickerSearch"
-        class="search-input"
-        type="text"
-        placeholder="Buscar por nombre..."
-        oninput="buildPickerList()"
-        autocomplete="off"
-      >
+      <input id="pickerSearch" class="search-input" type="text"
+             placeholder="Buscar por nombre..." oninput="buildPickerList()"
+             autocomplete="off">
     </div>
     <div class="picker-list" id="pickerList"></div>
     <button class="btn-rest" onclick="clearDay()">💤 Marcar como descanso</button>
@@ -484,7 +410,7 @@
 </div>
 
 <!-- Hidden form -->
-<form id="planForm" method="POST" action="{% url 'asignar_rutina_cuestionario' cliente.id %}" style="display:none">
+<form id="planForm" method="POST" action="{% url 'asignar_semana_multi' %}" style="display:none">
   {% csrf_token %}
   <div id="formInputs"></div>
 </form>
@@ -496,23 +422,46 @@ const DAY_LABELS = {
   lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
   jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo'
 };
-
 const SPORT_LABELS = {
-  gym: 'Gym', futbol: 'Fútbol', tenis: 'Tenis',
-  basketball: 'Basketball', natacion: 'Natación', ciclismo: 'Ciclismo',
-  boxeo: 'Boxeo', yoga: 'Yoga', running: 'Running',
-  voleibol: 'Voleibol', atletismo: 'Atletismo', otro: 'Otro'
+  gym: 'Gym', futbol: 'Fútbol', tenis: 'Tenis', basketball: 'Basketball',
+  natacion: 'Natación', ciclismo: 'Ciclismo', boxeo: 'Boxeo', yoga: 'Yoga',
+  running: 'Running', voleibol: 'Voleibol', atletismo: 'Atletismo', otro: 'Otro'
 };
 
-// State: maps day key → routine object or null
 let weekPlan = {
   lunes: null, martes: null, miercoles: null,
   jueves: null, viernes: null, sabado: null, domingo: null
 };
-
+let selectedClientes = new Set();
 let activeDay = null;
 
-// ── Picker open/close ────────────────────────────────────────────
+// ── Toggle client selection ──────────────────────────────────────
+function toggleCliente(id) {
+  const chip = document.getElementById('chip-' + id);
+  const chk  = document.getElementById('chk-' + id);
+  if (selectedClientes.has(id)) {
+    selectedClientes.delete(id);
+    chip.classList.remove('selected');
+    chk.textContent = '';
+  } else {
+    selectedClientes.add(id);
+    chip.classList.add('selected');
+    chk.textContent = '✓';
+  }
+  updateSelCount();
+  updateConfirmBtn();
+}
+
+function updateSelCount() {
+  const n    = selectedClientes.size;
+  const pill = document.getElementById('selCount');
+  document.getElementById('selCountText').textContent =
+    n === 0 ? '0 clientes seleccionados'
+            : n + ' cliente' + (n !== 1 ? 's' : '') + ' seleccionado' + (n !== 1 ? 's' : '');
+  pill.style.opacity = n > 0 ? '1' : '.4';
+}
+
+// ── Picker open/close ─────────────────────────────────────────────
 function openPicker(day) {
   activeDay = day;
   document.getElementById('pickerDayTag').textContent = DAY_LABELS[day];
@@ -526,14 +475,10 @@ function closePicker() {
   activeDay = null;
 }
 
-// ── Build picker routine list ────────────────────────────────────
 function buildPickerList() {
-  const list = document.getElementById('pickerList');
-  list.innerHTML = '';
-
-  const query = document.getElementById('pickerSearch').value.trim().toLowerCase();
+  const list    = document.getElementById('pickerList');
+  const query   = document.getElementById('pickerSearch').value.trim().toLowerCase();
   const current = weekPlan[activeDay];
-
   let pool = RUTINAS;
   if (query) {
     pool = RUTINAS.filter(r =>
@@ -541,30 +486,27 @@ function buildPickerList() {
       (SPORT_LABELS[r.deporte] || '').toLowerCase().includes(query)
     );
   }
-
   if (pool.length === 0) {
-    list.innerHTML = '<div class="no-routines">Sin coincidencias.<br>Prueba con otro término.</div>';
+    list.innerHTML = '<div class="no-routines">Sin coincidencias.</div>';
     return;
   }
-
+  list.innerHTML = '';
   pool.forEach(r => {
-    const isSelected = current && current.id === r.id;
-    const card = document.createElement('div');
-    card.className = 'routine-card' + (isSelected ? ' selected' : '');
+    const isSel = current && current.id === r.id;
+    const card  = document.createElement('div');
+    card.className = 'routine-card' + (isSel ? ' selected' : '');
     card.innerHTML = `
       <div class="routine-emoji-box">${r.emoji}</div>
       <div style="flex:1;min-width:0">
         <div class="routine-name">${r.nombre}</div>
         <div class="routine-sport">${SPORT_LABELS[r.deporte] || r.deporte}</div>
       </div>
-      <div class="routine-check">${isSelected ? '✓' : ''}</div>
-    `;
+      <div class="routine-check">${isSel ? '✓' : ''}</div>`;
     card.onclick = () => selectRoutine(r);
     list.appendChild(card);
   });
 }
 
-// ── Select a routine for the active day ─────────────────────────
 function selectRoutine(r) {
   weekPlan[activeDay] = r;
   updateDayRow(activeDay);
@@ -572,7 +514,6 @@ function selectRoutine(r) {
   closePicker();
 }
 
-// ── Clear routine (rest day) ─────────────────────────────────────
 function clearDay() {
   weekPlan[activeDay] = null;
   updateDayRow(activeDay);
@@ -580,12 +521,10 @@ function clearDay() {
   closePicker();
 }
 
-// ── Update a day row UI ──────────────────────────────────────────
 function updateDayRow(day) {
   const row   = document.getElementById('row-' + day);
   const label = document.getElementById('label-' + day);
   const r = weekPlan[day];
-
   if (r) {
     row.classList.add('has-routine');
     label.textContent = r.emoji + '  ' + r.nombre;
@@ -595,19 +534,39 @@ function updateDayRow(day) {
   }
 }
 
-// ── Update summary counter & confirm button ──────────────────────
 function updateSummary() {
   const count = Object.values(weekPlan).filter(v => v !== null).length;
-  document.getElementById('summaryCount').innerHTML =
-    count + ' <span>/ 7</span>';
-  document.getElementById('btnConfirm').disabled = count === 0;
+  document.getElementById('summaryCount').innerHTML = count + ' <span>/ 7</span>';
+  updateConfirmBtn();
 }
 
-// ── Submit ───────────────────────────────────────────────────────
+function updateConfirmBtn() {
+  const diasOk    = Object.values(weekPlan).some(v => v !== null);
+  const clientOk  = selectedClientes.size > 0;
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = !(diasOk && clientOk);
+  if (diasOk && clientOk) {
+    const n = selectedClientes.size;
+    btn.textContent = `Asignar a ${n} cliente${n !== 1 ? 's' : ''} →`;
+  } else {
+    btn.textContent = 'Confirmar asignación →';
+  }
+}
+
 function submitPlan() {
   const container = document.getElementById('formInputs');
   container.innerHTML = '';
 
+  // Append selected clients
+  selectedClientes.forEach(id => {
+    const inp = document.createElement('input');
+    inp.type  = 'hidden';
+    inp.name  = 'clientes';
+    inp.value = id;
+    container.appendChild(inp);
+  });
+
+  // Append day→routine mapping
   Object.entries(weekPlan).forEach(([day, rutina]) => {
     if (rutina) {
       const inp = document.createElement('input');

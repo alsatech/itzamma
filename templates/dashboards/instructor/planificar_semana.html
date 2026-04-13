@@ -1,0 +1,870 @@
+{% extends "base_app.html" %}
+{% block title %}Planificar semana{% endblock %}
+{% block header_title %}Nueva semana{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --bg:     #111318;
+    --card:   #1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  .wrap { max-width: 480px; margin: 0 auto; padding: 16px 16px 140px; }
+
+  /* ── STEP INDICATOR ── */
+  .flow-steps {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 24px;
+  }
+  .flow-step {
+    display: flex; flex-direction: column; align-items: center; flex: 1;
+  }
+  .flow-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(255,255,255,0.1);
+    color: #6b7280; transition: all .3s;
+  }
+  .flow-dot.done   { background: var(--mint); border-color: var(--mint); color: #031b12; }
+  .flow-dot.active { background: rgba(168,213,194,0.2); border-color: var(--mint); color: var(--mint); }
+  .flow-label { font-size: 10px; color: #6b7280; margin-top: 4px; font-weight: 600; text-align: center; }
+  .flow-dot.done ~ .flow-label,
+  .flow-dot.active ~ .flow-label { color: var(--mint); }
+  .flow-line {
+    height: 2px; flex: 1; background: rgba(255,255,255,0.07);
+    margin-bottom: 16px; transition: background .3s;
+  }
+  .flow-line.done { background: var(--mint); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-size: 11px; font-weight: 700; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px;
+  }
+
+  /* ── CLIENT CHIPS ── */
+  .clients-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .client-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 99px; padding: 7px 14px 7px 8px;
+    cursor: pointer; transition: all .2s; user-select: none;
+  }
+  .client-chip:active { transform: scale(.97); }
+  .client-chip.selected {
+    background: rgba(168,213,194,0.12); border-color: var(--mint);
+  }
+  .client-avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #22c55e, #0f4d2a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #eafff6;
+  }
+  .chip-name { font-size: 13px; font-weight: 600; color: #d1d5db; }
+  .client-chip.selected .chip-name { color: var(--mint); }
+  .chip-check {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; transition: all .2s;
+  }
+  .client-chip.selected .chip-check {
+    background: var(--mint); border-color: var(--mint);
+    color: #0a1f18; font-weight: 900;
+  }
+  .sel-count-pill {
+    display: inline-flex; align-items: center;
+    background: rgba(168,213,194,0.08);
+    border: 1px solid rgba(168,213,194,0.15);
+    border-radius: 99px; padding: 5px 12px;
+    font-size: 12px; font-weight: 600; color: #6b7280;
+    margin-bottom: 24px; transition: all .2s;
+  }
+  .sel-count-pill.has-sel { color: var(--mint); background: rgba(168,213,194,0.12); border-color: rgba(168,213,194,0.25); }
+
+  /* ── DAY ROWS ── */
+  .days-list { display: flex; flex-direction: column; gap: 8px; }
+  .day-row {
+    border: 2px solid transparent; border-radius: 16px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: all .2s; user-select: none;
+  }
+  .day-row:active { transform: scale(.98); }
+
+  .day-row[data-day="lunes"]     { background: rgba(147,197,253,0.06);  border-color: rgba(147,197,253,0.13); }
+  .day-row[data-day="martes"]    { background: rgba(196,181,253,0.06);  border-color: rgba(196,181,253,0.13); }
+  .day-row[data-day="miercoles"] { background: rgba(167,243,208,0.06);  border-color: rgba(167,243,208,0.13); }
+  .day-row[data-day="jueves"]    { background: rgba(253,186,116,0.06);  border-color: rgba(253,186,116,0.13); }
+  .day-row[data-day="viernes"]   { background: rgba(249,168,212,0.06);  border-color: rgba(249,168,212,0.13); }
+  .day-row[data-day="sabado"]    { background: rgba(253,224,71,0.05);   border-color: rgba(253,224,71,0.11);  }
+  .day-row[data-day="domingo"]   { background: rgba(94,234,212,0.06);   border-color: rgba(94,234,212,0.13);  }
+
+  .day-row[data-day="lunes"]     .day-abbr { color: #93c5fd; }
+  .day-row[data-day="martes"]    .day-abbr { color: #c4b5fd; }
+  .day-row[data-day="miercoles"] .day-abbr { color: #6ee7b7; }
+  .day-row[data-day="jueves"]    .day-abbr { color: #fdba74; }
+  .day-row[data-day="viernes"]   .day-abbr { color: #f9a8d4; }
+  .day-row[data-day="sabado"]    .day-abbr { color: #fde047; }
+  .day-row[data-day="domingo"]   .day-abbr { color: #5eead4; }
+
+  .day-row[data-day="lunes"]     .day-badge { background: rgba(147,197,253,0.16); }
+  .day-row[data-day="martes"]    .day-badge { background: rgba(196,181,253,0.16); }
+  .day-row[data-day="miercoles"] .day-badge { background: rgba(167,243,208,0.16); }
+  .day-row[data-day="jueves"]    .day-badge { background: rgba(253,186,116,0.16); }
+  .day-row[data-day="viernes"]   .day-badge { background: rgba(249,168,212,0.16); }
+  .day-row[data-day="sabado"]    .day-badge { background: rgba(253,224,71,0.13);  }
+  .day-row[data-day="domingo"]   .day-badge { background: rgba(94,234,212,0.14);  }
+
+  /* done state per day */
+  .day-row[data-day="lunes"].done     { background: rgba(147,197,253,0.12); border-color: rgba(147,197,253,0.45); }
+  .day-row[data-day="martes"].done    { background: rgba(196,181,253,0.12); border-color: rgba(196,181,253,0.45); }
+  .day-row[data-day="miercoles"].done { background: rgba(167,243,208,0.12); border-color: rgba(167,243,208,0.45); }
+  .day-row[data-day="jueves"].done    { background: rgba(253,186,116,0.12); border-color: rgba(253,186,116,0.45); }
+  .day-row[data-day="viernes"].done   { background: rgba(249,168,212,0.12); border-color: rgba(249,168,212,0.45); }
+  .day-row[data-day="sabado"].done    { background: rgba(253,224,71,0.10);  border-color: rgba(253,224,71,0.40);  }
+  .day-row[data-day="domingo"].done   { background: rgba(94,234,212,0.12);  border-color: rgba(94,234,212,0.45);  }
+
+  .day-badge {
+    width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  }
+  .day-abbr { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+
+  .day-info { flex: 1; min-width: 0; }
+  .day-name { font-size: 14px; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; }
+  .day-sub  { font-size: 11px; color: #6b7280; }
+  .day-row.done .day-sub { color: #9CA3AF; }
+
+  /* Section pills summary */
+  .day-pills { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+  .day-pill {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 99px; background: rgba(255,255,255,0.07); color: #6b7280;
+  }
+  .day-pill.has { background: rgba(168,213,194,0.15); color: var(--mint); }
+
+  .day-check {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #6b7280; transition: all .2s;
+  }
+  .day-row.done .day-check {
+    background: rgba(168,213,194,0.2); border-color: var(--mint); color: var(--mint); font-weight: 800;
+  }
+
+  /* ── CONFIRM BUTTON ── */
+  .btn-confirm-wrap {
+    position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px; padding: 0 16px; z-index: 50;
+  }
+  .btn-confirm {
+    width: 100%; height: 58px; border-radius: 18px;
+    background: linear-gradient(135deg, #16ff8f, #00c96d);
+    color: #031b12; font-size: 15px; font-weight: 800;
+    border: none; cursor: pointer; transition: .2s;
+    box-shadow: 0 0 30px rgba(0,255,140,0.35);
+    letter-spacing: .01em;
+  }
+  .btn-confirm:active   { transform: scale(.97); }
+  .btn-confirm:disabled {
+    background: rgba(255,255,255,0.06); color: #4b5563;
+    box-shadow: none; cursor: not-allowed;
+  }
+
+  /* ── WIZARD OVERLAY ── */
+  .wizard-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 100;
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  .wizard-overlay.open { display: flex; }
+  .wizard-sheet {
+    width: 100%; max-height: 92vh; background: #181c27;
+    border-radius: 24px 24px 0 0; padding: 12px 16px 28px;
+    display: flex; flex-direction: column;
+    animation: slideUp .28s cubic-bezier(.4,0,.2,1); overflow: hidden;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  @media (min-width: 640px) {
+    .wizard-overlay { align-items: center; padding: 24px; }
+    .wizard-sheet { max-width: 520px; max-height: 88vh; border-radius: 24px; animation: fadeScale .22s ease; }
+    @keyframes fadeScale {
+      from { opacity: 0; transform: scale(.96); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+  }
+
+  .picker-handle {
+    width: 36px; height: 4px; border-radius: 99px;
+    background: rgba(255,255,255,0.15); margin: 0 auto 14px;
+  }
+  @media (min-width: 640px) { .picker-handle { display: none; } }
+
+  .wiz-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 14px; flex-shrink: 0;
+  }
+  .wiz-day-tag {
+    font-size: 11px; font-weight: 700; color: var(--mint);
+    background: rgba(168,213,194,0.12); border: 1px solid rgba(168,213,194,0.2);
+    border-radius: 99px; padding: 3px 10px; display: inline-block; margin-bottom: 4px;
+  }
+  .wiz-title    { font-size: 19px; font-weight: 900; color: #f1f5f9; }
+  .wiz-step-sub { font-size: 12px; color: #9CA3AF; margin-top: 2px; }
+  .btn-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: none; color: #9CA3AF;
+    font-size: 18px; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Section step chips */
+  .steps-row { display: flex; gap: 5px; margin-bottom: 14px; flex-shrink: 0; }
+  .step-chip {
+    flex: 1; height: 4px; border-radius: 99px;
+    background: rgba(255,255,255,0.1); transition: background .3s;
+  }
+  .step-chip.done   { background: var(--mint); }
+  .step-chip.active { background: rgba(168,213,194,0.4); }
+
+  /* Exercise search */
+  .search-box { position: relative; margin-bottom: 8px; flex-shrink: 0; }
+  .search-input {
+    width: 100%; box-sizing: border-box;
+    background: rgba(255,255,255,0.05); border: 2px solid var(--border);
+    border-radius: 14px; padding: 11px 14px 11px 42px;
+    color: #f1f5f9; font-size: 14px; font-weight: 500;
+    outline: none; transition: border-color .2s;
+  }
+  .search-input::placeholder { color: #4b5563; }
+  .search-input:focus { border-color: var(--mint); }
+  .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; opacity: .4; }
+
+  /* Available exercises */
+  .ex-scroll { overflow-y: auto; flex: 1; min-height: 0; }
+  .ex-scroll::-webkit-scrollbar { width: 4px; }
+  .ex-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+  .ex-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; border-radius: 12px; cursor: pointer;
+    transition: background .15s; margin-bottom: 3px;
+  }
+  .ex-item:hover { background: rgba(255,255,255,0.04); }
+  .ex-item.added { background: rgba(168,213,194,0.07); }
+  .ex-name { font-size: 14px; font-weight: 600; color: #f1f5f9; }
+  .ex-cat  { font-size: 11px; color: #9CA3AF; margin-top: 1px; text-transform: uppercase; letter-spacing: .04em; }
+  .btn-add {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(168,213,194,0.12); border: 1px solid rgba(168,213,194,0.25);
+    color: var(--mint); font-size: 20px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-weight: 600; transition: all .15s;
+  }
+  .ex-item.added .btn-add { background: var(--mint); border-color: var(--mint); color: #031b12; font-size: 14px; font-weight: 900; }
+
+  /* Selected exercises */
+  .sel-wrap { flex-shrink: 0; margin-top: 8px; }
+  .sel-header { font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+  .sel-item {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04); border-radius: 12px;
+    padding: 7px 10px; margin-bottom: 4px;
+  }
+  .sel-name { font-size: 13px; font-weight: 600; color: #e2e8f0; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sel-field { display: flex; flex-direction: column; align-items: center; gap: 1px; flex-shrink: 0; }
+  .sel-input {
+    width: 44px; padding: 4px 5px; text-align: center;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: #f1f5f9; font-size: 13px; font-weight: 600;
+  }
+  .sel-label { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+  .btn-rem {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(239,68,68,0.1); border: none; color: #f87171;
+    font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── PYRAMID ── */
+  .btn-pyramid {
+    width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: #6b7280; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .btn-pyramid.active {
+    background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.35);
+    color: #fbbf24;
+  }
+  .sel-item--pyramid { flex-direction: column; align-items: stretch; gap: 6px; }
+  .sel-item-top { display: flex; align-items: center; gap: 8px; }
+  .sel-item-top .sel-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pyramid-sets { display: flex; gap: 5px; flex-wrap: wrap; padding-left: 2px; }
+  .pyr-set { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .pyr-set-label { font-size: 9px; color: #6b7280; font-weight: 700; text-transform: uppercase; }
+  .pyr-input {
+    width: 38px; padding: 5px 4px; text-align: center;
+    background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25);
+    border-radius: 8px; color: #fbbf24; font-size: 13px; font-weight: 700;
+    outline: none;
+  }
+  .pyr-input:focus { border-color: rgba(251,191,36,0.6); }
+  .btn-pyr-mod {
+    width: 24px; height: 24px; border-radius: 7px; font-size: 14px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: #9CA3AF; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    margin-top: 10px; transition: background .15s;
+  }
+  .btn-pyr-mod:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
+
+  /* Wizard nav */
+  .wiz-nav { display: flex; gap: 10px; margin-top: 12px; flex-shrink: 0; }
+  .btn-prev {
+    flex: 1; height: 48px; border-radius: 14px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: #9CA3AF; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-prev:disabled { opacity: .25; cursor: default; }
+  .btn-wiz-next {
+    flex: 2; height: 48px; border-radius: 14px;
+    background: linear-gradient(135deg, #16ff8f, #00c96d);
+    border: none; color: #031b12; font-size: 15px; font-weight: 800;
+    cursor: pointer; box-shadow: 0 0 18px rgba(0,255,140,0.2);
+  }
+  .btn-wiz-next:active  { transform: scale(.98); }
+  .btn-wiz-next:disabled { background: rgba(255,255,255,0.07); color: #4b5563; box-shadow: none; cursor: not-allowed; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%);
+    background: #1e2a1e; border: 1px solid rgba(168,213,194,0.3);
+    color: var(--mint); font-size: 13px; font-weight: 600;
+    padding: 12px 20px; border-radius: 14px; z-index: 200;
+    opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+</style>
+
+<div class="wrap">
+
+  <!-- Step flow indicator -->
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="flow-dot" id="fd-0">1</div>
+      <div class="flow-label">Clientes</div>
+    </div>
+    <div class="flow-line" id="fl-0"></div>
+    <div class="flow-step">
+      <div class="flow-dot" id="fd-1">2</div>
+      <div class="flow-label">Días</div>
+    </div>
+    <div class="flow-line" id="fl-1"></div>
+    <div class="flow-step">
+      <div class="flow-dot" id="fd-2">3</div>
+      <div class="flow-label">Confirmar</div>
+    </div>
+  </div>
+
+  <!-- ── CLIENTES ── -->
+  <div class="section-label">Selecciona clientes</div>
+
+  {% if clientes %}
+  <div class="search-box" style="margin-bottom:10px">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="clientSearch" class="search-input"
+           placeholder="Buscar cliente por nombre…"
+           oninput="filterClientes(this.value)">
+  </div>
+  <div class="clients-grid" id="clientsGrid">
+    {% for c in clientes %}
+    <div class="client-chip" id="chip-{{ c.id }}"
+         data-name="{{ c.get_full_name|default:c.username|lower }}"
+         style="display:none"
+         onclick="toggleCliente({{ c.id }})">
+      <div class="client-avatar">{{ c.username|slice:":1"|upper }}</div>
+      <span class="chip-name">{{ c.get_full_name|default:c.username }}</span>
+      <div class="chip-check" id="chk-{{ c.id }}"></div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="sel-count-pill" id="selCountPill">0 clientes seleccionados</div>
+  {% else %}
+  <p style="color:#9CA3AF;font-size:13px;margin-bottom:24px">
+    No tienes clientes aún. <a href="{% url 'crear_cliente' %}" style="color:var(--mint);font-weight:700">Crear cliente →</a>
+  </p>
+  {% endif %}
+
+  <!-- ── DÍAS ── -->
+  <div class="section-label">Programa los días</div>
+
+  <div class="days-list">
+
+    {% for day_key, day_label, day_abbr in day_rows %}
+    <div class="day-row" id="row-{{ day_key }}" data-day="{{ day_key }}"
+         onclick="openWizard('{{ day_key }}')">
+      <div class="day-badge">
+        <div class="day-abbr">{{ day_abbr }}</div>
+      </div>
+      <div class="day-info">
+        <div class="day-name">{{ day_label }}</div>
+        <div class="day-pills" id="pills-{{ day_key }}">
+          <span class="day-pill" id="pill-cal-{{ day_key }}">Cal</span>
+          <span class="day-pill" id="pill-car-{{ day_key }}">Cardio</span>
+          <span class="day-pill" id="pill-med-{{ day_key }}">Med</span>
+          <span class="day-pill" id="pill-cie-{{ day_key }}">Cierre</span>
+        </div>
+      </div>
+      <div class="day-check" id="dchk-{{ day_key }}">›</div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+
+<!-- ── CONFIRM BUTTON ── -->
+<div class="btn-confirm-wrap">
+  <button class="btn-confirm" id="btnConfirm" onclick="submitPlan()" disabled>
+    Planifica días y elige clientes
+  </button>
+</div>
+
+<!-- ── WIZARD ── -->
+<div class="wizard-overlay" id="wizardOverlay" onclick="closeWizard()">
+  <div class="wizard-sheet" onclick="event.stopPropagation()">
+    <div class="picker-handle"></div>
+    <div class="wiz-header">
+      <div>
+        <div class="wiz-day-tag" id="wizDayTag">Lunes</div>
+        <div class="wiz-title"   id="wizTitle">Calentamiento</div>
+        <div class="wiz-step-sub" id="wizSub">Paso 1 de 4 · puedes dejarlo vacío</div>
+      </div>
+      <button class="btn-close" onclick="closeWizard()">×</button>
+    </div>
+
+    <div class="steps-row">
+      <div class="step-chip" id="sc-0"></div>
+      <div class="step-chip" id="sc-1"></div>
+      <div class="step-chip" id="sc-2"></div>
+      <div class="step-chip" id="sc-3"></div>
+    </div>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input id="exSearch" class="search-input" type="text"
+             placeholder="Buscar ejercicio..." oninput="renderExList()"
+             autocomplete="off">
+    </div>
+
+    <div class="ex-scroll" id="exList"></div>
+
+    <div class="sel-wrap" id="selWrap" style="display:none">
+      <div class="sel-header">Seleccionados</div>
+      <div id="selList"></div>
+    </div>
+
+    <div class="wiz-nav">
+      <button class="btn-prev" id="btnPrev" onclick="prevStep()">← Anterior</button>
+      <button class="btn-wiz-next" id="btnWizNext" onclick="nextStep()">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EJERCICIOS = {{ ejercicios_json|safe }};
+
+const SECTIONS = [
+  { tipo: 'calentamiento', label: 'Calentamiento',   pillId: 'cal' },
+  { tipo: 'cardio',        label: 'Cardio',           pillId: 'car' },
+  { tipo: 'medular',       label: 'Medular',          pillId: 'med' },
+  { tipo: 'cierre',        label: 'Cierre',           pillId: 'cie' },
+];
+
+const DAYS = [
+  { key: 'lunes',     label: 'Lunes'     },
+  { key: 'martes',    label: 'Martes'    },
+  { key: 'miercoles', label: 'Miércoles' },
+  { key: 'jueves',    label: 'Jueves'    },
+  { key: 'viernes',   label: 'Viernes'   },
+  { key: 'sabado',    label: 'Sábado'    },
+  { key: 'domingo',   label: 'Domingo'   },
+];
+
+// State
+const dayPlans = {};         // dayKey → {sectionTipo: [{ejercicio_id, nombre, series, reps}]}
+const selectedClientes = new Set();
+let activeDay  = null;
+let activeStep = 0;
+
+DAYS.forEach(d => {
+  dayPlans[d.key] = {};
+  SECTIONS.forEach(s => { dayPlans[d.key][s.tipo] = []; });
+});
+
+// ── Client search ─────────────────────────────────────────────────
+function filterClientes(q) {
+  const term = q.trim().toLowerCase();
+  document.querySelectorAll('#clientsGrid .client-chip').forEach(chip => {
+    const match = term && chip.dataset.name.includes(term);
+    chip.style.display = match ? 'flex' : 'none';
+  });
+}
+
+// ── Client selection ──────────────────────────────────────────────
+function toggleCliente(id) {
+  const chip = document.getElementById('chip-' + id);
+  const chk  = document.getElementById('chk-' + id);
+  if (selectedClientes.has(id)) {
+    selectedClientes.delete(id);
+    chip.classList.remove('selected');
+    chk.textContent = '';
+  } else {
+    selectedClientes.add(id);
+    chip.classList.add('selected');
+    chk.textContent = '✓';
+  }
+  updateFlowIndicator();
+  updateConfirmBtn();
+}
+
+// ── Flow indicator ────────────────────────────────────────────────
+function updateFlowIndicator() {
+  const hasClients = selectedClientes.size > 0;
+  const daysCount  = DAYS.filter(d => dayHasExercises(d.key)).length;
+  const hasDays    = daysCount > 0;
+
+  // dot 0: Clientes
+  setDot(0, hasClients ? 'done' : 'active');
+  setLine(0, hasClients && hasDays);
+  // dot 1: Días
+  setDot(1, hasDays ? 'done' : hasClients ? 'active' : '');
+  setLine(1, hasClients && hasDays);
+  // dot 2: Confirmar
+  setDot(2, (hasClients && hasDays) ? 'active' : '');
+
+  // sel count pill
+  const n    = selectedClientes.size;
+  const pill = document.getElementById('selCountPill');
+  if (pill) {
+    pill.textContent = n === 0
+      ? '0 clientes seleccionados'
+      : n + ' cliente' + (n !== 1 ? 's' : '') + ' seleccionado' + (n !== 1 ? 's' : '');
+    pill.classList.toggle('has-sel', n > 0);
+  }
+}
+
+function setDot(i, state) {
+  const el = document.getElementById('fd-' + i);
+  el.className = 'flow-dot' + (state ? ' ' + state : '');
+}
+function setLine(i, done) {
+  const el = document.getElementById('fl-' + i);
+  if (el) el.className = 'flow-line' + (done ? ' done' : '');
+}
+
+function dayHasExercises(dayKey) {
+  return SECTIONS.some(s => dayPlans[dayKey][s.tipo].length > 0);
+}
+
+// ── Open wizard ───────────────────────────────────────────────────
+function openWizard(dayKey) {
+  activeDay  = dayKey;
+  activeStep = 0;
+  document.getElementById('wizDayTag').textContent = DAYS.find(d => d.key === dayKey).label;
+  document.getElementById('exSearch').value = '';
+  renderWizard();
+  document.getElementById('wizardOverlay').classList.add('open');
+}
+
+function closeWizard() {
+  document.getElementById('wizardOverlay').classList.remove('open');
+  activeDay = null;
+}
+
+function renderWizard() {
+  const sec = SECTIONS[activeStep];
+  document.getElementById('wizTitle').textContent = sec.label;
+  document.getElementById('wizSub').textContent   =
+    `Paso ${activeStep + 1} de 4 · puedes dejarlo vacío`;
+
+  for (let i = 0; i < 4; i++) {
+    const chip = document.getElementById('sc-' + i);
+    chip.className = 'step-chip' +
+      (i < activeStep ? ' done' : i === activeStep ? ' active' : '');
+  }
+
+  document.getElementById('btnPrev').disabled = (activeStep === 0);
+  document.getElementById('btnWizNext').textContent =
+    activeStep === 3 ? '✓ Guardar día' : 'Siguiente →';
+
+  document.getElementById('exSearch').value = '';
+  renderExList();
+  renderSelList();
+}
+
+// ── Exercise list ─────────────────────────────────────────────────
+function renderExList() {
+  const query   = document.getElementById('exSearch').value.trim().toLowerCase();
+  const tipo    = SECTIONS[activeStep].tipo;
+  const selIds  = new Set(dayPlans[activeDay][tipo].map(x => x.ejercicio_id));
+
+  let pool = EJERCICIOS;
+  if (query) pool = pool.filter(e =>
+    e.nombre.toLowerCase().includes(query) ||
+    e.categoria_display.toLowerCase().includes(query)
+  );
+
+  const container = document.getElementById('exList');
+  if (!EJERCICIOS.length) {
+    container.innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:24px 0;font-size:13px">Crea ejercicios primero</div>';
+    return;
+  }
+  if (!pool.length) {
+    container.innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:20px 0;font-size:13px">Sin coincidencias</div>';
+    return;
+  }
+
+  container.innerHTML = pool.map(e => {
+    const added    = selIds.has(e.id);
+    const safeName = e.nombre.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `
+      <div class="ex-item${added ? ' added' : ''}"
+           onclick="toggleEx(${e.id}, '${safeName}')">
+        <div>
+          <div class="ex-name">${e.nombre}</div>
+          <div class="ex-cat">${e.categoria_display}</div>
+        </div>
+        <button class="btn-add" type="button">${added ? '✓' : '+'}</button>
+      </div>`;
+  }).join('');
+}
+
+function toggleEx(id, nombre) {
+  const tipo = SECTIONS[activeStep].tipo;
+  const arr  = dayPlans[activeDay][tipo];
+  const idx  = arr.findIndex(x => x.ejercicio_id === id);
+  if (idx >= 0) arr.splice(idx, 1);
+  else arr.push({ ejercicio_id: id, nombre, series: 3, reps: '12', pyramid: false, pyramidSets: [] });
+  renderExList();
+  renderSelList();
+}
+
+// ── Selected list ─────────────────────────────────────────────────
+function renderSelList() {
+  const tipo = SECTIONS[activeStep].tipo;
+  const arr  = dayPlans[activeDay][tipo];
+  const wrap = document.getElementById('selWrap');
+
+  if (!arr.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  document.getElementById('selList').innerHTML = arr.map((item, i) => {
+    if (item.pyramid) {
+      const setsHtml = item.pyramidSets.map((r, si) => `
+        <div class="pyr-set">
+          <span class="pyr-set-label">S${si + 1}</span>
+          <input class="pyr-input" type="text" value="${r}"
+                 onchange="updatePyrSet('${tipo}',${i},${si},this.value)">
+        </div>`).join('');
+      return `
+        <div class="sel-item sel-item--pyramid">
+          <div class="sel-item-top">
+            <div class="sel-name">${item.nombre}</div>
+            <button class="btn-pyramid active" type="button" title="Desactivar pirámide"
+                    onclick="togglePyramid('${tipo}',${i})">🔺</button>
+            <button class="btn-rem" type="button" onclick="removeEx('${tipo}',${i})">×</button>
+          </div>
+          <div class="pyramid-sets">
+            ${setsHtml}
+            <div class="pyr-set">
+              <span class="pyr-set-label"></span>
+              <button class="btn-pyr-mod" type="button" title="Agregar serie"
+                      onclick="addPyrSet('${tipo}',${i})">+</button>
+            </div>
+            ${item.pyramidSets.length > 1 ? `
+            <div class="pyr-set">
+              <span class="pyr-set-label"></span>
+              <button class="btn-pyr-mod" type="button" title="Quitar serie"
+                      onclick="removePyrSet('${tipo}',${i})">−</button>
+            </div>` : ''}
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="sel-item">
+        <div class="sel-name">${item.nombre}</div>
+        <div class="sel-field">
+          <input class="sel-input" type="number" min="1" max="20" value="${item.series}"
+                 onchange="updateField('${tipo}',${i},'series',this.value)">
+          <div class="sel-label">series</div>
+        </div>
+        <div class="sel-field">
+          <input class="sel-input" type="text" value="${item.reps}"
+                 onchange="updateField('${tipo}',${i},'reps',this.value)">
+          <div class="sel-label">reps</div>
+        </div>
+        <button class="btn-pyramid" type="button" title="Activar pirámide"
+                onclick="togglePyramid('${tipo}',${i})">🔺</button>
+        <button class="btn-rem" type="button" onclick="removeEx('${tipo}',${i})">×</button>
+      </div>`;
+  }).join('');
+}
+
+function updateField(tipo, idx, field, val) {
+  const item = dayPlans[activeDay][tipo][idx];
+  item[field] = field === 'series' ? (parseInt(val) || 3) : val;
+}
+function removeEx(tipo, idx) {
+  dayPlans[activeDay][tipo].splice(idx, 1);
+  renderExList(); renderSelList();
+}
+
+// ── Pyramid helpers ───────────────────────────────────────────────
+function generatePyramid(series) {
+  const defaults = { 2: ['12','10'], 3: ['12','10','8'], 4: ['12','10','8','6'], 5: ['15','12','10','8','6'] };
+  if (defaults[series]) return [...defaults[series]];
+  return Array.from({ length: series }, (_, i) => String(Math.max(4, 12 - i * 2)));
+}
+function togglePyramid(tipo, idx) {
+  const item = dayPlans[activeDay][tipo][idx];
+  item.pyramid = !item.pyramid;
+  item.pyramidSets = item.pyramid ? generatePyramid(item.series) : [];
+  renderSelList();
+}
+function updatePyrSet(tipo, idx, si, val) {
+  dayPlans[activeDay][tipo][idx].pyramidSets[si] = val;
+}
+function addPyrSet(tipo, idx) {
+  const sets = dayPlans[activeDay][tipo][idx].pyramidSets;
+  const last = parseInt(sets[sets.length - 1]) || 6;
+  sets.push(String(Math.max(1, last - 2)));
+  renderSelList();
+}
+function removePyrSet(tipo, idx) {
+  const sets = dayPlans[activeDay][tipo][idx].pyramidSets;
+  if (sets.length > 1) { sets.pop(); renderSelList(); }
+}
+
+// ── Navigation ────────────────────────────────────────────────────
+function prevStep() { if (activeStep > 0) { activeStep--; renderWizard(); } }
+
+function nextStep() {
+  if (activeStep < 3) { activeStep++; renderWizard(); }
+  else                { saveDayAndClose(); }
+}
+
+function saveDayAndClose() {
+  updateDayRow(activeDay);
+  updateFlowIndicator();
+  updateConfirmBtn();
+  closeWizard();
+}
+
+// ── Day row update ────────────────────────────────────────────────
+function updateDayRow(dayKey) {
+  const row  = document.getElementById('row-' + dayKey);
+  const chk  = document.getElementById('dchk-' + dayKey);
+  const hasDone = dayHasExercises(dayKey);
+
+  row.classList.toggle('done', hasDone);
+  chk.textContent = hasDone ? '✓' : '›';
+
+  // Update section pills
+  SECTIONS.forEach(s => {
+    const pill = document.getElementById(`pill-${s.pillId}-${dayKey}`);
+    if (pill) pill.classList.toggle('has', dayPlans[dayKey][s.tipo].length > 0);
+  });
+}
+
+// ── Confirm button ────────────────────────────────────────────────
+function updateConfirmBtn() {
+  const n       = selectedClientes.size;
+  const daysOk  = DAYS.filter(d => dayHasExercises(d.key)).length;
+  const btn     = document.getElementById('btnConfirm');
+  const ready   = n > 0 && daysOk > 0;
+
+  btn.disabled = !ready;
+  if (ready) {
+    btn.textContent = `Crear semana · ${n} cliente${n !== 1 ? 's' : ''} · ${daysOk} día${daysOk !== 1 ? 's' : ''} →`;
+  } else if (n === 0 && daysOk === 0) {
+    btn.textContent = 'Selecciona clientes y programa días';
+  } else if (n === 0) {
+    btn.textContent = 'Selecciona al menos un cliente';
+  } else {
+    btn.textContent = 'Programa al menos un día';
+  }
+}
+
+// ── Submit ────────────────────────────────────────────────────────
+async function submitPlan() {
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  const dias = {};
+  DAYS.forEach(d => {
+    if (!dayHasExercises(d.key)) return;
+    dias[d.key] = SECTIONS.map(s => ({
+      tipo: s.tipo,
+      ejercicios: dayPlans[d.key][s.tipo].map((e, i) => ({
+        ejercicio_id: e.ejercicio_id,
+        series:       e.pyramid ? e.pyramidSets.length : e.series,
+        repeticiones: e.pyramid ? e.pyramidSets.join('/') : e.reps,
+        orden:        i,
+      })),
+    }));
+  });
+
+  const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+
+  try {
+    const resp = await fetch('{% url "planificar_semana" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify({
+        cliente_ids: [...selectedClientes],
+        dias,
+      }),
+    });
+    const data = await resp.json();
+
+    if (data.ok) {
+      showToast('✓ ' + data.message);
+      setTimeout(() => { window.location.href = '{% url "instructor_dashboard" %}'; }, 1200);
+    } else {
+      showToast('⚠ ' + (data.error || 'Error al guardar'));
+      btn.disabled = false;
+      updateConfirmBtn();
+    }
+  } catch {
+    showToast('⚠ Error de conexión');
+    btn.disabled = false;
+    updateConfirmBtn();
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Init
+updateFlowIndicator();
+updateConfirmBtn();
+</script>
+{% endblock %}

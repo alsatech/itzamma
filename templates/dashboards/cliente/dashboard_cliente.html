@@ -395,16 +395,16 @@
     {% for a in pendientes %}
     <div class="workout-row">
       <div class="workout-thumb">
-        {{ a.workout.emoji }}
+        {{ a.rutina.emoji }}
       </div>
       <div class="workout-body">
         <div class="workout-name-row">
-          <p class="workout-name">{{ a.workout.titulo }}</p>
+          <p class="workout-name">{{ a.rutina.nombre }}</p>
           <span class="w-tag w-tag-default">Rutina</span>
         </div>
         <p class="workout-desc">
-          {% if a.workout.descripcion %}
-            {{ a.workout.descripcion|truncatechars:40 }}
+          {% if a.rutina.descripcion %}
+            {{ a.rutina.descripcion|truncatechars:40 }}
           {% else %}
             Pendiente de completar
           {% endif %}

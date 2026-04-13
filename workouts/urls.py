@@ -5,7 +5,8 @@ from .views import (
     ejercicio_list, ejercicio_create, ejercicio_delete, ejercicios_json,
     rutina_list, rutina_create, rutina_detail, rutina_assign,
     rutina_calendario, rutina_calendario_api, rutina_calendario_delete,
-    complete_rutina, asignar_rutina_cuestionario,
+    complete_rutina, crear_semana,
+    asignar_semana_multi, planificar_semana,
 )
 
 urlpatterns = [
@@ -14,8 +15,6 @@ urlpatterns = [
     path("instructor/perfil/", instructor_perfil, name="instructor_perfil"),
     path("instructor/clientes/", instructor_clientes, name="instructor_clientes"),
     path("instructor/clientes/<int:cliente_id>/", instructor_cliente_detalle, name="instructor_cliente_detalle"),
-    path("instructor/clientes/<int:cliente_id>/asignar/", asignar_rutina_cuestionario, name="asignar_rutina_cuestionario"),
-
     # Ejercicios
     path("instructor/ejercicios/", ejercicio_list, name="ejercicio_list"),
     path("instructor/ejercicios/nuevo/", ejercicio_create, name="ejercicio_create"),
@@ -24,6 +23,12 @@ urlpatterns = [
 
     # Completar rutina (cliente)
     path("complete/<int:assignment_id>/", complete_rutina, name="complete_rutina"),
+
+    # Flujo unificado: construir + asignar semana
+    path("instructor/semana/", planificar_semana, name="planificar_semana"),
+    # Flujos legacy (mantenidos por compatibilidad)
+    path("instructor/semana/crear/", crear_semana, name="crear_semana"),
+    path("instructor/semana/asignar/", asignar_semana_multi, name="asignar_semana_multi"),
 
     # Rutinas
     path("instructor/rutinas/", rutina_list, name="rutina_list"),
