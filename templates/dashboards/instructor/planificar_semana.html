@@ -88,12 +88,19 @@
   .sel-count-pill.has-sel { color: var(--mint); background: rgba(168,213,194,0.12); border-color: rgba(168,213,194,0.25); }
 
   /* ── DAY ROWS ── */
-  .days-list { display: flex; flex-direction: column; gap: 8px; }
+  .days-list { display: flex; flex-direction: column; gap: 12px; }
   .day-row {
-    border: 2px solid transparent; border-radius: 16px; padding: 12px 14px;
-    display: flex; align-items: center; gap: 12px;
+    border: 2px solid transparent; border-radius: 18px; padding: 16px 16px;
+    display: flex; align-items: center; gap: 14px;
     cursor: pointer; transition: all .2s; user-select: none;
+    position: relative; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
   }
+  .day-row::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; opacity: 0; transition: opacity .25s;
+  }
+  .day-row.done::before { opacity: 1; }
   .day-row:active { transform: scale(.98); }
 
   .day-row[data-day="lunes"]     { background: rgba(147,197,253,0.06);  border-color: rgba(147,197,253,0.13); }
@@ -112,13 +119,21 @@
   .day-row[data-day="sabado"]    .day-abbr { color: #fde047; }
   .day-row[data-day="domingo"]   .day-abbr { color: #5eead4; }
 
-  .day-row[data-day="lunes"]     .day-badge { background: rgba(147,197,253,0.16); }
-  .day-row[data-day="martes"]    .day-badge { background: rgba(196,181,253,0.16); }
-  .day-row[data-day="miercoles"] .day-badge { background: rgba(167,243,208,0.16); }
-  .day-row[data-day="jueves"]    .day-badge { background: rgba(253,186,116,0.16); }
-  .day-row[data-day="viernes"]   .day-badge { background: rgba(249,168,212,0.16); }
-  .day-row[data-day="sabado"]    .day-badge { background: rgba(253,224,71,0.13);  }
-  .day-row[data-day="domingo"]   .day-badge { background: rgba(94,234,212,0.14);  }
+  .day-row[data-day="lunes"]     .day-badge { background: linear-gradient(135deg, rgba(147,197,253,0.28), rgba(147,197,253,0.10)); border:1px solid rgba(147,197,253,0.30); }
+  .day-row[data-day="martes"]    .day-badge { background: linear-gradient(135deg, rgba(196,181,253,0.28), rgba(196,181,253,0.10)); border:1px solid rgba(196,181,253,0.30); }
+  .day-row[data-day="miercoles"] .day-badge { background: linear-gradient(135deg, rgba(167,243,208,0.28), rgba(167,243,208,0.10)); border:1px solid rgba(167,243,208,0.30); }
+  .day-row[data-day="jueves"]    .day-badge { background: linear-gradient(135deg, rgba(253,186,116,0.28), rgba(253,186,116,0.10)); border:1px solid rgba(253,186,116,0.30); }
+  .day-row[data-day="viernes"]   .day-badge { background: linear-gradient(135deg, rgba(249,168,212,0.28), rgba(249,168,212,0.10)); border:1px solid rgba(249,168,212,0.30); }
+  .day-row[data-day="sabado"]    .day-badge { background: linear-gradient(135deg, rgba(253,224,71,0.24),  rgba(253,224,71,0.08));  border:1px solid rgba(253,224,71,0.26);  }
+  .day-row[data-day="domingo"]   .day-badge { background: linear-gradient(135deg, rgba(94,234,212,0.28),  rgba(94,234,212,0.10));  border:1px solid rgba(94,234,212,0.30);  }
+
+  .day-row[data-day="lunes"]::before     { background: #93c5fd; }
+  .day-row[data-day="martes"]::before    { background: #c4b5fd; }
+  .day-row[data-day="miercoles"]::before { background: #6ee7b7; }
+  .day-row[data-day="jueves"]::before    { background: #fdba74; }
+  .day-row[data-day="viernes"]::before   { background: #f9a8d4; }
+  .day-row[data-day="sabado"]::before    { background: #fde047; }
+  .day-row[data-day="domingo"]::before   { background: #5eead4; }
 
   /* done state per day */
   .day-row[data-day="lunes"].done     { background: rgba(147,197,253,0.12); border-color: rgba(147,197,253,0.45); }
@@ -130,29 +145,32 @@
   .day-row[data-day="domingo"].done   { background: rgba(94,234,212,0.12);  border-color: rgba(94,234,212,0.45);  }
 
   .day-badge {
-    width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+    width: 54px; height: 54px; border-radius: 14px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   }
-  .day-abbr { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+  .day-abbr { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
+  .day-count { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.55); margin-top: 1px; }
+  .day-row.done .day-count { color: rgba(255,255,255,0.85); }
 
   .day-info { flex: 1; min-width: 0; }
-  .day-name { font-size: 14px; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; }
+  .day-name { font-size: 16px; font-weight: 800; color: #f1f5f9; margin-bottom: 3px; letter-spacing: .01em; }
   .day-sub  { font-size: 11px; color: #6b7280; }
   .day-row.done .day-sub { color: #9CA3AF; }
 
   /* Section pills summary */
-  .day-pills { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+  .day-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
   .day-pill {
-    font-size: 10px; font-weight: 700; padding: 2px 8px;
-    border-radius: 99px; background: rgba(255,255,255,0.07); color: #6b7280;
+    font-size: 10px; font-weight: 700; padding: 3px 9px;
+    border-radius: 99px; background: rgba(255,255,255,0.06); color: #6b7280;
+    border: 1px solid rgba(255,255,255,0.04);
   }
-  .day-pill.has { background: rgba(168,213,194,0.15); color: var(--mint); }
+  .day-pill.has { background: rgba(168,213,194,0.15); color: var(--mint); border-color: rgba(168,213,194,0.25); }
 
   .day-check {
-    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
     border: 2px solid rgba(255,255,255,0.1);
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; color: #6b7280; transition: all .2s;
+    font-size: 14px; color: #6b7280; transition: all .2s;
   }
   .day-row.done .day-check {
     background: rgba(168,213,194,0.2); border-color: var(--mint); color: var(--mint); font-weight: 800;
@@ -184,8 +202,14 @@
   }
   .wizard-overlay.open { display: flex; }
   .wizard-sheet {
-    width: 100%; max-height: 92vh; background: #181c27;
-    border-radius: 24px 24px 0 0; padding: 12px 16px 28px;
+    width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    height: 92dvh;
+    background: #181c27;
+    border-radius: 24px 24px 0 0;
+    padding: 12px 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
     display: flex; flex-direction: column;
     animation: slideUp .28s cubic-bezier(.4,0,.2,1); overflow: hidden;
   }
@@ -195,7 +219,14 @@
   }
   @media (min-width: 640px) {
     .wizard-overlay { align-items: center; padding: 24px; }
-    .wizard-sheet { max-width: 520px; max-height: 88vh; border-radius: 24px; animation: fadeScale .22s ease; }
+    .wizard-sheet {
+      max-width: 520px;
+      max-height: 88vh;
+      max-height: 88dvh;
+      height: auto;
+      border-radius: 24px;
+      animation: fadeScale .22s ease;
+    }
     @keyframes fadeScale {
       from { opacity: 0; transform: scale(.96); }
       to   { opacity: 1; transform: scale(1); }
@@ -272,8 +303,18 @@
   .ex-item.added .btn-add { background: var(--mint); border-color: var(--mint); color: #031b12; font-size: 14px; font-weight: 900; }
 
   /* Selected exercises */
-  .sel-wrap { flex-shrink: 0; margin-top: 8px; }
-  .sel-header { font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+  .sel-wrap {
+    flex-shrink: 0; margin-top: 8px;
+    max-height: 32vh; max-height: 32dvh;
+    overflow-y: auto; padding-right: 2px;
+  }
+  .sel-wrap::-webkit-scrollbar { width: 4px; }
+  .sel-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+  .sel-header {
+    font-size: 11px; font-weight: 700; color: #9CA3AF;
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px;
+    position: sticky; top: 0; background: #181c27; padding-bottom: 4px; z-index: 1;
+  }
   .sel-item {
     display: flex; align-items: center; gap: 8px;
     background: rgba(255,255,255,0.04); border-radius: 12px;
@@ -328,15 +369,20 @@
   .btn-pyr-mod:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
 
   /* Wizard nav */
-  .wiz-nav { display: flex; gap: 10px; margin-top: 12px; flex-shrink: 0; }
+  .wiz-nav {
+    display: flex; gap: 10px; margin-top: 12px; flex-shrink: 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: #181c27;
+  }
   .btn-prev {
-    flex: 1; height: 48px; border-radius: 14px;
+    flex: 1; height: 50px; border-radius: 14px;
     background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
     color: #9CA3AF; font-size: 14px; font-weight: 600; cursor: pointer;
   }
   .btn-prev:disabled { opacity: .25; cursor: default; }
   .btn-wiz-next {
-    flex: 2; height: 48px; border-radius: 14px;
+    flex: 2; height: 50px; border-radius: 14px;
     background: linear-gradient(135deg, #16ff8f, #00c96d);
     border: none; color: #031b12; font-size: 15px; font-weight: 800;
     cursor: pointer; box-shadow: 0 0 18px rgba(0,255,140,0.2);
@@ -414,6 +460,7 @@
          onclick="openWizard('{{ day_key }}')">
       <div class="day-badge">
         <div class="day-abbr">{{ day_abbr }}</div>
+        <div class="day-count" id="count-{{ day_key }}">0</div>
       </div>
       <div class="day-info">
         <div class="day-name">{{ day_label }}</div>
@@ -781,11 +828,16 @@ function updateDayRow(dayKey) {
   row.classList.toggle('done', hasDone);
   chk.textContent = hasDone ? '✓' : '›';
 
-  // Update section pills
+  // Update section pills + total count badge
+  let total = 0;
   SECTIONS.forEach(s => {
+    const len  = dayPlans[dayKey][s.tipo].length;
+    total     += len;
     const pill = document.getElementById(`pill-${s.pillId}-${dayKey}`);
-    if (pill) pill.classList.toggle('has', dayPlans[dayKey][s.tipo].length > 0);
+    if (pill) pill.classList.toggle('has', len > 0);
   });
+  const countEl = document.getElementById('count-' + dayKey);
+  if (countEl) countEl.textContent = total;
 }
 
 // ── Confirm button ────────────────────────────────────────────────
