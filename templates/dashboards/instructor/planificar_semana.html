@@ -279,8 +279,15 @@
   .search-input:focus { border-color: var(--mint); }
   .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; opacity: .4; }
 
-  /* Available exercises */
-  .ex-scroll { overflow-y: auto; flex: 1; min-height: 0; }
+  /* Available exercises — fija ~3 items visibles, el resto con scroll/buscador */
+  .ex-scroll {
+    overflow-y: auto;
+    flex: none;
+    max-height: 200px;
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 4px;
+  }
   .ex-scroll::-webkit-scrollbar { width: 4px; }
   .ex-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
 
@@ -302,10 +309,10 @@
   }
   .ex-item.added .btn-add { background: var(--mint); border-color: var(--mint); color: #031b12; font-size: 14px; font-weight: 900; }
 
-  /* Selected exercises */
+  /* Selected exercises — fija ~3 visibles, el resto con scroll interno */
   .sel-wrap {
-    flex-shrink: 0; margin-top: 8px;
-    max-height: 32vh; max-height: 32dvh;
+    flex: none; margin-top: 10px;
+    max-height: 180px;
     overflow-y: auto; padding-right: 2px;
   }
   .sel-wrap::-webkit-scrollbar { width: 4px; }
@@ -314,6 +321,12 @@
     font-size: 11px; font-weight: 700; color: #9CA3AF;
     text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px;
     position: sticky; top: 0; background: #181c27; padding-bottom: 4px; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sel-counter {
+    font-size: 10px; font-weight: 700; color: var(--mint);
+    background: rgba(168,213,194,0.12); border: 1px solid rgba(168,213,194,0.22);
+    padding: 2px 8px; border-radius: 99px; letter-spacing: 0;
   }
   .sel-item {
     display: flex; align-items: center; gap: 8px;
@@ -368,12 +381,14 @@
   }
   .btn-pyr-mod:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
 
-  /* Wizard nav */
+  /* Wizard nav — siempre pegada al fondo del modal */
   .wiz-nav {
-    display: flex; gap: 10px; margin-top: 12px; flex-shrink: 0;
-    padding-top: 10px;
+    display: flex; gap: 10px;
+    margin-top: auto; flex-shrink: 0;
+    padding-top: 12px;
     border-top: 1px solid rgba(255,255,255,0.05);
     background: #181c27;
+    position: sticky; bottom: 0;
   }
   .btn-prev {
     flex: 1; height: 50px; border-radius: 14px;
@@ -516,7 +531,10 @@
     <div class="ex-scroll" id="exList"></div>
 
     <div class="sel-wrap" id="selWrap" style="display:none">
-      <div class="sel-header">Seleccionados</div>
+      <div class="sel-header">
+        <span>Seleccionados</span>
+        <span class="sel-counter" id="selCounter">0</span>
+      </div>
       <div id="selList"></div>
     </div>
 
@@ -713,9 +731,11 @@ function renderSelList() {
   const tipo = SECTIONS[activeStep].tipo;
   const arr  = dayPlans[activeDay][tipo];
   const wrap = document.getElementById('selWrap');
+  const cnt  = document.getElementById('selCounter');
 
   if (!arr.length) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
+  if (cnt) cnt.textContent = arr.length;
 
   document.getElementById('selList').innerHTML = arr.map((item, i) => {
     if (item.pyramid) {
