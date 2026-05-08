@@ -196,16 +196,16 @@
   }
 
   /* ── WIZARD OVERLAY ── */
+  /* z-index alto para pasar encima de la bottom-nav (z-index 9999 en base_app.html) */
   .wizard-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 100;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 10000;
     display: none; align-items: flex-end; justify-content: center;
   }
   .wizard-overlay.open { display: flex; }
   .wizard-sheet {
     width: 100%;
-    max-height: 92vh;
-    max-height: 92dvh;
-    height: 92dvh;
+    max-height: 90vh;
+    max-height: 90dvh;
     background: #181c27;
     border-radius: 24px 24px 0 0;
     padding: 12px 16px;
@@ -381,14 +381,13 @@
   }
   .btn-pyr-mod:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
 
-  /* Wizard nav — siempre pegada al fondo del modal */
+  /* Wizard nav — pegada al fondo del modal (flujo normal, sin sticky) */
   .wiz-nav {
     display: flex; gap: 10px;
-    margin-top: auto; flex-shrink: 0;
+    margin-top: 12px; flex-shrink: 0;
     padding-top: 12px;
     border-top: 1px solid rgba(255,255,255,0.05);
     background: #181c27;
-    position: sticky; bottom: 0;
   }
   .btn-prev {
     flex: 1; height: 50px; border-radius: 14px;
