@@ -285,6 +285,39 @@
   .s-unit { font-size: 13px; font-weight: 500; margin-left: 2px; }
   .s-val-sm { font-size: 18px !important; }
 
+  /* Delta vs reporte anterior */
+  .s-delta {
+    display: inline-flex; align-items: center; gap: 2px;
+    font-size: 11px; font-weight: 700; margin-top: 4px;
+    padding: 2px 7px; border-radius: 99px;
+  }
+  .s-delta.up   { background: rgba(34,197,94,0.18);  color: #15803d; }
+  .s-delta.down { background: rgba(239,68,68,0.18);  color: #b91c1c; }
+  .s-delta.neutral { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.45); }
+  .s-dark .s-delta.up   { background: rgba(34,197,94,0.18);  color: #22c55e; }
+  .s-dark .s-delta.down { background: rgba(239,68,68,0.18);  color: #f87171; }
+
+  /* Badge "actualizado" */
+  .updated-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; color: #9CA3AF;
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 99px;
+  }
+  .updated-badge.stale { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+  .updated-badge.dot::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #22c55e;
+  }
+  .updated-badge.stale.dot::before { background: #fbbf24; }
+
+  .empty-inbody {
+    background: var(--bg-card); border: 1px dashed var(--border);
+    border-radius: 18px; padding: 22px 18px; text-align: center;
+    color: #9CA3AF; font-size: 13px; line-height: 1.5;
+  }
+  .empty-inbody strong { color: #f1f5f9; display: block; margin-bottom: 4px; font-size: 14px; }
+
   /* ---- EMPTY ---- */
   .empty-state {
     text-align: center;
@@ -293,40 +326,6 @@
     font-size: 15px;
   }
 
-  /* ---- IMC BANNER ---- */
-  .imc-banner {
-    background: var(--peach);
-    border-radius: 20px;
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    text-decoration: none;
-  }
-  .imc-banner-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .imc-banner-icon { font-size: 30px; line-height: 1; }
-  .imc-banner-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #3d1505;
-    margin: 0 0 3px;
-  }
-  .imc-banner-sub {
-    font-size: 12px;
-    color: rgba(80,30,10,0.65);
-    margin: 0;
-    font-weight: 500;
-  }
-  .imc-banner-arrow {
-    font-size: 20px;
-    color: rgba(80,30,10,0.45);
-    flex-shrink: 0;
-  }
 </style>
 
 
@@ -422,48 +421,104 @@
   <section class="section">
     <div class="section-header">
       <p class="section-title">Tu progreso</p>
+      {% if inbody %}
+        {% if inbody_dias_desde > 30 %}
+          <span class="updated-badge stale dot" title="Hace más de un mes — pide actualización a tu instructor">
+            Hace {{ inbody_dias_desde }} días
+          </span>
+        {% else %}
+          <span class="updated-badge dot">
+            {% if inbody_dias_desde == 0 %}Hoy{% elif inbody_dias_desde == 1 %}Ayer{% else %}Hace {{ inbody_dias_desde }} días{% endif %}
+          </span>
+        {% endif %}
+      {% endif %}
     </div>
 
+    {% if inbody %}
     <div class="stats-grid">
       <div class="stat-card s-mint">
         <span class="s-icon">⚖️</span>
         <p class="s-lbl">Peso</p>
-        <p class="s-val">{{ perfil.peso|default:"—" }}<span class="s-unit">kg</span></p>
+        <p class="s-val">{{ inbody.peso|default:"—" }}<span class="s-unit">kg</span></p>
+        {% if inbody_delta.peso is not None %}
+          {% if inbody_delta.peso > 0 %}
+            <span class="s-delta up">↑ {{ inbody_delta.peso }} kg</span>
+          {% elif inbody_delta.peso < 0 %}
+            <span class="s-delta down">↓ {{ inbody_delta.peso|stringformat:"+.1f" }} kg</span>
+          {% else %}
+            <span class="s-delta neutral">= sin cambio</span>
+          {% endif %}
+        {% endif %}
       </div>
 
       <div class="stat-card s-peach">
         <span class="s-icon">🔥</span>
         <p class="s-lbl">Grasa corporal</p>
-        <p class="s-val">{{ perfil.masa_grasa|default:"—" }}<span class="s-unit">%</span></p>
+        <p class="s-val">{{ inbody.porcentaje_grasa|default:"—" }}<span class="s-unit">%</span></p>
+        {% if inbody_delta.porcentaje_grasa is not None %}
+          {% if inbody_delta.porcentaje_grasa < 0 %}
+            <span class="s-delta up">↓ {{ inbody_delta.porcentaje_grasa|stringformat:"+.1f" }} %</span>
+          {% elif inbody_delta.porcentaje_grasa > 0 %}
+            <span class="s-delta down">↑ {{ inbody_delta.porcentaje_grasa }} %</span>
+          {% else %}
+            <span class="s-delta neutral">= sin cambio</span>
+          {% endif %}
+        {% endif %}
       </div>
 
       <div class="stat-card s-lime">
         <span class="s-icon">💪</span>
         <p class="s-lbl">Masa muscular</p>
-        <p class="s-val">{{ perfil.masa_muscular|default:"—" }}<span class="s-unit">%</span></p>
+        <p class="s-val">{{ inbody.masa_muscular|default:"—" }}<span class="s-unit">kg</span></p>
+        {% if inbody_delta.masa_muscular is not None %}
+          {% if inbody_delta.masa_muscular > 0 %}
+            <span class="s-delta up">↑ {{ inbody_delta.masa_muscular }} kg</span>
+          {% elif inbody_delta.masa_muscular < 0 %}
+            <span class="s-delta down">↓ {{ inbody_delta.masa_muscular|stringformat:"+.1f" }} kg</span>
+          {% else %}
+            <span class="s-delta neutral">= sin cambio</span>
+          {% endif %}
+        {% endif %}
       </div>
 
       <div class="stat-card s-dark">
-        <span class="s-icon">🏅</span>
-        <p class="s-lbl">Objetivo</p>
-        <p class="s-val s-val-sm">
-          {% if perfil.objetivo %}{{ perfil.objetivo|truncatechars:18 }}{% else %}Sin definir{% endif %}
-        </p>
+        <span class="s-icon">📊</span>
+        <p class="s-lbl">IMC</p>
+        <p class="s-val">{{ inbody.imc|default:"—" }}</p>
+        {% if inbody_delta.imc is not None %}
+          {% if inbody_delta.imc == 0 %}
+            <span class="s-delta neutral">= sin cambio</span>
+          {% elif inbody_delta.imc < 0 %}
+            <span class="s-delta up">↓ {{ inbody_delta.imc|stringformat:"+.1f" }}</span>
+          {% else %}
+            <span class="s-delta down">↑ {{ inbody_delta.imc }}</span>
+          {% endif %}
+        {% endif %}
       </div>
-    </div>
-  </section>
 
-  <!-- IMC BANNER -->
-  <a href="{% url 'masa_corporal' %}" class="imc-banner">
-    <div class="imc-banner-left">
-      <span class="imc-banner-icon">📏</span>
-      <div>
-        <p class="imc-banner-title">Calcular IMC</p>
-        <p class="imc-banner-sub">Conoce tu índice de masa corporal</p>
+      {% if inbody.puntuacion_inbody %}
+      <div class="stat-card s-mint">
+        <span class="s-icon">🏆</span>
+        <p class="s-lbl">Puntuación InBody</p>
+        <p class="s-val">{{ inbody.puntuacion_inbody }}<span class="s-unit">/100</span></p>
       </div>
+      {% endif %}
+
+      {% if inbody.tasa_metabolica_basal %}
+      <div class="stat-card s-dark">
+        <span class="s-icon">⚡</span>
+        <p class="s-lbl">TMB</p>
+        <p class="s-val">{{ inbody.tasa_metabolica_basal }}<span class="s-unit">kcal</span></p>
+      </div>
+      {% endif %}
     </div>
-    <span class="imc-banner-arrow">→</span>
-  </a>
+    {% else %}
+    <div class="empty-inbody">
+      <strong>Aún no tienes un reporte InBody</strong>
+      Tu instructor podrá subir tu hoja de análisis para ver aquí tus métricas.
+    </div>
+    {% endif %}
+  </section>
 
 </div>
 

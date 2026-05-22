@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 
 DEPORTES = [
     ("tenis", "Tenis"),
@@ -65,3 +66,45 @@ class MedicionFisica(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.fecha}"
+
+
+class InbodyReport(models.Model):
+    """Reporte InBody subido por el instructor para un cliente."""
+    cliente = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='inbody_reports',
+        limit_choices_to={'rol': 'cliente'},
+    )
+    instructor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='inbody_reports_subidos',
+        limit_choices_to={'rol': 'instructor'},
+    )
+    archivo = models.FileField(
+        upload_to='inbody/',
+        validators=[FileExtensionValidator(
+            allowed_extensions=['csv', 'xlsx', 'xls']
+        )],
+    )
+    fecha_test = models.DateField(help_text="Fecha del test InBody")
+
+    # Métricas esenciales
+    peso = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, help_text="kg")
+    porcentaje_grasa = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, help_text="%")
+    masa_muscular = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, help_text="kg, musculoesquelética")
+    masa_grasa_kg = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, help_text="kg")
+    imc = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, help_text="kg/m²")
+    puntuacion_inbody = models.IntegerField(null=True, blank=True, help_text="/100")
+    tasa_metabolica_basal = models.IntegerField(null=True, blank=True, help_text="kcal")
+    agua_corporal = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, help_text="L")
+
+    subido_en = models.DateTimeField(auto_now_add=True)
+    actualizado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-fecha_test', '-subido_en']
+
+    def __str__(self):
+        return f"InBody {self.cliente.username} - {self.fecha_test}"

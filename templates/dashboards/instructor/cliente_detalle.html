@@ -573,4 +573,23 @@
 </div>
 
 
+<h3 class="section-title">
+    📋 Hoja InBody
+</h3>
+<p class="section-subtitle">
+    Sube el PDF o imagen del análisis InBody. Las métricas se mostrarán en el dashboard del cliente.
+</p>
+
+<div class="card mt-4 space-y-4">
+    <p class="text-gray-400 text-sm leading-relaxed">
+        El sistema intentará extraer los datos automáticamente. Podrás revisarlos
+        y corregirlos antes de guardar.
+    </p>
+
+    <a href="{% url 'inbody_subir' cliente.id %}" class="btn-reportes">
+        📎 Subir InBody
+    </a>
+</div>
+
+
 {% endblock %}

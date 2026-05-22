@@ -30,8 +30,13 @@
   .cat-chip[data-cat="fuerza"]    { background: var(--peach);  color: #3d1505; }
   .cat-chip[data-cat="funcional"] { background: var(--mint);   color: #0d2a1a; }
   .cat-chip[data-cat="potencia"]  { background: var(--lime);   color: #1a3a05; }
+  .cat-chip[data-cat="casa"]      { background: #C9B8E8;       color: #2a1545; }
   .cat-chip.active { border-color: #fff; }
   .cat-chip .cat-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+  /* En 4+ chips: permitir wrap a 2 filas en pantallas chicas */
+  .cat-row { flex-wrap: wrap; }
+  .cat-row .cat-chip { flex: 1 1 calc(50% - 5px); min-width: 0; }
 
   /* ── Form fields ── */
   label {
@@ -99,6 +104,9 @@
       </div>
       <div class="cat-chip" data-cat="potencia">
         <span class="cat-icon">💥</span>Potencia
+      </div>
+      <div class="cat-chip" data-cat="casa">
+        <span class="cat-icon">🏠</span>En casa
       </div>
     </div>
 

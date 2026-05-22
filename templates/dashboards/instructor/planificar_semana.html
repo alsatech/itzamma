@@ -381,6 +381,36 @@
   }
   .btn-pyr-mod:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
 
+  /* ── Inputs ancho texto (calentamiento/cierre) ── */
+  .sel-input-text {
+    flex: 1; min-width: 50px;
+    padding: 4px 8px; text-align: left;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: #f1f5f9; font-size: 12px; font-weight: 600;
+  }
+  .sel-item--cv { flex-direction: column; align-items: stretch; gap: 6px; }
+  .sel-item--cv .sel-item-top { display: flex; align-items: center; gap: 8px; }
+  .sel-item--cv .cv-fields { display: flex; gap: 6px; padding-left: 2px; }
+  .sel-item--cv .cv-fields .sel-field { flex: 1; }
+  .sel-item--cv .cv-fields .sel-input-text { width: 100%; box-sizing: border-box; }
+
+  /* ── Selector de grupo (cardio) ── */
+  .grupo-select {
+    background: rgba(94,234,212,0.08); border: 1px solid rgba(94,234,212,0.25);
+    color: #5eead4; font-size: 11px; font-weight: 700;
+    padding: 3px 6px; border-radius: 8px; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%235eead4' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 5px center;
+    padding-right: 18px;
+  }
+  .grupo-select option { background: #1c1f2a; color: #f1f5f9; }
+  /* visual del grupo: borde lateral cuando no es individual */
+  .sel-item.in-group {
+    border-left: 3px solid #5eead4;
+    background: rgba(94,234,212,0.04);
+  }
+
   /* Wizard nav — pegada al fondo del modal (flujo normal, sin sticky) */
   .wiz-nav {
     display: flex; gap: 10px;
@@ -720,10 +750,19 @@ function toggleEx(id, nombre) {
   const arr  = dayPlans[activeDay][tipo];
   const idx  = arr.findIndex(x => x.ejercicio_id === id);
   if (idx >= 0) arr.splice(idx, 1);
-  else arr.push({ ejercicio_id: id, nombre, series: 3, reps: '12', pyramid: false, pyramidSets: [] });
+  else arr.push({
+    ejercicio_id: id, nombre,
+    series: 3, reps: '12',
+    pyramid: false, pyramidSets: [],
+    tiempo: '', intensidad: '', velocidad: '',
+    grupo_tipo: 'individual',
+  });
   renderExList();
   renderSelList();
 }
+
+function isCardiovascular(tipo) { return tipo === 'calentamiento' || tipo === 'cierre'; }
+function isCardio(tipo)         { return tipo === 'cardio'; }
 
 // ── Selected list ─────────────────────────────────────────────────
 function renderSelList() {
@@ -737,6 +776,67 @@ function renderSelList() {
   if (cnt) cnt.textContent = arr.length;
 
   document.getElementById('selList').innerHTML = arr.map((item, i) => {
+    // ── Calentamiento / Cierre: tiempo, intensidad, velocidad ──
+    if (isCardiovascular(tipo)) {
+      return `
+        <div class="sel-item sel-item--cv">
+          <div class="sel-item-top">
+            <div class="sel-name">${item.nombre}</div>
+            <button class="btn-rem" type="button" onclick="removeEx('${tipo}',${i})">×</button>
+          </div>
+          <div class="cv-fields">
+            <div class="sel-field">
+              <input class="sel-input-text" type="text" value="${item.tiempo || ''}"
+                     placeholder="10 min"
+                     onchange="updateField('${tipo}',${i},'tiempo',this.value)">
+              <div class="sel-label">tiempo</div>
+            </div>
+            <div class="sel-field">
+              <input class="sel-input-text" type="text" value="${item.intensidad || ''}"
+                     placeholder="media"
+                     onchange="updateField('${tipo}',${i},'intensidad',this.value)">
+              <div class="sel-label">intensidad</div>
+            </div>
+            <div class="sel-field">
+              <input class="sel-input-text" type="text" value="${item.velocidad || ''}"
+                     placeholder="6 km/h"
+                     onchange="updateField('${tipo}',${i},'velocidad',this.value)">
+              <div class="sel-label">velocidad</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ── Cardio: series/reps + selector de grupo ──
+    if (isCardio(tipo)) {
+      const grupo = item.grupo_tipo || 'individual';
+      const inGroupClass = grupo !== 'individual' ? ' in-group' : '';
+      return `
+        <div class="sel-item${inGroupClass}">
+          <div class="sel-name">${item.nombre}</div>
+          <div class="sel-field">
+            <input class="sel-input" type="number" min="1" max="20" value="${item.series}"
+                   onchange="updateField('${tipo}',${i},'series',this.value)">
+            <div class="sel-label">series</div>
+          </div>
+          <div class="sel-field">
+            <input class="sel-input" type="text" value="${item.reps}"
+                   onchange="updateField('${tipo}',${i},'reps',this.value)">
+            <div class="sel-label">reps</div>
+          </div>
+          <select class="grupo-select" title="Tipo de set"
+                  onchange="updateField('${tipo}',${i},'grupo_tipo',this.value)">
+            <option value="individual"  ${grupo === 'individual'  ? 'selected' : ''}>Solo</option>
+            <option value="biserie"     ${grupo === 'biserie'     ? 'selected' : ''}>Biserie</option>
+            <option value="triserie"    ${grupo === 'triserie'    ? 'selected' : ''}>Triserie</option>
+            <option value="superserie"  ${grupo === 'superserie'  ? 'selected' : ''}>Superserie</option>
+            <option value="circuito"    ${grupo === 'circuito'    ? 'selected' : ''}>Circuito</option>
+          </select>
+          <button class="btn-rem" type="button" onclick="removeEx('${tipo}',${i})">×</button>
+        </div>`;
+    }
+
+    // ── Medular: pirámide + series/reps ──
     if (item.pyramid) {
       const setsHtml = item.pyramidSets.map((r, si) => `
         <div class="pyr-set">
@@ -894,6 +994,10 @@ async function submitPlan() {
         series:       e.pyramid ? e.pyramidSets.length : e.series,
         repeticiones: e.pyramid ? e.pyramidSets.join('/') : e.reps,
         orden:        i,
+        tiempo:       e.tiempo || '',
+        intensidad:   e.intensidad || '',
+        velocidad:    e.velocidad || '',
+        grupo_tipo:   e.grupo_tipo || 'individual',
       })),
     }));
   });

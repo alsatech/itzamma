@@ -296,10 +296,23 @@ def planificar_semana(request):
                 sec_obj = RutinaSeccion.objects.create(
                     dia=dia_obj, tipo=sec_info["tipo"], orden=sec_ord
                 )
+                # Agrupar ejercicios consecutivos con mismo grupo_tipo no-individual
+                grupo_contador = 0
+                prev_grupo = None
                 for ej_ord, ej_info in enumerate(sec_info.get("ejercicios", [])):
                     ejercicio = get_object_or_404(
                         Ejercicio, id=ej_info["ejercicio_id"], instructor=request.user
                     )
+                    grupo_tipo = ej_info.get("grupo_tipo", "individual") or "individual"
+                    if grupo_tipo == "individual":
+                        grupo_indice = 0
+                        prev_grupo = None
+                    else:
+                        if grupo_tipo != prev_grupo:
+                            grupo_contador += 1
+                            prev_grupo = grupo_tipo
+                        grupo_indice = grupo_contador
+
                     RutinaEjercicio.objects.create(
                         seccion=sec_obj,
                         ejercicio=ejercicio,
@@ -307,6 +320,11 @@ def planificar_semana(request):
                         repeticiones=str(ej_info.get("repeticiones", "12")),
                         descanso=60,
                         orden=ej_ord,
+                        tiempo=ej_info.get("tiempo", "") or "",
+                        intensidad=ej_info.get("intensidad", "") or "",
+                        velocidad=ej_info.get("velocidad", "") or "",
+                        grupo_tipo=grupo_tipo,
+                        grupo_indice=grupo_indice,
                     )
 
             fecha = week_start + timedelta(days=_DAY_ORDER[dia_key])

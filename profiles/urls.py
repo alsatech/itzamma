@@ -17,5 +17,7 @@ urlpatterns = [
     path("graficas/", views.graficas, name="graficas"),
     path("instructor/cliente/<int:cliente_id>/reportes/", views.reportes_cliente, name="reportes_cliente"),
     path("instructor/cliente/<int:cliente_id>/reportes/crear/", views.crear_reporte, name="crear_reporte"),
+    path("instructor/cliente/<int:cliente_id>/inbody/subir/", views.inbody_subir, name="inbody_subir"),
+    path("instructor/inbody/<int:reporte_id>/revisar/", views.inbody_revisar, name="inbody_revisar"),
     path("imc/", views.masa_corporal, name="masa_corporal"),
 ]

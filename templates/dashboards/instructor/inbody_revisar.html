@@ -1,0 +1,168 @@
+{% extends "base_app.html" %}
+{% block title %}Revisar InBody{% endblock %}
+{% block header_title %}Revisar InBody{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 110px; }
+  .page-title {
+    font-size: 26px; font-weight: 900; color: #fff;
+    letter-spacing: -0.5px; margin: 20px 0 8px;
+  }
+  .cliente-tag {
+    display: inline-block; font-size: 12px; font-weight: 700;
+    color: var(--mint); background: rgba(168,213,194,0.12);
+    border: 1px solid rgba(168,213,194,0.25);
+    padding: 4px 12px; border-radius: 99px; margin-bottom: 18px;
+  }
+
+  .archivo-link {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 12px 14px; margin-bottom: 18px;
+    color: var(--mint); font-size: 13px; font-weight: 600;
+    text-decoration: none;
+  }
+  .archivo-link:hover { border-color: var(--mint); }
+
+  .field { margin-bottom: 14px; }
+  label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: #9CA3AF; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .input-text {
+    width: 100%; box-sizing: border-box;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; color: #f1f5f9;
+    font-size: 15px; padding: 12px 14px;
+    font-family: inherit; outline: none;
+  }
+  .input-text:focus { border-color: var(--mint); }
+  .input-text.detected {
+    border-color: rgba(168,213,194,0.4);
+    background: rgba(168,213,194,0.04);
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .section-label {
+    font-size: 11px; font-weight: 700; color: var(--mint);
+    text-transform: uppercase; letter-spacing: .07em;
+    margin: 22px 0 10px;
+  }
+
+  .messages-box {
+    background: rgba(168,213,194,0.08); border: 1px solid rgba(168,213,194,0.25);
+    border-radius: 12px; padding: 10px 14px; margin-bottom: 14px;
+    color: var(--mint); font-size: 13px;
+  }
+  .messages-box.error {
+    background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.25); color: #fca5a5;
+  }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 22px; }
+  .btn-cancel {
+    flex: 1; padding: 16px; border-radius: 16px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: #9CA3AF; font-size: 14px; font-weight: 700;
+    text-decoration: none; text-align: center;
+  }
+  .btn-submit {
+    flex: 2; padding: 16px; border-radius: 16px;
+    background: var(--mint); border: none;
+    font-size: 15px; font-weight: 800; color: #0d2a1a;
+    cursor: pointer;
+  }
+</style>
+
+<div class="page">
+  <h1 class="page-title">Revisar datos</h1>
+  <span class="cliente-tag">{{ cliente.get_full_name|default:cliente.username }}</span>
+
+  <a class="archivo-link" href="{{ reporte.archivo.url }}" target="_blank">
+    📎 Ver archivo subido
+  </a>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="messages-box {% if m.tags == 'error' %}error{% endif %}">{{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="field">
+      <label>Fecha del test</label>
+      <input class="input-text {% if reporte.fecha_test %}detected{% endif %}"
+             type="date" name="fecha_test"
+             value="{{ reporte.fecha_test|date:'Y-m-d' }}" required>
+    </div>
+
+    <p class="section-label">Métricas principales</p>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Peso (kg)</label>
+        <input class="input-text {% if reporte.peso %}detected{% endif %}"
+               type="text" name="peso" inputmode="decimal"
+               value="{{ reporte.peso|default_if_none:'' }}">
+      </div>
+      <div class="field">
+        <label>% Grasa</label>
+        <input class="input-text {% if reporte.porcentaje_grasa %}detected{% endif %}"
+               type="text" name="porcentaje_grasa" inputmode="decimal"
+               value="{{ reporte.porcentaje_grasa|default_if_none:'' }}">
+      </div>
+      <div class="field">
+        <label>Masa muscular (kg)</label>
+        <input class="input-text {% if reporte.masa_muscular %}detected{% endif %}"
+               type="text" name="masa_muscular" inputmode="decimal"
+               value="{{ reporte.masa_muscular|default_if_none:'' }}">
+      </div>
+      <div class="field">
+        <label>Masa grasa (kg)</label>
+        <input class="input-text {% if reporte.masa_grasa_kg %}detected{% endif %}"
+               type="text" name="masa_grasa_kg" inputmode="decimal"
+               value="{{ reporte.masa_grasa_kg|default_if_none:'' }}">
+      </div>
+      <div class="field">
+        <label>IMC</label>
+        <input class="input-text {% if reporte.imc %}detected{% endif %}"
+               type="text" name="imc" inputmode="decimal"
+               value="{{ reporte.imc|default_if_none:'' }}">
+      </div>
+      <div class="field">
+        <label>Puntuación InBody</label>
+        <input class="input-text {% if reporte.puntuacion_inbody %}detected{% endif %}"
+               type="text" name="puntuacion_inbody" inputmode="numeric"
+               value="{{ reporte.puntuacion_inbody|default_if_none:'' }}">
+      </div>
+      <div class="field">
+        <label>TMB (kcal)</label>
+        <input class="input-text {% if reporte.tasa_metabolica_basal %}detected{% endif %}"
+               type="text" name="tasa_metabolica_basal" inputmode="numeric"
+               value="{{ reporte.tasa_metabolica_basal|default_if_none:'' }}">
+      </div>
+      <div class="field">
+        <label>Agua corporal (L)</label>
+        <input class="input-text {% if reporte.agua_corporal %}detected{% endif %}"
+               type="text" name="agua_corporal" inputmode="decimal"
+               value="{{ reporte.agua_corporal|default_if_none:'' }}">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <a class="btn-cancel" href="{% url 'instructor_cliente_detalle' cliente.id %}">Cancelar</a>
+      <button type="submit" class="btn-submit">Guardar reporte</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

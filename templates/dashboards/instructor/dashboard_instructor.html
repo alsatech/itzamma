@@ -271,27 +271,6 @@
     </a>
   </section>
 
-  <!-- RUTINAS -->
-  <section class="section" id="rutinas">
-    <div class="section-header">
-      <p class="section-title">Tus rutinas</p>
-      <a href="{% url 'rutina_list' %}" class="see-all">Ver todo ↗</a>
-    </div>
-
-    {% for r in rutinas|slice:":4" %}
-    <div class="rutina-row">
-      <div class="rutina-thumb">{{ r.emoji }}</div>
-      <div class="rutina-body">
-        <p class="rutina-name">{{ r.nombre }}</p>
-        <p class="rutina-desc">{{ r.descripcion|default:"Sin descripción"|truncatechars:38 }}</p>
-      </div>
-      <a href="{% url 'rutina_assign' r.id %}" class="btn-assign">Asignar</a>
-    </div>
-    {% empty %}
-    <div class="empty-state">Sin rutinas creadas aún</div>
-    {% endfor %}
-  </section>
-
   <!-- CTA BUTTONS -->
   <div class="cta-grid">
     <a href="{% url 'ejercicio_create' %}" class="btn-cta btn-cta-mint">

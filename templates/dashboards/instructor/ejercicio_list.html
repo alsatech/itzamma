@@ -39,6 +39,7 @@
   .filter-chip.f-fuerza.active   { background: var(--peach); }
   .filter-chip.f-funcional.active { background: var(--mint); }
   .filter-chip.f-potencia.active { background: var(--lime); }
+  .filter-chip.f-casa.active     { background: #C9B8E8; }
 
   /* ── Exercise card ── */
   .ej-card {
@@ -55,6 +56,7 @@
   .ej-icon.fuerza    { background: var(--peach); }
   .ej-icon.funcional { background: var(--mint); }
   .ej-icon.potencia  { background: var(--lime); }
+  .ej-icon.casa      { background: #C9B8E8; }
 
   .ej-body { flex: 1; min-width: 0; }
   .ej-name {
@@ -70,6 +72,7 @@
   .badge-fuerza    { background: var(--peach); color: #3d1505; }
   .badge-funcional { background: var(--mint);  color: #0d2a1a; }
   .badge-potencia  { background: var(--lime);  color: #1a3a05; }
+  .badge-casa      { background: #C9B8E8;      color: #2a1545; }
 
   .ej-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
   .btn-delete {
@@ -105,13 +108,15 @@
        class="filter-chip f-funcional {% if cat_activa == 'funcional' %}active{% endif %}">⚡ Funcional</a>
     <a href="{% url 'ejercicio_list' %}?cat=potencia"
        class="filter-chip f-potencia {% if cat_activa == 'potencia' %}active{% endif %}">💥 Potencia</a>
+    <a href="{% url 'ejercicio_list' %}?cat=casa"
+       class="filter-chip f-casa {% if cat_activa == 'casa' %}active{% endif %}">🏠 En casa</a>
   </div>
 
   <!-- Lista -->
   {% for e in ejercicios %}
   <div class="ej-card">
     <div class="ej-icon {{ e.categoria }}">
-      {% if e.categoria == 'fuerza' %}🏋️{% elif e.categoria == 'funcional' %}⚡{% else %}💥{% endif %}
+      {% if e.categoria == 'fuerza' %}🏋️{% elif e.categoria == 'funcional' %}⚡{% elif e.categoria == 'casa' %}🏠{% else %}💥{% endif %}
     </div>
     <div class="ej-body">
       <p class="ej-name">{{ e.nombre }}</p>

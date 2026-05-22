@@ -1,0 +1,113 @@
+{% extends "base_app.html" %}
+{% block title %}Subir InBody{% endblock %}
+{% block header_title %}Subir InBody{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --mint:   #A8D5C2;
+    --peach:  #F0C4A8;
+    --bg-card:#1C1F2A;
+    --border: rgba(255,255,255,0.07);
+  }
+  .page { max-width: 480px; margin: 0 auto; padding: 0 18px 110px; }
+  .page-title {
+    font-size: 26px; font-weight: 900; color: #fff;
+    letter-spacing: -0.5px; margin: 20px 0 8px;
+  }
+  .cliente-tag {
+    display: inline-block; font-size: 12px; font-weight: 700;
+    color: var(--mint); background: rgba(168,213,194,0.12);
+    border: 1px solid rgba(168,213,194,0.25);
+    padding: 4px 12px; border-radius: 99px; margin-bottom: 24px;
+  }
+
+  .info-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 14px 16px; margin-bottom: 18px;
+    color: #9CA3AF; font-size: 13px; line-height: 1.5;
+  }
+  .info-card strong { color: var(--mint); }
+
+  .drop-zone {
+    background: var(--bg-card); border: 2px dashed rgba(168,213,194,0.35);
+    border-radius: 18px; padding: 36px 18px;
+    text-align: center; cursor: pointer; transition: border-color .15s;
+    margin-bottom: 18px;
+  }
+  .drop-zone:hover { border-color: var(--mint); }
+  .drop-icon { font-size: 42px; margin-bottom: 8px; }
+  .drop-text { color: #f1f5f9; font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+  .drop-sub  { color: #6B7280; font-size: 12px; margin: 0; }
+  .file-input { display: none; }
+  .file-name {
+    display: none; margin-top: 12px; font-size: 13px;
+    color: var(--mint); font-weight: 600;
+  }
+  .file-name.show { display: block; }
+
+  .messages-box {
+    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 12px; padding: 10px 14px; margin-bottom: 14px;
+    color: #fca5a5; font-size: 13px;
+  }
+
+  .btn-submit {
+    width: 100%; padding: 18px; border-radius: 18px;
+    background: var(--mint); border: none;
+    font-size: 16px; font-weight: 800; color: #0d2a1a;
+    cursor: pointer;
+  }
+  .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+
+<div class="page">
+  <h1 class="page-title">Subir InBody</h1>
+  <span class="cliente-tag">{{ cliente.get_full_name|default:cliente.username }}</span>
+
+  <div class="info-card">
+    Sube el archivo <strong>CSV</strong> o <strong>Excel</strong> exportado desde la app InBody.
+    El sistema rellenará las métricas automáticamente; podrás revisarlas y corregirlas antes de guardar.
+  </div>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="messages-box">{{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label class="drop-zone" for="archivo-input">
+      <div class="drop-icon">📄</div>
+      <p class="drop-text">Selecciona archivo</p>
+      <p class="drop-sub">CSV o XLSX · Max 10 MB</p>
+      <div class="file-name" id="file-name"></div>
+    </label>
+    <input class="file-input" type="file" name="archivo" id="archivo-input"
+           accept=".csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required
+           onchange="mostrarNombre(this)">
+
+    <button type="submit" class="btn-submit" id="btn-submit" disabled>
+      Subir y analizar
+    </button>
+  </form>
+</div>
+
+<script>
+function mostrarNombre(input) {
+  const file = input.files[0];
+  const label = document.getElementById('file-name');
+  const btn = document.getElementById('btn-submit');
+  if (file) {
+    label.textContent = '✓ ' + file.name;
+    label.classList.add('show');
+    btn.disabled = false;
+  } else {
+    label.classList.remove('show');
+    btn.disabled = true;
+  }
+}
+</script>
+{% endblock %}

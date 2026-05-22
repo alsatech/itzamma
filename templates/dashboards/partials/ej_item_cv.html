@@ -1,0 +1,38 @@
+<div class="ej-item">
+  <p class="ej-name">{{ re.ejercicio.nombre }}</p>
+  <div class="ej-metrics ej-metrics--3">
+    <div class="metric">
+      <div class="metric-text">{{ re.tiempo|default:"—" }}</div>
+      <div class="metric-lbl">Tiempo</div>
+    </div>
+    <div class="metric">
+      <div class="metric-text">{{ re.intensidad|default:"—" }}</div>
+      <div class="metric-lbl">Intensidad</div>
+    </div>
+    <div class="metric">
+      <div class="metric-text">{{ re.velocidad|default:"—" }}</div>
+      <div class="metric-lbl">Velocidad</div>
+    </div>
+  </div>
+  {% for media in re.ejercicio.media.all %}
+    {% if media.tipo == 'video' %}
+      {% with yt_id=media.get_youtube_id %}
+      {% if yt_id %}
+      <a class="video-thumb"
+         href="https://www.youtube.com/watch?v={{ yt_id }}"
+         target="_blank" rel="noopener"
+         onclick="event.stopPropagation()">
+        <img src="https://img.youtube.com/vi/{{ yt_id }}/hqdefault.jpg" alt="Ver video">
+        <div class="video-play-btn">
+          <div class="play-circle">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+              <polygon points="5,3 19,12 5,21"/>
+            </svg>
+          </div>
+        </div>
+      </a>
+      {% endif %}
+      {% endwith %}
+    {% endif %}
+  {% endfor %}
+</div>

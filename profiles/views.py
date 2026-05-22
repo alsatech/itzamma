@@ -12,7 +12,8 @@ from workouts.models import (
     RutinaAsignacion, RutinaCompletada, Rutina, ProgressReport,
     Ejercicio, MaximoEjercicio,
 )
-from .models import UserProfile, MedicionFisica
+from .models import UserProfile, MedicionFisica, InbodyReport
+from .inbody_parser import parse_inbody
 
 
 def is_instructor(user):
@@ -82,6 +83,27 @@ def dashboard_cliente(request):
     completadas_count = completadas_semana.count()
     progreso = int((completadas_count / total_semana) * 100) if total_semana > 0 else 0
 
+    # ── InBody: último reporte + anterior (para deltas) ─────────────
+    inbody_qs = InbodyReport.objects.filter(cliente=user).order_by('-fecha_test', '-subido_en')
+    inbody = inbody_qs.first()
+    inbody_prev = inbody_qs[1] if inbody_qs.count() > 1 else None
+
+    inbody_delta = None
+    inbody_dias_desde = None
+    if inbody:
+        inbody_dias_desde = (date.today() - inbody.fecha_test).days
+        if inbody_prev:
+            def _delta(actual, prev):
+                if actual is None or prev is None:
+                    return None
+                return round(float(actual) - float(prev), 1)
+            inbody_delta = {
+                'peso':             _delta(inbody.peso,             inbody_prev.peso),
+                'porcentaje_grasa': _delta(inbody.porcentaje_grasa, inbody_prev.porcentaje_grasa),
+                'masa_muscular':    _delta(inbody.masa_muscular,    inbody_prev.masa_muscular),
+                'imc':              _delta(inbody.imc,              inbody_prev.imc),
+            }
+
     return render(request, "dashboards/cliente/dashboard_cliente.html", {
         "perfil": perfil,
         "asignaciones": asignaciones,
@@ -90,6 +112,9 @@ def dashboard_cliente(request):
         "total_semana": total_semana,
         "progreso": progreso,
         "historial": completadas.order_by("-completed_at")[:5],
+        "inbody": inbody,
+        "inbody_delta": inbody_delta,
+        "inbody_dias_desde": inbody_dias_desde,
     })
 
 
@@ -362,4 +387,98 @@ def masa_corporal(request):
     perfil = UserProfile.objects.filter(user=request.user).first()
     return render(request, "dashboards/cliente/masa_corporal.html", {
         "perfil": perfil,
+    })
+
+
+# ─── InBody: upload + revisión (instructor) ──────────────────────────────
+
+_INBODY_CAMPOS = [
+    'peso', 'porcentaje_grasa', 'masa_muscular', 'masa_grasa_kg',
+    'imc', 'puntuacion_inbody', 'tasa_metabolica_basal', 'agua_corporal',
+]
+
+
+@login_required
+@user_passes_test(is_instructor)
+def inbody_subir(request, cliente_id):
+    """Paso 1: subir archivo + parsear. Crea el reporte y redirige a revisión."""
+    cliente = get_object_or_404(CustomUser, id=cliente_id, rol="cliente")
+    if not InstructorClient.objects.filter(instructor=request.user, cliente=cliente).exists():
+        messages.error(request, "No tienes acceso a este cliente.")
+        return redirect("instructor_dashboard")
+
+    _EXTS_OK = ('.csv', '.xlsx', '.xls')
+    if request.method == "POST":
+        archivo = request.FILES.get("archivo")
+        if not archivo:
+            messages.error(request, "Selecciona un archivo CSV o Excel exportado desde la app InBody.")
+        elif not archivo.name.lower().endswith(_EXTS_OK):
+            messages.error(request, "El archivo debe ser CSV o Excel (.xlsx, .xls).")
+        else:
+            reporte = InbodyReport.objects.create(
+                cliente=cliente,
+                instructor=request.user,
+                archivo=archivo,
+                fecha_test=date.today(),  # placeholder; se corrige en el form
+            )
+            datos = parse_inbody(reporte.archivo.path)
+
+            if 'fecha_test' in datos:
+                try:
+                    reporte.fecha_test = date.fromisoformat(datos['fecha_test'])
+                except ValueError:
+                    pass
+            for campo in _INBODY_CAMPOS:
+                if campo in datos:
+                    setattr(reporte, campo, datos[campo])
+            reporte.save()
+
+            detectados = sum(1 for c in _INBODY_CAMPOS if datos.get(c) is not None)
+            if detectados:
+                messages.success(request, f"Se detectaron {detectados} campos. Revisa y corrige antes de guardar.")
+            else:
+                messages.info(request, "No se pudieron extraer datos automáticamente. Captúralos manualmente.")
+            return redirect("inbody_revisar", reporte_id=reporte.id)
+
+    return render(request, "dashboards/instructor/inbody_subir.html", {
+        "cliente": cliente,
+    })
+
+
+@login_required
+@user_passes_test(is_instructor)
+def inbody_revisar(request, reporte_id):
+    """Paso 2: revisar y guardar valores detectados/corregidos."""
+    reporte = get_object_or_404(InbodyReport, id=reporte_id, instructor=request.user)
+
+    if request.method == "POST":
+        # fecha_test
+        fecha_str = request.POST.get("fecha_test", "").strip()
+        try:
+            reporte.fecha_test = date.fromisoformat(fecha_str)
+        except (ValueError, TypeError):
+            messages.error(request, "Fecha del test inválida.")
+            return redirect("inbody_revisar", reporte_id=reporte.id)
+
+        # Campos numéricos
+        for campo in _INBODY_CAMPOS:
+            raw = (request.POST.get(campo) or "").strip().replace(',', '.')
+            if not raw:
+                setattr(reporte, campo, None)
+                continue
+            try:
+                val = float(raw)
+                if campo in ('puntuacion_inbody', 'tasa_metabolica_basal'):
+                    val = int(val)
+                setattr(reporte, campo, val)
+            except ValueError:
+                setattr(reporte, campo, None)
+
+        reporte.save()
+        messages.success(request, "Reporte InBody guardado.")
+        return redirect("instructor_cliente_detalle", cliente_id=reporte.cliente.id)
+
+    return render(request, "dashboards/instructor/inbody_revisar.html", {
+        "reporte": reporte,
+        "cliente": reporte.cliente,
     })

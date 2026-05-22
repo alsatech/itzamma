@@ -232,8 +232,8 @@ async function showSuggestions(secId, q) {
 function renderSuggestions(secId, items) {
   const box = document.getElementById(`${secId}-suggestions`);
   if (!items.length) { box.style.display = 'none'; return; }
-  const badgeColors = { fuerza: '#F0C4A8', funcional: '#A8D5C2', potencia: '#C8E8A0' };
-  const badgeText   = { fuerza: '#3d1505',  funcional: '#0d2a1a',  potencia: '#1a3a05' };
+  const badgeColors = { fuerza: '#F0C4A8', funcional: '#A8D5C2', potencia: '#C8E8A0', casa: '#C9B8E8' };
+  const badgeText   = { fuerza: '#3d1505',  funcional: '#0d2a1a',  potencia: '#1a3a05', casa: '#2a1545' };
   box.innerHTML = items.slice(0, 8).map(e => `
     <div class="ej-suggestion-item"
          onclick="addEjercicio('${secId}', ${e.id}, '${e.nombre.replace(/'/g,"\\'")}', '${e.categoria_display}')">

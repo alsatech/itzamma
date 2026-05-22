@@ -44,6 +44,7 @@ class Ejercicio(models.Model):
         ("fuerza",    "Fuerza"),
         ("funcional", "Funcional"),
         ("potencia",  "Potencia"),
+        ("casa",      "Ejercicios en casa"),
     ]
 
     instructor = models.ForeignKey(
@@ -153,6 +154,14 @@ class RutinaSeccion(models.Model):
 
 
 class RutinaEjercicio(models.Model):
+    GRUPO_TIPOS = [
+        ('individual', 'Individual'),
+        ('biserie',    'Biserie'),
+        ('triserie',   'Triserie'),
+        ('superserie', 'Superserie'),
+        ('circuito',   'Circuito'),
+    ]
+
     seccion = models.ForeignKey(RutinaSeccion, on_delete=models.CASCADE, related_name='ejercicios')
     ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE)
     series = models.IntegerField(default=3)
@@ -160,6 +169,15 @@ class RutinaEjercicio(models.Model):
     descanso = models.IntegerField(default=60)  # segundos
     porcentaje = models.IntegerField(null=True, blank=True)
     orden = models.IntegerField(default=0)
+
+    # Calentamiento y cierre
+    tiempo = models.CharField(max_length=50, blank=True, default="")
+    intensidad = models.CharField(max_length=50, blank=True, default="")
+    velocidad = models.CharField(max_length=50, blank=True, default="")
+
+    # Agrupación (cardio): ejercicios con mismo grupo_indice (>0) van juntos
+    grupo_tipo = models.CharField(max_length=20, choices=GRUPO_TIPOS, default='individual')
+    grupo_indice = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['orden']
