@@ -134,16 +134,29 @@ def instructor_cliente_detalle(request, cliente_id):
 
     dia_nombres  = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
     dia_abrevs   = ["Lun",   "Mar",    "Mié",        "Jue",    "Vie",     "Sáb",    "Dom"]
+    dia_keys     = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
 
     semana = []
     for i in range(7):
-        fecha = week_start + timedelta(days=i)
-        cal   = cal_por_fecha.get(fecha)
+        fecha   = week_start + timedelta(days=i)
+        cal     = cal_por_fecha.get(fecha)
+        dia_key = dia_keys[i]
+
+        rutina_dia = None
+        if cal:
+            rutina_dia = (
+                cal.rutina.dias
+                .filter(dia=dia_key)
+                .prefetch_related("secciones__ejercicios__ejercicio")
+                .first()
+            )
+
         semana.append({
             "fecha":      fecha,
             "dia":        dia_nombres[i],
             "dia_abbr":   dia_abrevs[i],
             "calendario": cal,
+            "rutina_dia": rutina_dia,
             "completada": (cal.rutina_id, fecha) in completadas_set if cal else False,
             "es_hoy":     fecha == today,
             "pasado":     fecha < today,

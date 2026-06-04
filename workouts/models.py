@@ -41,10 +41,11 @@ DEPORTE_EMOJIS = {
 
 class Ejercicio(models.Model):
     CATEGORIAS = [
-        ("fuerza",    "Fuerza"),
-        ("funcional", "Funcional"),
-        ("potencia",  "Potencia"),
-        ("casa",      "Ejercicios en casa"),
+        ("fuerza",         "Fuerza"),
+        ("funcional",      "Funcional"),
+        ("potencia",       "Potencia"),
+        ("casa",           "Ejercicios en casa"),
+        ("estiramientos",  "Estiramientos"),
     ]
 
     instructor = models.ForeignKey(

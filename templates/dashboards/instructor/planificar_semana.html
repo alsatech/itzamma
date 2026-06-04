@@ -510,7 +510,7 @@
         <div class="day-name">{{ day_label }}</div>
         <div class="day-pills" id="pills-{{ day_key }}">
           <span class="day-pill" id="pill-cal-{{ day_key }}">Cal</span>
-          <span class="day-pill" id="pill-car-{{ day_key }}">Cardio</span>
+          <span class="day-pill" id="pill-car-{{ day_key }}">Cal.E</span>
           <span class="day-pill" id="pill-med-{{ day_key }}">Med</span>
           <span class="day-pill" id="pill-cie-{{ day_key }}">Cierre</span>
         </div>
@@ -581,7 +581,7 @@ const EJERCICIOS = {{ ejercicios_json|safe }};
 
 const SECTIONS = [
   { tipo: 'calentamiento', label: 'Calentamiento',   pillId: 'cal' },
-  { tipo: 'cardio',        label: 'Cardio',           pillId: 'car' },
+  { tipo: 'cardio',        label: 'Calentamiento específico', pillId: 'car' },
   { tipo: 'medular',       label: 'Medular',          pillId: 'med' },
   { tipo: 'cierre',        label: 'Cierre',           pillId: 'cie' },
 ];

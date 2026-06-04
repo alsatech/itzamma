@@ -420,6 +420,38 @@
         display: flex; align-items: center; justify-content: center;
     }
 
+    /* ── EXERCISES PANEL ── */
+    .ex-panel {
+        display: none;
+        margin-top: 8px;
+        padding: 10px 12px;
+        background: rgba(0,0,0,0.25);
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .ex-panel.open { display: block; }
+    .ex-section-title {
+        font-size: 10px; font-weight: 800; letter-spacing: .07em;
+        text-transform: uppercase; color: #9CA3AF;
+        margin: 8px 0 4px;
+    }
+    .ex-section-title:first-child { margin-top: 0; }
+    .ex-row {
+        display: flex; align-items: center; gap: 8px;
+        padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .ex-row:last-child { border-bottom: none; }
+    .ex-row-name { flex: 1; font-size: 13px; font-weight: 600; color: #e2e8f0; }
+    .ex-row-meta { font-size: 11px; color: #9CA3AF; white-space: nowrap; }
+    .btn-toggle-ex {
+        background: none; border: none; cursor: pointer;
+        color: #9CA3AF; font-size: 12px; padding: 0 4px;
+        margin-left: auto; flex-shrink: 0;
+        transition: color .15s;
+    }
+    .btn-toggle-ex:hover { color: #e2e8f0; }
+    .cal-row { cursor: pointer; }
+
 </style>
 
 <div class="max-w-md mx-auto pb-28 text-white">
@@ -477,8 +509,10 @@
 
 <div class="week-calendar">
 {% for dia in semana %}
+<div style="margin-bottom:4px;">
 <div class="cal-row {% if dia.es_hoy %}is-today{% endif %} {% if dia.pasado %}is-past{% endif %} {% if dia.calendario %}has-routine{% endif %}"
-     data-day="{{ forloop.counter0 }}">
+     data-day="{{ forloop.counter0 }}"
+     {% if dia.rutina_dia %}onclick="toggleEx('panel-{{ forloop.counter0 }}')"{% endif %}>
 
     <div class="cal-badge">
         <div class="cal-abbr">{{ dia.dia_abbr }}</div>
@@ -496,6 +530,9 @@
     </div>
 
     <div class="cal-status">
+        {% if dia.rutina_dia %}
+            <button class="btn-toggle-ex" id="btn-{{ forloop.counter0 }}" type="button">▼</button>
+        {% endif %}
         {% if dia.calendario %}
             {% if dia.completada %}
                 <div class="status-done">✓</div>
@@ -510,8 +547,45 @@
     </div>
 
 </div>
+
+{% if dia.rutina_dia %}
+<div class="ex-panel" id="panel-{{ forloop.counter0 }}">
+    {% for seccion in dia.rutina_dia.secciones.all %}
+        {% if seccion.ejercicios.all %}
+        <div class="ex-section-title">
+            {% if seccion.tipo == 'calentamiento' %}Calentamiento
+            {% elif seccion.tipo == 'cardio' %}Calentamiento específico
+            {% elif seccion.tipo == 'medular' %}Medular
+            {% elif seccion.tipo == 'cierre' %}Cierre
+            {% else %}{{ seccion.get_tipo_display }}{% endif %}
+        </div>
+        {% for ej in seccion.ejercicios.all %}
+        <div class="ex-row">
+            <div class="ex-row-name">{{ ej.ejercicio.nombre }}</div>
+            <div class="ex-row-meta">
+                {% if ej.tiempo %}{{ ej.tiempo }}{% else %}{{ ej.series }}×{{ ej.repeticiones }}{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+</div>
 {% endfor %}
 </div>
+
+<script>
+function toggleEx(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    const idx = panelId.split('-')[1];
+    const btn = document.getElementById('btn-' + idx);
+    const open = panel.classList.toggle('open');
+    if (btn) btn.textContent = open ? '▲' : '▼';
+}
+</script>
 
 
 <!-- RUTINAS COMPLETADAS -->
